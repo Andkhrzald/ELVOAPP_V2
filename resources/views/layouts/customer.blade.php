@@ -9,6 +9,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;800&display=swap" rel="stylesheet">
 
     <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: #0b0b0b;
@@ -33,11 +37,10 @@
             </a>
 
             <div class="hidden md:flex space-x-12 text-[10px] font-bold tracking-[0.3em] uppercase text-gray-400">
-                <a href="produk" class="hover:text-white transition duration-300">Shop</a>
-                <a href="#" class="hover:text-white transition duration-300">Collections</a>
+                <a href="#produk" class="hover:text-white transition duration-300">Shop</a>
+                <a href="#collection" class="hover:text-white transition duration-300">Collections</a>
                 <a href="#" class="hover:text-white transition duration-300">About</a>
             </div>
-
             <div class="flex items-center space-x-6 text-gray-400">
                 <button class="hover:text-white transition">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
