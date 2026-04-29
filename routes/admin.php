@@ -1,10 +1,11 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\DashboardController;
 
-// ADMIN
-Route::prefix('admin')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('admin.dashboard');
-});
+// Tidak perlu Route::prefix lagi karena sudah diatur di bootstrap/app.php
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+// Contoh rute lain kedepannya:
+// URL-nya otomatis akan menjadi: /admin/products
+// Route::get('/products', [ProductController::class, 'index'])->name('products');

@@ -11,13 +11,16 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
         then: function () {
+            // Perbaikan di sini: Tambahkan prefix 'admin' dan name 'admin.'
             Route::middleware('web')
+                ->prefix('admin') // URL otomatis jadi /admin/...
+                ->name('admin.')   // Nama route otomatis jadi admin.nama_route
                 ->group(base_path('routes/admin.php'));
         },
     )
-    ->withMiddleware(function (Middleware $middleware): void {
+    ->withMiddleware(function (Middleware $middleware) {
         //
     })
-    ->withExceptions(function (Exceptions $exceptions): void {
+    ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();
