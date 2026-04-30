@@ -103,7 +103,7 @@
     </div>
 </section>
 <!-- Section Shop / Collection -->
-<section id="shop" class="py-24 bg-black text-white">
+<section id="shop" class="py-24 text-white">
     <div class="container mx-auto px-8">
 
         <!-- Header Section -->

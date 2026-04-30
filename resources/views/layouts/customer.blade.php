@@ -136,6 +136,45 @@
         </div>
     </div>
 
+    <!-- User Overlay (Full Screen) -->
+    <div id="user-overlay" class="fixed inset-0 bg-black/95 backdrop-blur-xl z-[200] hidden opacity-0 transition-all duration-500 flex flex-col items-center justify-center px-6">
+        <!-- Close Button -->
+        <button id="close-user" class="absolute top-10 right-10 text-gray-400 hover:text-white transition-all transform hover:rotate-90">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 6 6 18" />
+                <path d="m6 6 12 12" />
+            </svg>
+        </button>
+
+        <div class="w-full max-w-md transform -translate-y-10 transition-all duration-500 text-center" id="user-content">
+            <!-- Header Estetik -->
+            <p class="text-[10px] font-black uppercase tracking-[0.5em] text-gray-500 mb-10">Account Access</p>
+
+            <!-- Menu Utama -->
+            <div class="flex flex-col gap-8">
+                <a href="#" class="group relative inline-block">
+                    <span class="text-5xl md:text-7xl font-black italic uppercase tracking-tighter text-white transition-all group-hover:italic group-hover:tracking-normal">Login</span>
+                    <span class="block h-1 w-0 bg-white transition-all group-hover:w-full"></span>
+                </a>
+
+                <a href="#" class="group relative inline-block">
+                    <span class="text-5xl md:text-7xl font-black italic uppercase tracking-tighter text-white transition-all group-hover:italic group-hover:tracking-normal">Register</span>
+                    <span class="block h-1 w-0 bg-white transition-all group-hover:w-full"></span>
+                </a>
+            </div>
+
+            <!-- Footer Overlay -->
+            <div class="mt-20 pt-10 border-t border-white/10">
+                <p class="text-[9px] font-bold uppercase tracking-widest text-gray-600">
+                    Join the ELVO. community for exclusive drops
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- LOGIC SCRIPT -->
+
+
     <div id="cart-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[110] hidden opacity-0 transition-opacity duration-500"></div>
 
     <div id="cart-drawer" class="fixed top-0 right-0 h-full w-full md:w-[400px] bg-[#0f0f0f] z-[120] translate-x-full transition-transform duration-500 border-l border-white/5 shadow-2xl">
