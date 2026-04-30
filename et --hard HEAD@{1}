@@ -1,0 +1,35 @@
+[33ma437515[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mandikha[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/Rehan[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{0}: reset: moving to origin/main
+[33mb57aaa7[m[33m ([m[1;31morigin/andikha[m[33m)[m HEAD@{1}: commit: fix: menghubungkan route ke OrderController, menambah data dummy, dan memperbaiki visibilitas tombol konfirmasi
+[33m046f32a[m HEAD@{2}: merge origin/rehan: Merge made by the 'ort' strategy.
+[33me505435[m HEAD@{3}: checkout: moving from andikha to andikha
+[33me505435[m HEAD@{4}: commit: feat: implementasi manajemen transaksi, pesanan masuk, dan perbaikan UI admin
+[33mf9628fe[m HEAD@{5}: merge origin/Rehan: Merge made by the 'ort' strategy.
+[33m3a563ba[m HEAD@{6}: checkout: moving from andikha to andikha
+[33m3a563ba[m HEAD@{7}: checkout: moving from andikha to andikha
+[33m3a563ba[m HEAD@{8}: checkout: moving from andikha to andikha
+[33m3a563ba[m HEAD@{9}: commit: update grafik data
+[33mf1ea0f5[m HEAD@{10}: commit: feat: menambah layout admin dashboard dan sidebar flowbite
+[33m1af2b35[m[33m ([m[1;32mmain[m[33m)[m HEAD@{11}: checkout: moving from andikha to andikha
+[33m1af2b35[m[33m ([m[1;32mmain[m[33m)[m HEAD@{12}: checkout: moving from main to andikha
+[33m1af2b35[m[33m ([m[1;32mmain[m[33m)[m HEAD@{13}: merge andikha: Fast-forward
+[33md22fe12[m HEAD@{14}: checkout: moving from andikha to main
+[33m1af2b35[m[33m ([m[1;32mmain[m[33m)[m HEAD@{15}: checkout: moving from andikha to andikha
+[33m1af2b35[m[33m ([m[1;32mmain[m[33m)[m HEAD@{16}: commit: feat: update customer UI & routing
+[33md22fe12[m HEAD@{17}: checkout: moving from andikha to andikha
+[33md22fe12[m HEAD@{18}: checkout: moving from andikha to andikha
+[33md22fe12[m HEAD@{19}: merge main: Fast-forward
+[33m485ad85[m HEAD@{20}: checkout: moving from main to andikha
+[33md22fe12[m HEAD@{21}: pull origin main: Fast-forward
+[33m485ad85[m HEAD@{22}: checkout: moving from andikha to main
+[33m485ad85[m HEAD@{23}: checkout: moving from andikha to andikha
+[33m485ad85[m HEAD@{24}: checkout: moving from main to andikha
+[33m485ad85[m HEAD@{25}: checkout: moving from andikha to main
+[33m485ad85[m HEAD@{26}: checkout: moving from andikha to andikha
+[33m485ad85[m HEAD@{27}: checkout: moving from main to andikha
+[33m485ad85[m HEAD@{28}: checkout: moving from andikha to main
+[33m485ad85[m HEAD@{29}: checkout: moving from main to andikha
+[33m485ad85[m HEAD@{30}: checkout: moving from andikha to main
+[33m485ad85[m HEAD@{31}: checkout: moving from main to andikha
+[33m485ad85[m HEAD@{32}: checkout: moving from main to main
+[33m485ad85[m HEAD@{33}: Branch: renamed refs/heads/master to refs/heads/main
+[33m485ad85[m HEAD@{35}: commit (initial): first commi2t
