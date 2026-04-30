@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderController; 
+use App\Http\Controllers\Admin\TransactionHistoryController;
 
 // 1. Dashboard
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -12,13 +13,12 @@ Route::get('/products', function () {
     return view('admin.products');
 })->name('products');
 
-// 3. Transaksi
-Route::get('/transaksi', function () {
-    return view('admin.transaksi');
-})->name('transaksi');
+// 3. TRANSAKSI (Logic: Langsung pakai Controller History)
+// Kita ganti rute /history tadi menjadi /transaksi supaya URL-nya bagus
+Route::get('/transaksi', [TransactionHistoryController::class, 'index'])->name('transaksi');
 
-// BIARKAN INI (KARENA INI YANG MENGAMBIL DATA SITI AMINAH)
+// 4. PESANAN MASUK (Data Siti Aminah)
 Route::get('/pesanan-masuk', [OrderController::class, 'index'])->name('pesanan-masuk');
 
 // 5. PROSES KONFIRMASI
-Route::post('/orders/confirm/{id}', [OrderController::class, 'confirmShipping'])->name('orders.confirm');
+Route::post('/admin/orders/confirm/{id}', [OrderController::class, 'confirm'])->name('orders.confirm');

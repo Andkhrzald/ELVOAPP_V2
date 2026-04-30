@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-{{-- 1. PINDAHKAN NOTIFIKASI KE DALAM SINI --}}
+{{-- Notifikasi Sukses --}}
 @if(session('success'))
     <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded shadow-sm flex justify-between items-center" role="alert">
         <div>
@@ -21,81 +21,170 @@
 
 {{-- Filter Status Tab --}}
 <div class="flex border-b border-gray-200 mb-6">
-    <button class="px-4 py-2 text-sm font-medium text-elvo border-b-2 border-elvo">Perlu Diproses (12)</button>
-    <button class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700">Belum Bayar (5)</button>
-    <button class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-700">Dikirim (20)</button>
+    <a href="{{ route('admin.pesanan-masuk', ['status' => 'proses']) }}" 
+       class="px-4 py-2 text-sm font-medium {{ $status == 'proses' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-blue-500' }}">
+        Perlu Diproses
+    </a>
+
+    <a href="{{ route('admin.pesanan-masuk', ['status' => 'pending']) }}" 
+       class="px-4 py-2 text-sm font-medium {{ $status == 'pending' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-blue-500' }}">
+        Belum Bayar
+    </a>
+
+    <a href="{{ route('admin.pesanan-masuk', ['status' => 'dikirim']) }}" 
+       class="px-4 py-2 text-sm font-medium {{ $status == 'dikirim' ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-500 hover:text-blue-500' }}">
+        Dikirim
+    </a>
 </div>
 
 <div class="grid grid-cols-1 gap-4">
-    {{-- Card Pesanan --}}
-    <div class="p-5 bg-white rounded-xl border border-gray-200 shadow-sm">
-        <div class="flex justify-between items-start mb-4">
-            <div class="flex gap-4">
-                <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center text-elvo">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+    {{-- STEP 3: Looping Data dari Controller --}}
+    @forelse($orders as $order)
+        <div class="p-5 bg-white rounded-xl border border-gray-200 shadow-sm">
+            <div class="flex justify-between items-start mb-4">
+                <div class="flex gap-4">
+                    <div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center text-blue-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        {{-- Mengambil data dari array $order --}}
+                        <h3 class="font-bold text-gray-900">#{{ $order['id'] }} - {{ $order['customer_name'] }}</h3>
+                        <p class="text-xs text-gray-500">Dipesan pada: {{ $order['created_at'] }}</p>
+                    </div>
                 </div>
-                <div>
-                    <h3 class="font-bold text-gray-900">#TRX-99211 - Siti Aminah</h3>
-                    <p class="text-xs text-gray-500">Dipesan pada: 21 Okt 2023 • 14:20 WIB</p>
+                
+                {{-- Warna Badge Otomatis sesuai Status --}}
+                <span class="px-3 py-1 rounded-full text-xs font-bold 
+                    {{ $status == 'proses' ? 'bg-orange-100 text-orange-600' : '' }}
+                    {{ $status == 'pending' ? 'bg-red-100 text-red-600' : '' }}
+                    {{ $status == 'dikirim' ? 'bg-green-100 text-green-600' : '' }}">
+                    {{ $status == 'proses' ? 'Perlu Dikemas' : ($status == 'pending' ? 'Belum Bayar' : 'Sudah Dikirim') }}
+                </span>
+            </div>
+
+            <div class="border-t border-b border-gray-50 py-3 my-3">
+                <div class="flex justify-between text-sm">
+                    <span class="text-gray-600 italic">Pesanan: {{ $order['items'] ?? 'Produk Elvo' }}</span>
+                    <span class="font-bold text-gray-900">Total: Rp {{ number_format($order['total'], 0, ',', '.') }}</span>
                 </div>
             </div>
-            <span class="bg-orange-100 text-orange-600 text-xs font-bold px-3 py-1 rounded-full">Perlu Dikemas</span>
-        </div>
 
-        <div class="border-t border-b border-gray-50 py-3 my-3">
-            <div class="flex justify-between text-sm">
-                <span class="text-gray-600 italic">2x Produk Elvo Premium (XL), 1x Aksesoris</span>
-                <span class="font-bold text-gray-900">Total: Rp 1.200.000</span>
+            <div class="flex justify-end gap-3">
+                <button onclick="toggleDrawer()" class="text-sm text-gray-600 font-medium px-4 py-2">Lihat Detail</button>
+                
+                {{-- Logika Tombol Berdasarkan Tab --}}
+                @if($status == 'proses')
+                    <button onclick="toggleModal('{{ $order['id'] }}')" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-opacity-90">
+                        Konfirmasi & Kirim
+                    </button>
+                @elseif($status == 'pending')
+                    <button class="bg-gray-200 text-gray-500 px-4 py-2 rounded-lg text-sm font-medium cursor-not-allowed">
+                        Menunggu Pembayaran
+                    </button>
+                @else
+                    <button class="bg-green-100 text-green-600 px-4 py-2 rounded-lg text-sm font-medium">
+                        Selesai Dikirim
+                    </button>
+                @endif
             </div>
         </div>
-
-        <div class="flex justify-end gap-3">
-            <button onclick="toggleDrawer()" class="text-sm text-gray-600 font-medium px-4 py-2">Lihat Detail</button>
-            <button onclick="toggleModal()" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-opacity-90 transition">Konfirmasi & Kirim</button>
+    @empty
+        {{-- Tampilan jika data kosong --}}
+        <div class="bg-white p-10 rounded-xl border border-dashed border-gray-300 text-center">
+            <p class="text-gray-500">Tidak ada pesanan dengan status ini.</p>
         </div>
-    </div>
+    @endforelse
 </div>
 
 {{-- DRAWER DETAIL --}}
-<div id="drawer-detail" class="fixed inset-y-0 right-0 z-50 hidden">
-    <div class="w-screen max-w-md shadow-2xl border-l border-gray-200 animate-slide-in">
-        <div class="flex h-full flex-col bg-white">
-            <div class="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
-                <div class="flex items-start justify-between border-b pb-4">
-                    <h2 class="text-lg font-bold text-gray-900">Detail Pesanan #TRX-99211</h2>
-                    <button type="button" class="text-gray-400 hover:text-gray-500" onclick="toggleDrawer()">
-                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
-                    </button>
-                </div>
+<div id="drawer-detail" class="fixed inset-0 z-50 hidden">
+    {{-- Kita hilangkan overlay hitam pekat, ganti dengan area klik transparan saja --}}
+    <div class="fixed inset-0 bg-transparent" onclick="toggleDrawer()"></div>
 
-                <div class="mt-8">
-                    <div class="flow-root">
-                        <ul role="list" class="-my-6 divide-y divide-gray-200">
-                            <li class="flex py-6">
-                                <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
-                                    <img src="https://via.placeholder.com/150" class="h-full w-full object-cover object-center">
-                                </div>
-                                <div class="ml-4 flex flex-1 flex-col">
-                                    <div class="flex justify-between text-base font-medium text-gray-900">
-                                        <h3>Elvo Premium Hoodie</h3>
-                                        <p class="ml-4">Rp 450.000</p>
-                                    </div>
-                                    <p class="mt-1 text-sm text-gray-500">Warna: Hitam | Size: XL</p>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+    <div class="fixed inset-y-0 right-0 flex max-w-full">
+        {{-- Panel Content --}}
+        <div class="relative w-screen max-w-md bg-white shadow-2xl animate-slide-in h-full flex flex-col border-l border-gray-100">
+            
+            <div class="px-6 py-6 border-b flex items-center justify-between">
+                <h2 class="text-xl font-bold text-gray-900">Rincian Pesanan</h2>
+                <button onclick="toggleDrawer()" class="text-gray-400 hover:text-gray-600 outline-none">
+                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
             </div>
 
-            <div class="border-t border-gray-200 px-4 py-6 sm:px-6 bg-white">
-                <div class="flex justify-between text-base font-bold text-gray-900">
-                    <p>Total Pembayaran</p>
-                    <p>Rp 1.200.000</p>
+            <div class="flex-1 overflow-y-auto p-6 space-y-8">
+                {{-- ISI RINCIAN PESANAN TETAP SAMA (TIDAK SAYA UBAH) --}}
+                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                    <p class="text-xs text-blue-600 font-bold uppercase tracking-wider">Nomor Invoice</p>
+                    <p class="text-lg font-black text-blue-900">#{{ $orders[0]['id'] ?? 'TRX-XXXXX' }}</p>
                 </div>
-                <div class="mt-6">
-                    <button onclick="toggleModal()" class="w-full flex items-center justify-center rounded-md border border-transparent bg-elvo px-6 py-3 text-base font-medium text-white shadow-sm">Konfirmasi Pengiriman</button>
+
+                <section>
+                    <h3 class="text-sm font-bold text-gray-400 uppercase mb-3">Informasi Pengiriman</h3>
+                    <div class="space-y-2">
+                        <p class="font-bold text-gray-900 text-base">{{ $orders[0]['customer_name'] ?? 'Nama Pelanggan' }}</p>
+                        <p class="text-sm text-gray-600">{{ $orders[0]['phone'] ?? '-' }}</p>
+                        <p class="text-sm text-gray-600 leading-relaxed">{{ $orders[0]['address'] ?? 'Alamat belum diisi' }}</p>
+                    </div>
+                </section>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <section>
+                        <h3 class="text-xs font-bold text-gray-400 uppercase mb-2">Pembayaran</h3>
+                        <p class="text-sm font-semibold text-gray-900">{{ $orders[0]['payment_method'] ?? '-' }}</p>
+                    </section>
+                    <section>
+                        <h3 class="text-xs font-bold text-gray-400 uppercase mb-2">Ekspedisi</h3>
+                        <p class="text-sm font-semibold text-gray-900">{{ $orders[0]['shipping_method'] ?? '-' }}</p>
+                    </section>
                 </div>
+
+                <section>
+                    <h3 class="text-sm font-bold text-gray-400 uppercase mb-3">Produk</h3>
+                    <div class="border rounded-xl divide-y overflow-hidden">
+                        <div class="p-4 flex justify-between items-center bg-white">
+                            <div>
+                                <p class="text-sm font-bold text-gray-900">Elvo Premium Hoodie</p>
+                                <p class="text-xs text-gray-500">Hitam | XL x 2</p>
+                            </div>
+                            <p class="text-sm font-bold text-gray-900">Rp 900.000</p>
+                        </div>
+                        <div class="p-4 flex justify-between items-center bg-white">
+                            <div>
+                                <p class="text-sm font-bold text-gray-900">Aksesoris Elvo</p>
+                                <p class="text-xs text-gray-500">Universal x 1</p>
+                            </div>
+                            <p class="text-sm font-bold text-gray-900">Rp 250.000</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="bg-gray-50 p-5 rounded-2xl space-y-3">
+                    <div class="flex justify-between text-sm text-gray-500">
+                        <span>Subtotal</span>
+                        <span class="text-gray-900 font-semibold">Rp {{ number_format($orders[0]['subtotal'] ?? 0, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm text-gray-500">
+                        <span>Ongkos Kirim</span>
+                        <span class="text-gray-900 font-semibold">Rp {{ number_format($orders[0]['shipping_cost'] ?? 0, 0, ',', '.') }}</span>
+                    </div>
+                    <div class="flex justify-between text-lg font-black border-t pt-3 mt-2 text-blue-600">
+                        <span>Total Bayar</span>
+                        <span>Rp {{ number_format($orders[0]['total'] ?? 0, 0, ',', '.') }}</span>
+                    </div>
+                </section>
+            </div>
+
+            <div class="p-6 border-t bg-white">
+                @if($status == 'proses')
+                <button onclick="toggleModal('{{ $orders[0]['id'] ?? '' }}')" class="w-full bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-100">
+                    Konfirmasi & Input Resi
+                </button>
+                @endif
             </div>
         </div>
     </div>
@@ -103,21 +192,33 @@
 
 {{-- MODAL KONFIRMASI --}}
 <div id="modal-konfirmasi" class="fixed inset-0 z-[60] hidden">
-    <div class="fixed inset-0 bg-black bg-opacity-25" onclick="toggleModal()"></div>
+    {{-- Overlay: Kita buat transparan agar background dashboard tetap kelihatan interaktif --}}
+    <div class="fixed inset-0 bg-transparent" onclick="toggleModal()"></div>
+    
     <div class="flex items-center justify-center min-h-screen p-4">
-        
-        {{-- UPDATE BAGIAN FORM ACTION INI --}}
-        <form action="{{ route('admin.orders.confirm', $order->id) }}" method="POST" class="relative bg-white rounded-xl shadow-xl max-w-lg w-full p-6 z-10">
+        {{-- Modal Card: Kita tambah border dan shadow agar tetap menonjol di atas background bening --}}
+        <form id="formKonfirmasi" method="POST" class="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full p-8 z-10 border border-gray-100 animate-slide-in">
             @csrf
-            <h3 class="text-lg font-bold text-gray-900">Konfirmasi Pengiriman?</h3>
-            <p class="text-sm text-gray-500 mt-2">Pastikan barang sudah dipacking. Masukkan nomor resi di bawah:</p>
+            <div class="mb-6">
+                <h3 class="text-xl font-bold text-gray-900">Konfirmasi Pengiriman</h3>
+                <p class="text-sm text-gray-500 mt-2">Silahkan masukkan nomor resi kurir untuk pesanan ini agar pelanggan bisa melacak paket mereka.</p>
+            </div>
             
-            <input type="text" name="resi" required placeholder="Masukkan Nomor Resi" 
-                   class="mt-4 w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-elvo focus:border-elvo outline-none">
+            <div class="space-y-4">
+                <label class="text-sm font-bold text-gray-700">Nomor Resi Pengiriman</label>
+                <input type="text" name="resi" required placeholder="Contoh: JNE123456789" 
+                       class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+            </div>
             
-            <div class="mt-6 flex justify-end gap-3">
-                <button type="button" onclick="toggleModal()" class="px-4 py-2 text-gray-700 font-medium hover:bg-gray-100 rounded-lg">Batal</button>
-                <button type="submit" class="px-4 py-2 bg-blue-600  text-white rounded-lg font-medium hover:bg-opacity-90">Proses Sekarang</button>
+            <div class="mt-8 flex justify-end gap-3">
+                <button type="button" onclick="toggleModal()" 
+                        class="px-6 py-3 text-gray-600 font-bold hover:bg-gray-100 rounded-xl transition-all">
+                    Batal
+                </button>
+                <button type="submit" 
+                        class="px-6 py-3 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all">
+                    Proses & Kirim
+                </button>
             </div>
         </form>
     </div>
@@ -126,13 +227,25 @@
 <script>
     function toggleDrawer() {
         const drawer = document.getElementById('drawer-detail');
-        drawer.classList.toggle('hidden');
-        // Tambahkan ini supaya drawer tampil rapi
-        drawer.classList.toggle('flex'); 
-    }
     
-    function toggleModal() {
-        document.getElementById('modal-konfirmasi').classList.toggle('hidden');
+        if (drawer.classList.contains('hidden')) {
+            drawer.classList.remove('hidden');
+            drawer.classList.add('flex');
+            // Jangan gunakan overflow hidden pada body jika ingin background tetap interaktif
+        } else {
+            drawer.classList.add('hidden');
+            drawer.classList.remove('flex');
+        }
+    }
+
+    // Modal Konfirmasi tetap aman
+    function toggleModal(orderId = '') {
+        const modal = document.getElementById('modal-konfirmasi');
+        modal.classList.toggle('hidden');
+        if(orderId) {
+            let urlTemplate = "{{ route('admin.orders.confirm', ':id') }}";
+            document.getElementById('formKonfirmasi').action = urlTemplate.replace(':id', orderId);
+        }
     }
 </script>
 
