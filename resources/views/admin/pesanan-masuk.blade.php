@@ -117,7 +117,7 @@
             
             <div class="mt-6 flex justify-end gap-3">
                 <button type="button" onclick="toggleModal()" class="px-4 py-2 text-gray-700 font-medium hover:bg-gray-100 rounded-lg">Batal</button>
-                <button type="submit" class="px-4 py-2 bg-elvo text-white rounded-lg font-medium hover:bg-opacity-90">Proses Sekarang</button>
+                <button type="submit" class="px-4 py-2 bg-blue-600  text-white rounded-lg font-medium hover:bg-opacity-90">Proses Sekarang</button>
             </div>
         </form>
     </div>
