@@ -24,9 +24,9 @@
 
         /* Efek blur halus untuk navbar saat di-scroll */
         .glass-nav {
-            background: rgba(11, 11, 11, 0.8);
+            /* background: rgba(11, 11, 11, 0.8); */
             backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(9px);
         }
     </style>
 </head>
@@ -37,7 +37,7 @@
             <a href="{{ route('home') }}" class="text-2xl font-extrabold italic tracking-tighter uppercase">
                 ELVO.
             </a>
-            <div class="hidden md:flex space-x-12 text-[10px] font-bold tracking-[0.3em] uppercase text-gray-500">
+            <div class="hidden md:flex space-x-12 text-[10px] font-bold tracking-[0.3em] uppercase text-gray-300">
 
                 <div class="relative group">
                     <a href="#shop" class="hover:text-white transition duration-300 flex items-center py-2">
@@ -54,9 +54,9 @@
                     </div>
                 </div>
 
-                <a href="#collection" class="hover:text-white transition duration-300 py-2">Collections</a>
+                <a href="#produk" class="hover:text-white transition duration-300 py-2">Collections</a>
                 <a href="#" class="hover:text-white transition duration-300 py-2">About</a>
-                <a href="#" class="hover:text-white transition duration-300 py-2">store</a>
+                <a href="{{ route('shop.index') }}" class="hover:text-white transition duration-300 py-2">store</a>
             </div>
             <div class="flex items-center space-x-6 text-gray-400">
                 <!-- Tombol Search di Navbar -->
@@ -86,7 +86,7 @@
         </div>
     </nav>
 
-    <main class="pt-24">
+    <main class="">
         @yield('content')
     </main>
 
@@ -136,9 +136,12 @@
         </div>
     </div>
 
-    <!-- User Overlay (Full Screen) -->
+    <!-- ==========================================
+     USER OVERLAY & LOGIN FORM
+     ========================================== -->
     <div id="user-overlay" class="fixed inset-0 bg-black/95 backdrop-blur-xl z-[200] hidden opacity-0 transition-all duration-500 flex flex-col items-center justify-center px-6">
-        <!-- Close Button -->
+
+        <!-- Tombol Close (Silang) -->
         <button id="close-user" class="absolute top-10 right-10 text-gray-400 hover:text-white transition-all transform hover:rotate-90">
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M18 6 6 18" />
@@ -146,32 +149,102 @@
             </svg>
         </button>
 
-        <div class="w-full max-w-md transform -translate-y-10 transition-all duration-500 text-center" id="user-content">
-            <!-- Header Estetik -->
-            <p class="text-[10px] font-black uppercase tracking-[0.5em] text-gray-500 mb-10">Account Access</p>
+        <div class="w-full max-w-md transform -translate-y-10 transition-all duration-500" id="user-content">
 
-            <!-- Menu Utama -->
-            <div class="flex flex-col gap-8">
-                <a href="#" class="group relative inline-block">
-                    <span class="text-5xl md:text-7xl font-black italic uppercase tracking-tighter text-white transition-all group-hover:italic group-hover:tracking-normal">Login</span>
-                    <span class="block h-1 w-0 bg-white transition-all group-hover:w-full"></span>
-                </a>
+            <!-- BAGIAN 1: MENU UTAMA (PILIHAN LOGIN/REGIS) -->
+            <div id="user-menu" class="text-center transition-all duration-500">
+                <p class="text-[10px] font-black uppercase tracking-[0.5em] text-gray-500 mb-10">Account Access</p>
+                <div class="flex flex-col gap-8">
+                    <!-- Tombol Login (Trigger ke Form) -->
+                    <button id="show-login" class="group relative inline-block text-center focus:outline-none">
+                        <span class="text-5xl md:text-7xl font-black italic uppercase tracking-tighter text-white transition-all group-hover:tracking-normal">Login</span>
+                        <span class="block h-1 w-0 bg-white transition-all group-hover:w-full mt-2"></span>
+                    </button>
 
-                <a href="#" class="group relative inline-block">
-                    <span class="text-5xl md:text-7xl font-black italic uppercase tracking-tighter text-white transition-all group-hover:italic group-hover:tracking-normal">Register</span>
-                    <span class="block h-1 w-0 bg-white transition-all group-hover:w-full"></span>
-                </a>
+                    <!-- Link Register -->
+                    <a href="#" class="group relative inline-block text-center">
+                        <span class="text-5xl md:text-7xl font-black italic uppercase tracking-tighter text-gray-600 transition-all hover:text-white hover:tracking-normal">Register</span>
+                    </a>
+                </div>
             </div>
 
-            <!-- Footer Overlay -->
-            <div class="mt-20 pt-10 border-t border-white/10">
-                <p class="text-[9px] font-bold uppercase tracking-widest text-gray-600">
-                    Join the ELVO. community for exclusive drops
-                </p>
+            <!-- BAGIAN 2: FORM LOGIN (AWALNYA TERSEMBUNYI) -->
+            <div id="login-form" class="hidden opacity-0 transition-all duration-500 text-left">
+                <!-- Tombol Kembali -->
+                <button id="back-to-menu" class="mb-8 text-gray-500 hover:text-white flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest transition-all focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m15 18-6-6 6-6" />
+                    </svg>
+                    Back to Menu
+                </button>
+
+                <h3 class="text-4xl font-black italic uppercase tracking-tighter text-white mb-10">Sign In</h3>
+
+                <form action="#" method="POST" class="space-y-8">
+                    <!-- Input Username / Telp -->
+                    <div class="group">
+                        <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 group-focus-within:text-white transition-colors">Username / Phone</label>
+                        <input type="text" name="login" placeholder="Username"
+                            class="w-full bg-transparent border-b-2 border-white/10 py-4 text-white focus:outline-none focus:border-white transition-all placeholder:text-white/5 uppercase font-bold tracking-widest text-sm">
+                    </div>
+
+                    <!-- Input Password -->
+                    <div class="group">
+                        <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 group-focus-within:text-white transition-colors">Password</label>
+                        <input type="password" name="password" placeholder="••••••••"
+                            class="w-full bg-transparent border-b-2 border-white/10 py-4 text-white focus:outline-none focus:border-white transition-all placeholder:text-white/5 text-sm">
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="w-full bg-white text-black font-black uppercase tracking-[0.3em] py-6 mt-8 hover:bg-gray-200 transition-all italic text-sm shadow-xl">
+                        Enter Session
+                    </button>
+                </form>
             </div>
+
+            <!-- BAGIAN 3: FORM REGISTER -->
+            <div id="register-form" class="hidden opacity-0 transition-all duration-500 text-left">
+                <!-- Tombol Kembali ke Menu Utama -->
+                <button class="back-to-menu mb-8 text-gray-500 hover:text-white flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest transition-all focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m15 18-6-6 6-6" />
+                    </svg>
+                    Back to Menu
+                </button>
+
+                <h3 class="text-4xl font-black italic uppercase tracking-tighter text-white mb-10">Create Account</h3>
+
+                <form action="#" method="POST" class="space-y-6">
+                    <!-- Input Full Name -->
+                    <div class="group">
+                        <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 group-focus-within:text-white transition-colors">Full Name</label>
+                        <input type="text" name="name" placeholder="REHAN FAEZAN"
+                            class="w-full bg-transparent border-b-2 border-white/10 py-3 text-white focus:outline-none focus:border-white transition-all placeholder:text-white/5 uppercase font-bold tracking-widest text-sm">
+                    </div>
+
+                    <!-- Input Email / Phone -->
+                    <div class="group">
+                        <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 group-focus-within:text-white transition-colors">Email / Phone</label>
+                        <input type="text" name="contact" placeholder="ELVO@STUDIO.COM"
+                            class="w-full bg-transparent border-b-2 border-white/10 py-3 text-white focus:outline-none focus:border-white transition-all placeholder:text-white/5 uppercase font-bold tracking-widest text-sm">
+                    </div>
+
+                    <!-- Input Password -->
+                    <div class="group">
+                        <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 group-focus-within:text-white transition-colors">Password</label>
+                        <input type="password" name="password" placeholder="••••••••"
+                            class="w-full bg-transparent border-b-2 border-white/10 py-3 text-white focus:outline-none focus:border-white transition-all placeholder:text-white/5 text-sm">
+                    </div>
+
+                    <!-- Submit Register -->
+                    <button type="submit" class="w-full bg-white text-black font-black uppercase tracking-[0.3em] py-6 mt-8 hover:bg-gray-200 transition-all italic text-sm shadow-xl">
+                        Register Now
+                    </button>
+                </form>
+            </div>
+
         </div>
     </div>
-
     <!-- LOGIC SCRIPT -->
 
 

@@ -3,6 +3,17 @@
 @section('content')
 <section class="relative min-h-[90vh] flex flex-col justify-center items-center text-center px-6 overflow-hidden">
 
+    <!-- Background Layer (Posisikan paling atas di dalam section) -->
+    <div class="absolute inset-0 z-0">
+        <!-- Gambar Background -->
+        <img src="{{ asset('img/bg.jpg') }}"
+            class="w-full h-full object-cover grayscale opacity-40 transition-transform duration-[15s] hover:scale-110"
+            alt="Background">
+
+        <!-- Lapisan Gradasi/Gelap supaya teks ELVO tetap menonjol -->
+        <div class="absolute inset-0 bg-gradient-to-b from-black/20 via-black/60 to-[#0a0a0a]"></div>
+    </div>
+
     <div class="absolute left-10 top-1/2 -translate-y-1/2 flex flex-col space-y-8 items-center z-10 hidden md:flex">
         <a href="#" class="text-gray-600 hover:text-white transition-all duration-300 transform hover:scale-125">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -29,20 +40,20 @@
     </h1>
 
     <div class="max-w-2xl" data-aos="fade-up" data-aos-delay="300">
-        <p class="text-gray-400 text-xs md:text-sm tracking-[0.3em] uppercase font-medium mb-4">Local Brand Origin Jakarta</p>
-        <p class="text-gray-500 text-sm md:text-base leading-relaxed italic opacity-80">
-            "Dikembangkan oleh mahasiswa Bina Sarana Informatika dengan kualitas terbaik dan harga terjangkau."
+        <p class="text-gray-300 text-xs md:text-sm tracking-[0.3em] uppercase font-medium mb-4">Local Brand Origin Jakarta</p>
+        <p class="text-gray-400 text-sm md:text-base leading-relaxed italic opacity-80">
+            "Selama lebih dari satu abad, H-D telah menyatukan orang-orang melalui keseruan berkendara. Semangat itu terus hidup dan lebih kuat dari sebelumnya"
         </p>
     </div>
 
     <div class="mt-12" data-aos="fade-up" data-aos-delay="500">
-        <a href="#produk" class="group relative inline-flex items-center justify-center px-12 py-4 overflow-hidden font-bold border border-white/10 rounded-full transition-all duration-300 hover:border-white">
+        <a href="{{ route('shop.index') }}" class="group relative inline-flex items-center justify-center px-12 py-4 overflow-hidden font-bold border border-white/60 rounded-full transition-all duration-300 hover:border-white">
             <span class="text-[10px] tracking-[0.4em] uppercase text-white">Shop Now</span>
         </a>
     </div>
 </section>
 
-<section id="produk" class="pt-10 pb-32">
+<section class="pt-10 pb-32">
 </section>
 <section class="py-24 text-center">
     <h1 class="text-7xl font-extrabold italic uppercase tracking-tighter mb-4">New <span></span>Products.</h1>
@@ -111,7 +122,7 @@
             <div data-aos="fade-right">
                 <p class="text-[10px] font-black uppercase tracking-[0.5em] text-gray-500 mb-4">Official Collection</p>
                 <h2 class="text-5xl md:text-7xl font-black italic uppercase tracking-tighter">
-                    Shop <span class="text-gray-700">The Look.</span>
+                    Get <span class="text-gray-700">The Look.</span>
                 </h2>
             </div>
             <div class="flex gap-4" data-aos="fade-left">
@@ -124,6 +135,75 @@
         <!-- Product Grid -->
         <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-x-8 gap-y-16">
 
+            <!-- Product Item 1 (Contoh) -->
+            <div class="group cursor-pointer" data-aos="fade-up">
+                <div class="relative aspect-[3/4] bg-[#0f0f0f] rounded-[30px] overflow-hidden mb-6">
+                    <!-- Placeholder Gambar Produk -->
+                    <img src="https://images.unsplash.com/photo-1551028719-00167b16eac5?q=80&w=1000&auto=format&fit=crop"
+                        alt="Product"
+                        class="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700">
+
+                    <!-- Overlay Button -->
+                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
+                        <button class="bg-white text-black px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold uppercase tracking-tight text-lg leading-tight">Essential Tee <br><span class="text-gray-500 text-sm">V1 Black</span></h3>
+                        <span class="font-black text-lg">IDR 249K</span>
+                    </div>
+                    <p class="text-[10px] font-bold text-gray-600 uppercase tracking-widest">ELVO Premium Apparel</p>
+                </div>
+            </div>
+            <!-- Product Item 2 (Contoh) -->
+            <div class="group cursor-pointer" data-aos="fade-up">
+                <div class="relative aspect-[3/4] bg-[#0f0f0f] rounded-[30px] overflow-hidden mb-6">
+                    <!-- Placeholder Gambar Produk -->
+                    <img src="https://images.unsplash.com/photo-1551028719-00167b16eac5?q=80&w=1000&auto=format&fit=crop"
+                        alt="Product"
+                        class="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700">
+
+                    <!-- Overlay Button -->
+                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
+                        <button class="bg-white text-black px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold uppercase tracking-tight text-lg leading-tight">Essential Tee <br><span class="text-gray-500 text-sm">V1 Black</span></h3>
+                        <span class="font-black text-lg">IDR 249K</span>
+                    </div>
+                    <p class="text-[10px] font-bold text-gray-600 uppercase tracking-widest">ELVO Premium Apparel</p>
+                </div>
+            </div>
+            <!-- Product Item 3 (Contoh) -->
+            <div class="group cursor-pointer" data-aos="fade-up">
+                <div class="relative aspect-[3/4] bg-[#0f0f0f] rounded-[30px] overflow-hidden mb-6">
+                    <!-- Placeholder Gambar Produk -->
+                    <img src="https://images.unsplash.com/photo-1551028719-00167b16eac5?q=80&w=1000&auto=format&fit=crop"
+                        alt="Product"
+                        class="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700">
+
+                    <!-- Overlay Button -->
+                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-center justify-center">
+                        <button class="bg-white text-black px-8 py-3 rounded-full text-[10px] font-black uppercase tracking-widest transform translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                            Add to Cart
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="font-bold uppercase tracking-tight text-lg leading-tight">Essential Tee <br><span class="text-gray-500 text-sm">V1 Black</span></h3>
+                        <span class="font-black text-lg">IDR 249K</span>
+                    </div>
+                    <p class="text-[10px] font-bold text-gray-600 uppercase tracking-widest">ELVO Premium Apparel</p>
+                </div>
+            </div>
             <!-- Product Item 1 (Contoh) -->
             <div class="group cursor-pointer" data-aos="fade-up">
                 <div class="relative aspect-[3/4] bg-[#0f0f0f] rounded-[30px] overflow-hidden mb-6">
