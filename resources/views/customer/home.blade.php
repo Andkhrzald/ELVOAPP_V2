@@ -234,4 +234,80 @@
     </div>
 </section>
 
+<section>
+    <div class="container mx-auto px-6">
+</section>
+
+<section class="bg-[#0b0b0b] text-white pt-[100px] pb-20 border-t border-white/5">
+    <div class="container mx-auto px-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-12">
+            <!-- Isi konten Shop, Corporate Info, dll lo di sini -->
+        </div>
+    </div>
+</section>
+
+<section clas text-white text-white py-20 mt-[100px] border-t border-white/10">
+    <div class="container mx-auto px-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+
+            <!-- Column 1: SHOP -->
+            <div>
+                <h4 class="text-[10px] font-black uppercase tracking-[0.3em] mb-8 text-gray-500">Shop</h4>
+                <ul class="space-y-4">
+                    <li><a href="#" class="text-[11px] font-bold uppercase tracking-widest hover:text-gray-400 transition">Wanita</a></li>
+                    <li><a href="#" class="text-[11px] font-bold uppercase tracking-widest hover:text-gray-400 transition">Pria</a></li>
+                    <li><a href="#" class="text-[11px] font-bold uppercase tracking-widest hover:text-gray-400 transition">Aksesoris</a></li>
+                    <li><a href="#" class="text-[11px] font-bold uppercase tracking-widest text-red-500 hover:text-red-400 transition">Sale</a></li>
+                </ul>
+            </div>
+
+            <!-- Column 2: CORPORATE INFO -->
+            <div>
+                <h4 class="text-[10px] font-black uppercase tracking-[0.3em] mb-8 text-gray-500">Corporate Info</h4>
+                <ul class="space-y-4">
+                    <li><a href="#" class="text-[11px] font-bold uppercase tracking-widest hover:text-gray-400 transition">Berkarir di ELVO</a></li>
+                    <li><a href="#" class="text-[11px] font-bold uppercase tracking-widest hover:text-gray-400 transition">Sustainability</a></li>
+                    <li><a href="#" class="text-[11px] font-bold uppercase tracking-widest hover:text-gray-400 transition">Investor Relations</a></li>
+                    <li><a href="#" class="text-[11px] font-bold uppercase tracking-widest hover:text-gray-400 transition">Tata Kelola</a></li>
+                </ul>
+            </div>
+
+            <!-- Column 3: HELP -->
+            <div>
+                <h4 class="text-[10px] font-black uppercase tracking-[0.3em] mb-8 text-gray-500">Help</h4>
+                <ul class="space-y-4">
+                    <li><a href="#" class="text-[11px] font-bold uppercase tracking-widest hover:text-gray-400 transition">Customer Service</a></li>
+                    <li><a href="#" class="text-[11px] font-bold uppercase tracking-widest hover:text-gray-400 transition">Lokasi Toko</a></li>
+                    <li><a href="#" class="text-[11px] font-bold uppercase tracking-widest hover:text-gray-400 transition">Kontak</a></li>
+                    <li><a href="#" class="text-[11px] font-bold uppercase tracking-widest hover:text-gray-400 transition underline underline-offset-8 decoration-red-500/50">Kebijakan Privasi</a></li>
+                </ul>
+            </div>
+
+            <!-- Column 4: NEWSLETTER & APPS -->
+            <div>
+                <h4 class="text-[10px] font-black uppercase tracking-[0.3em] mb-8 text-gray-500">Jadi Member</h4>
+                <p class="text-[11px] leading-relaxed text-gray-400 mb-6 tracking-wide">
+                    Bergabunglah sekarang dan dapatkan diskon 10% untuk pembelian pertama anda!
+                </p>
+                <a href="#" class="inline-block text-[11px] font-black uppercase tracking-[0.2em] border-b-2 border-white pb-1 hover:text-gray-400 hover:border-gray-400 transition mb-10">
+                    Bergabung Sekarang &rarr;
+                </a>
+
+                <h4 class="text-[10px] font-black uppercase tracking-[0.3em] mb-6 text-gray-500">Unduh Aplikasi</h4>
+                <div class="flex items-center gap-4">
+                    <!-- App Store -->
+                    <a href="#" class="hover:opacity-70 transition">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" alt="App Store" class="h-8">
+                    </a>
+                    <!-- Play Store -->
+                    <a href="#" class="hover:opacity-70 transition">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Play Store" class="h-8">
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
 @endsection

@@ -115,7 +115,7 @@
         @yield('content')
     </main>
 
-    <footer class="py-20 border-t border-white/5 text-center mt-20">
+    <footer class="py-10 border-t border-white/5 text-center mt-20">
         <div class="text-xl font-bold italic tracking-tighter mb-4 uppercase">ELVO.</div>
         <p class="text-[9px] text-gray-600 tracking-[0.4em] uppercase">
             © 2026 ELVO APP V2. FOR RESEARCH PURPOSES ONLY.
