@@ -14,3 +14,7 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
+Route::get('/checkout', [ShopController::class, 'checkout'])->name('checkout');
+Route::get('/checkout/success', [ShopController::class, 'success'])->name('checkout.success');
+Route::get('/login', [ShopController::class, 'login'])->name('login');
+Route::get('/register', [ShopController::class, 'register'])->name('register');

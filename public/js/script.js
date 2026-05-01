@@ -35,108 +35,61 @@ document.addEventListener('DOMContentLoaded', function() {
     // ==========================================
     // 2. CART BAR LOGIC
     // ==========================================
-    const cartTrigger = document.getElementById('cart-trigger');
-    const closeCart = document.getElementById('close-cart');
-    const cartDrawer = document.getElementById('cart-drawer');
-    const cartOverlay = document.getElementById('cart-overlay');
+   const cartTrigger = document.getElementById('cart-trigger'); // Sesuaikan dengan ID icon cart di navbar lo
+const cartDrawer = document.getElementById('cart-drawer');
+const cartOverlay = document.getElementById('cart-overlay');
+const closeCart = document.getElementById('close-cart');
 
-    if (cartTrigger && cartDrawer) {
-        cartTrigger.addEventListener('click', () => {
-            cartDrawer.classList.remove('translate-x-full');
-            if (cartOverlay) {
-                cartOverlay.classList.remove('hidden');
-                setTimeout(() => cartOverlay.classList.add('opacity-100'), 10);
-            }
-            document.body.style.overflow = 'hidden';
-        });
+if (cartTrigger) {
+    cartTrigger.addEventListener('click', () => {
+        cartOverlay.classList.remove('hidden');
+        setTimeout(() => cartOverlay.classList.add('opacity-100'), 10);
+        cartDrawer.classList.remove('translate-x-full');
+    });
+}
 
-        const hideCart = () => {
-            cartDrawer.classList.add('translate-x-full');
-            if (cartOverlay) {
-                cartOverlay.classList.remove('opacity-100');
-                setTimeout(() => cartOverlay.classList.add('hidden'), 500);
-            }
-            document.body.style.overflow = 'auto';
-        };
-        if (closeCart) closeCart.addEventListener('click', hideCart);
-        if (cartOverlay) cartOverlay.addEventListener('click', hideCart);
-    }
+if (closeCart) {
+    closeCart.addEventListener('click', () => {
+        cartOverlay.classList.remove('opacity-100');
+        cartDrawer.classList.add('translate-x-full');
+        setTimeout(() => cartOverlay.classList.add('hidden'), 500);
+    });
+}
+  // === ELEMENT SELECTOR ===
+// Lebih aman pakai ID langsung daripada urutan array [1]
+const userTrigger = document.getElementById('user-trigger'); 
+const userOverlay = document.getElementById('user-overlay');
+const closeUser = document.getElementById('close-user');
 
-    // === ELEMENT SELECTOR ===
-    const navButtons = document.querySelectorAll('.flex.items-center.space-x-6 button');
-    const userTrigger = navButtons[1]; // Tombol User di Navbar
-    
-    const userOverlay = document.getElementById('user-overlay');
-    const closeUser = document.getElementById('close-user');
-    
-    // Switcher Elements
-    const userMenu = document.getElementById('user-menu');
-    const loginForm = document.getElementById('login-form');
-    const registerForm = document.getElementById('register-form');
-    
-    const btnShowLogin = document.getElementById('show-login');
-    const btnShowRegister = document.getElementById('show-register');
-    const backBtns = document.querySelectorAll('.back-to-menu');
+// ... sisa selector switcher tetap sama ...
 
-    // === FUNGSI TRANSISI UNIVERSAL ===
-    const switchView = (from, to) => {
-        from.classList.add('opacity-0', '-translate-y-5');
-        setTimeout(() => {
-            from.classList.add('hidden');
-            to.classList.remove('hidden');
+// === EVENT LISTENERS ===
+if (userTrigger && userOverlay) {
+    userTrigger.addEventListener('click', () => {
+        userOverlay.classList.remove('hidden');
+        // Gunakan requestAnimationFrame atau timeout kecil agar transisi opacity jalan
+        setTimeout(() => userOverlay.classList.add('opacity-100'), 10);
+        document.body.style.overflow = 'hidden';
+    });
+
+    // ... logic switchView tetap ...
+
+    // Tutup Overlay
+    if (closeUser) {
+        closeUser.addEventListener('click', () => {
+            // Tadi ada typo "s" setelah tanda kurung di kode lo, ini sudah diperbaiki:
+            userOverlay.classList.remove('opacity-100'); 
+            userOverlay.classList.add('opacity-0');
+            
             setTimeout(() => {
-                to.classList.remove('opacity-0', '-translate-y-5');
-                to.classList.add('opacity-100', 'translate-y-0');
-            }, 50);
-        }, 400);
-    };
-
-    // === EVENT LISTENERS ===
-    if (userTrigger && userOverlay) {
-        // Buka Overlay dari Navbar
-        userTrigger.addEventListener('click', () => {
-            userOverlay.classList.remove('hidden');
-            setTimeout(() => userOverlay.classList.add('opacity-100'), 10);
-            document.body.style.overflow = 'hidden';
-        });
-
-        // Tombol Login di Klik
-        if (btnShowLogin) {
-            btnShowLogin.addEventListener('click', (e) => {
-                e.preventDefault();
-                switchView(userMenu, loginForm);
-            });
-        }
-
-        // Tombol Register di Klik
-        if (btnShowRegister) {
-            btnShowRegister.addEventListener('click', (e) => {
-                e.preventDefault();
-                switchView(userMenu, registerForm);
-            });
-        }
-
-        // Semua Tombol Back di Klik
-        backBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                const currentVisible = !loginForm.classList.contains('hidden') ? loginForm : registerForm;
-                switchView(currentVisible, userMenu);
-            });
-        });
-
-        // Tutup Overlay (Tombol Silang)
-        if (closeUser) {
-            closeUser.addEventListener('click', () => {s
-                userOverlay.classList.add('opacity-0');
-                setTimeout(() => {
-                    userOverlay.classList.add('hidden');
-                    // Reset ke menu utama pas ditutup biar rapi
-                    loginForm.classList.add('hidden', 'opacity-0');
-                    registerForm.classList.add('hidden', 'opacity-0');
-                    userMenu.classList.remove('hidden', 'opacity-0');
-                    document.body.style.overflow = 'auto';
-                }, 500);
-            });
-        }
+                userOverlay.classList.add('hidden');
+                // Reset view ke menu utama saat ditutup
+                loginForm.classList.add('hidden', 'opacity-0');
+                registerForm.classList.add('hidden', 'opacity-0');
+                userMenu.classList.remove('hidden', 'opacity-0');
+                userMenu.classList.add('opacity-100');
+                document.body.style.overflow = 'auto';
+            }, 500);
     }
-});
+}
+ });

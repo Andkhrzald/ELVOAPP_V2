@@ -59,7 +59,7 @@
                 <a href="{{ route('shop.index') }}" class="hover:text-white transition duration-300 py-2">store</a>
             </div>
             <div class="flex items-center space-x-6 text-gray-400">
-                <!-- Tombol Search di Navbar -->
+                <!-- Tombol Search -->
                 <button id="search-trigger" class="hover:text-white transition">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="11" cy="11" r="8" />
@@ -67,13 +67,38 @@
                     </svg>
                 </button>
 
-                <button class="hover:text-white transition">
+                <!-- LOGIC AUTH START -->
+                @auth
+                <div class="relative group">
+                    <button class="text-[10px] font-black uppercase tracking-widest text-white flex items-center gap-2">
+                        HI, {{ explode(' ', Auth::user()->name)[0] }}
+                        <svg class="w-3 h-3 transition-transform group-hover:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+
+                    <!-- Dropdown Logout -->
+                    <div class="absolute right-0 mt-2 w-40 bg-[#151515] border border-white/5 rounded-xl py-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 shadow-2xl">
+                        <form action="{{ route('logout') }}" method="POST">
+                            @csrf
+                            <button type="submit" class="w-full text-left px-6 py-2 text-[10px] font-bold text-red-500 hover:bg-white/5 uppercase tracking-widest transition">
+                                Sign Out
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                @else
+                <!-- Tombol User (Trigger Overlay) -->
+                <button id="user-trigger" class="hover:text-white transition">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
                         <circle cx="12" cy="7" r="4" />
                     </svg>
                 </button>
+                @endauth
+                <!-- LOGIC AUTH END -->
 
+                <!-- Tombol Cart -->
                 <button id="cart-trigger" class="hover:text-white transition relative">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
@@ -96,158 +121,10 @@
             © 2026 ELVO APP V2. FOR RESEARCH PURPOSES ONLY.
         </p>
     </footer>
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script>
-        AOS.init({
-            duration: 1000, // Kecepatan animasi (1 detik)
-            once: true, // Animasi cuma jalan sekali pas di-scroll ke bawah
-        });
-    </script>
-    <!-- Search Overlay -->
-    <div id="search-overlay" class="fixed inset-0 bg-black/90 backdrop-blur-md z-[150] hidden opacity-0 transition-all duration-500 flex flex-col items-center justify-center px-6">
-        <!-- Close Button -->
-        <button id="close-search" class="absolute top-10 right-10 text-gray-400 hover:text-white transition-all transform hover:rotate-90">
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M18 6 6 18" />
-                <path d="m6 6 12 12" />
-            </svg>
-        </button>
-
-        <!-- Search Input Area -->
-        <div class="w-full max-w-3xl transform -translate-y-10 transition-all duration-500" id="search-content">
-            <p class="text-[10px] font-black uppercase tracking-[0.5em] text-gray-500 mb-6 text-center">Search for Products</p>
-            <form action="#" method="GET" class="relative">
-                <input type="text" placeholder="TYPE SOMETHING..." class="w-full bg-transparent border-b-2 border-white/10 py-6 text-4xl md:text-6xl font-black italic uppercase tracking-tighter text-white focus:outline-none focus:border-white transition-colors placeholder:text-white/10">
-                <button type="submit" class="absolute right-0 bottom-6 text-white hover:scale-125 transition-transform">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="11" cy="11" r="8" />
-                        <path d="m21 21-4.3-4.3" />
-                    </svg>
-                </button>
-            </form>
-
-            <!-- Quick Links / Suggestions -->
-            <div class="mt-10 flex flex-wrap justify-center gap-6 text-[10px] font-bold uppercase tracking-widest text-gray-400">
-                <span>Trending:</span>
-                <a href="#" class="hover:text-white underline underline-offset-4 decoration-white/20">Signature Series</a>
-                <a href="#" class="hover:text-white underline underline-offset-4 decoration-white/20">ELVO Store Essentials</a>
-                <a href="#" class="hover:text-white underline underline-offset-4 decoration-white/20">BSI Special Edition</a>
-            </div>
-        </div>
-    </div>
 
     <!-- ==========================================
-     USER OVERLAY & LOGIN FORM
-     ========================================== -->
-    <div id="user-overlay" class="fixed inset-0 bg-black/95 backdrop-blur-xl z-[200] hidden opacity-0 transition-all duration-500 flex flex-col items-center justify-center px-6">
-
-        <!-- Tombol Close (Silang) -->
-        <button id="close-user" class="absolute top-10 right-10 text-gray-400 hover:text-white transition-all transform hover:rotate-90">
-            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M18 6 6 18" />
-                <path d="m6 6 12 12" />
-            </svg>
-        </button>
-
-        <div class="w-full max-w-md transform -translate-y-10 transition-all duration-500" id="user-content">
-
-            <!-- BAGIAN 1: MENU UTAMA (PILIHAN LOGIN/REGIS) -->
-            <div id="user-menu" class="text-center transition-all duration-500">
-                <p class="text-[10px] font-black uppercase tracking-[0.5em] text-gray-500 mb-10">Account Access</p>
-                <div class="flex flex-col gap-8">
-                    <!-- Tombol Login (Trigger ke Form) -->
-                    <button id="show-login" class="group relative inline-block text-center focus:outline-none">
-                        <span class="text-5xl md:text-7xl font-black italic uppercase tracking-tighter text-white transition-all group-hover:tracking-normal">Login</span>
-                        <span class="block h-1 w-0 bg-white transition-all group-hover:w-full mt-2"></span>
-                    </button>
-
-                    <!-- Link Register -->
-                    <a href="#" class="group relative inline-block text-center">
-                        <span class="text-5xl md:text-7xl font-black italic uppercase tracking-tighter text-gray-600 transition-all hover:text-white hover:tracking-normal">Register</span>
-                    </a>
-                </div>
-            </div>
-
-            <!-- BAGIAN 2: FORM LOGIN (AWALNYA TERSEMBUNYI) -->
-            <div id="login-form" class="hidden opacity-0 transition-all duration-500 text-left">
-                <!-- Tombol Kembali -->
-                <button id="back-to-menu" class="mb-8 text-gray-500 hover:text-white flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest transition-all focus:outline-none">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="m15 18-6-6 6-6" />
-                    </svg>
-                    Back to Menu
-                </button>
-
-                <h3 class="text-4xl font-black italic uppercase tracking-tighter text-white mb-10">Sign In</h3>
-
-                <form action="#" method="POST" class="space-y-8">
-                    <!-- Input Username / Telp -->
-                    <div class="group">
-                        <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 group-focus-within:text-white transition-colors">Username / Phone</label>
-                        <input type="text" name="login" placeholder="Username"
-                            class="w-full bg-transparent border-b-2 border-white/10 py-4 text-white focus:outline-none focus:border-white transition-all placeholder:text-white/5 uppercase font-bold tracking-widest text-sm">
-                    </div>
-
-                    <!-- Input Password -->
-                    <div class="group">
-                        <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 group-focus-within:text-white transition-colors">Password</label>
-                        <input type="password" name="password" placeholder="••••••••"
-                            class="w-full bg-transparent border-b-2 border-white/10 py-4 text-white focus:outline-none focus:border-white transition-all placeholder:text-white/5 text-sm">
-                    </div>
-
-                    <!-- Submit Button -->
-                    <button type="submit" class="w-full bg-white text-black font-black uppercase tracking-[0.3em] py-6 mt-8 hover:bg-gray-200 transition-all italic text-sm shadow-xl">
-                        Enter Session
-                    </button>
-                </form>
-            </div>
-
-            <!-- BAGIAN 3: FORM REGISTER -->
-            <div id="register-form" class="hidden opacity-0 transition-all duration-500 text-left">
-                <!-- Tombol Kembali ke Menu Utama -->
-                <button class="back-to-menu mb-8 text-gray-500 hover:text-white flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest transition-all focus:outline-none">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="m15 18-6-6 6-6" />
-                    </svg>
-                    Back to Menu
-                </button>
-
-                <h3 class="text-4xl font-black italic uppercase tracking-tighter text-white mb-10">Create Account</h3>
-
-                <form action="#" method="POST" class="space-y-6">
-                    <!-- Input Full Name -->
-                    <div class="group">
-                        <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 group-focus-within:text-white transition-colors">Full Name</label>
-                        <input type="text" name="name" placeholder="REHAN FAEZAN"
-                            class="w-full bg-transparent border-b-2 border-white/10 py-3 text-white focus:outline-none focus:border-white transition-all placeholder:text-white/5 uppercase font-bold tracking-widest text-sm">
-                    </div>
-
-                    <!-- Input Email / Phone -->
-                    <div class="group">
-                        <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 group-focus-within:text-white transition-colors">Email / Phone</label>
-                        <input type="text" name="contact" placeholder="ELVO@STUDIO.COM"
-                            class="w-full bg-transparent border-b-2 border-white/10 py-3 text-white focus:outline-none focus:border-white transition-all placeholder:text-white/5 uppercase font-bold tracking-widest text-sm">
-                    </div>
-
-                    <!-- Input Password -->
-                    <div class="group">
-                        <label class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 group-focus-within:text-white transition-colors">Password</label>
-                        <input type="password" name="password" placeholder="••••••••"
-                            class="w-full bg-transparent border-b-2 border-white/10 py-3 text-white focus:outline-none focus:border-white transition-all placeholder:text-white/5 text-sm">
-                    </div>
-
-                    <!-- Submit Register -->
-                    <button type="submit" class="w-full bg-white text-black font-black uppercase tracking-[0.3em] py-6 mt-8 hover:bg-gray-200 transition-all italic text-sm shadow-xl">
-                        Register Now
-                    </button>
-                </form>
-            </div>
-
-        </div>
-    </div>
-    <!-- LOGIC SCRIPT -->
-
-
+         CART DRAWER (Z-110 & Z-120)
+         ========================================== -->
     <div id="cart-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[110] hidden opacity-0 transition-opacity duration-500"></div>
 
     <div id="cart-drawer" class="fixed top-0 right-0 h-full w-full md:w-[400px] bg-[#0f0f0f] z-[120] translate-x-full transition-transform duration-500 border-l border-white/5 shadow-2xl">
@@ -269,11 +146,6 @@
                         <h4 class="text-[10px] font-bold uppercase tracking-widest mb-1">Signature Black</h4>
                         <p class="text-[10px] text-gray-500 tracking-wider font-medium uppercase">IDR 185.000</p>
                     </div>
-                    <button class="text-gray-600 hover:text-red-500 transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                        </svg>
-                    </button>
                 </div>
             </div>
 
@@ -282,13 +154,81 @@
                     <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Total</span>
                     <span class="text-lg font-black italic">IDR 185.000</span>
                 </div>
-                <button class="w-full bg-white text-black py-4 rounded-full text-[10px] font-black uppercase tracking-[0.3em] hover:bg-gray-200 transition-all duration-300">
+                <a href="{{ route('checkout') }}" class="block w-full bg-white text-black text-center py-4 rounded-full text-[10px] font-black uppercase tracking-[0.3em] hover:bg-gray-200 transition-all duration-300">
                     Checkout Now
-                </button>
+                </a>
             </div>
         </div>
     </div>
-</body>
 
+    <!-- ==========================================
+         USER OVERLAY (LOGIN MENU) - Z-200
+         ========================================== -->
+    <div id="user-overlay" class="fixed inset-0 bg-black/95 backdrop-blur-xl z-[200] hidden opacity-0 transition-all duration-500 flex flex-col items-center justify-center px-6">
+        <button id="close-user" class="absolute top-10 right-10 text-gray-400 hover:text-white transition-all transform hover:rotate-90">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 6 6 18" />
+                <path d="m6 6 12 12" />
+            </svg>
+        </button>
+
+        <div class="w-full max-w-md text-center">
+            <p class="text-[10px] font-black uppercase tracking-[0.5em] text-gray-500 mb-10">Account Access</p>
+            <div class="flex flex-col gap-8">
+                <a href="{{ route('login') }}" class="group relative inline-block text-center">
+                    <span class="text-5xl md:text-7xl font-black italic uppercase tracking-tighter text-white transition-all group-hover:tracking-normal">Login</span>
+                    <span class="block h-1 w-0 bg-white transition-all group-hover:w-full mt-2"></span>
+                </a>
+                <a href="{{ route('register') }}" class="group relative inline-block text-center">
+                    <span class="text-5xl md:text-7xl font-black italic uppercase tracking-tighter text-gray-600 transition-all hover:text-white hover:tracking-normal">Register</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT LOGIC -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 1000,
+            once: true
+        });
+
+        // Logic Cart Drawer
+        const cartTrigger = document.getElementById('cart-trigger');
+        const cartDrawer = document.getElementById('cart-drawer');
+        const cartOverlay = document.getElementById('cart-overlay');
+        const closeCart = document.getElementById('close-cart');
+
+        cartTrigger.addEventListener('click', () => {
+            cartOverlay.classList.remove('hidden');
+            setTimeout(() => cartOverlay.classList.add('opacity-100'), 10);
+            cartDrawer.classList.remove('translate-x-full');
+        });
+
+        closeCart.addEventListener('click', () => {
+            cartOverlay.classList.remove('opacity-100');
+            cartDrawer.classList.add('translate-x-full');
+            setTimeout(() => cartOverlay.classList.add('hidden'), 500);
+        });
+
+        // Logic User Overlay (Jika lo mau tombol user tetap munculin menu login/regis)
+        const userTrigger = document.querySelector('button:has(svg circle[cx="12"])'); // Menargetkan tombol user
+        const userOverlay = document.getElementById('user-overlay');
+        const closeUser = document.getElementById('close-user');
+
+        if (userTrigger) {
+            userTrigger.addEventListener('click', () => {
+                userOverlay.classList.remove('hidden');
+                setTimeout(() => userOverlay.classList.add('opacity-100'), 10);
+            });
+        }
+
+        closeUser.addEventListener('click', () => {
+            userOverlay.classList.remove('opacity-100');
+            setTimeout(() => userOverlay.classList.add('hidden'), 500);
+        });
+    </script>
+</body>
 
 </html>
