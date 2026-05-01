@@ -33,64 +33,29 @@
             </tr>
         </thead>
         <tbody>
-            {{-- Baris 1 --}}
-            <tr class="bg-white border-b border-gray-100 hover:bg-gray-50 transition">
-                <td class="w-4 p-4">
-                    <div class="flex items-center">
-                        <input id="table-checkbox-2" type="checkbox" class="w-4 h-4 text-elvo bg-gray-100 border-gray-300 rounded focus:ring-elvo">
-                    </div>
-                </td>
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">Apple MacBook Pro 17"</th>
-                <td class="px-6 py-4">Silver</td>
-                <td class="px-6 py-4">Laptop</td>
-                <td class="px-6 py-4 text-green-600 font-bold">Ya</td>
-                <td class="px-6 py-4 text-green-600 font-bold">Ya</td>
-                <td class="px-6 py-4 font-semibold text-gray-900">$2999</td>
-                <td class="px-6 py-4">3.0 lb.</td>
-                <td class="px-6 py-4 text-center">
-                    <a href="#" class="font-medium text-elvo hover:underline">Edit</a>
-                    <a href="#" class="font-medium text-red-600 hover:underline ms-3">Hapus</a>
-                </td>
-            </tr>
-            {{-- Baris 2 --}}
-            <tr class="bg-white border-b border-gray-100 hover:bg-gray-50 transition">
-                <td class="w-4 p-4">
-                    <div class="flex items-center">
-                        <input id="table-checkbox-3" type="checkbox" class="w-4 h-4 text-elvo bg-gray-100 border-gray-300 rounded focus:ring-elvo">
-                    </div>
-                </td>
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">Microsoft Surface Pro</th>
-                <td class="px-6 py-4">White</td>
-                <td class="px-6 py-4">Laptop PC</td>
-                <td class="px-6 py-4 text-red-600 font-bold">Tidak</td>
-                <td class="px-6 py-4 text-green-600 font-bold">Ya</td>
-                <td class="px-6 py-4 font-semibold text-gray-900">$1999</td>
-                <td class="px-6 py-4">1.0 lb.</td>
-                <td class="px-6 py-4 text-center">
-                    <a href="#" class="font-medium text-elvo hover:underline">Edit</a>
-                    <a href="#" class="font-medium text-red-600 hover:underline ms-3">Hapus</a>
-                </td>
-            </tr>
-            {{-- Baris 3 --}}
-            <tr class="bg-white border-b border-gray-100 hover:bg-gray-50 transition">
-                <td class="w-4 p-4">
-                    <div class="flex items-center">
-                        <input id="table-checkbox-4" type="checkbox" class="w-4 h-4 text-elvo bg-gray-100 border-gray-300 rounded focus:ring-elvo">
-                    </div>
-                </td>
-                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">Magic Mouse 2</th>
-                <td class="px-6 py-4">Black</td>
-                <td class="px-6 py-4">Accessories</td>
-                <td class="px-6 py-4 text-green-600 font-bold">Ya</td>
-                <td class="px-6 py-4 text-red-600 font-bold">Tidak</td>
-                <td class="px-6 py-4 font-semibold text-gray-900">$99</td>
-                <td class="px-6 py-4">0.2 lb.</td>
-                <td class="px-6 py-4 text-center">
-                    <a href="#" class="font-medium text-elvo hover:underline">Edit</a>
-                    <a href="#" class="font-medium text-red-600 hover:underline ms-3">Hapus</a>
-                </td>
-            </tr>
-        </tbody>
+        @foreach($products as $p)
+        <tr class="bg-white border-b border-gray-100 hover:bg-gray-50 transition">
+            <td class="w-4 p-4">
+                <div class="flex items-center">
+                    <input id="table-checkbox-{{ $p->id }}" type="checkbox" class="w-4 h-4 text-elvo bg-gray-100 border-gray-300 rounded focus:ring-elvo">
+                </div>
+            </td>
+            <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
+                {{ $p->name }}
+            </th>
+            <td class="px-6 py-4">-</td> {{-- Warna bisa menyusul --}}
+            <td class="px-6 py-4">{{ $p->category->name ?? 'Uncategorized' }}</td>
+            <td class="px-6 py-4 text-green-600 font-bold">Ya</td>
+            <td class="px-6 py-4 text-green-600 font-bold">{{ $p->stock > 0 ? 'Ya' : 'Habis' }}</td>
+            <td class="px-6 py-4 font-semibold text-gray-900">Rp {{ number_format($p->price) }}</td>
+            <td class="px-6 py-4">-</td>
+            <td class="px-6 py-4 text-center">
+                <a href="#" class="font-medium text-elvo hover:underline">Edit</a>
+                <a href="#" class="font-medium text-red-600 hover:underline ms-3">Hapus</a>
+            </td>
+        </tr>
+        @endforeach
+    </tbody>
     </table>
 </div>
 @endsection
