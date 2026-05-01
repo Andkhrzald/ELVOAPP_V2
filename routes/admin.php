@@ -4,14 +4,13 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderController; 
 use App\Http\Controllers\Admin\TransactionHistoryController;
+use App\Http\Controllers\Admin\ProductController;
 
 // 1. Dashboard
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 // 2. Products
-Route::get('/products', function () {
-    return view('admin.products');
-})->name('products');
+Route::get('/products', [ProductController::class, 'index'])->name('products');
 
 // 3. TRANSAKSI (Logic: Langsung pakai Controller History)
 // Kita ganti rute /history tadi menjadi /transaksi supaya URL-nya bagus

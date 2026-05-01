@@ -17,10 +17,18 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+
+            // --- TAMBAHKAN 3 BARIS INI DI SINI ---
+            $table->string('role')->default('customer'); // Pembeda Admin dan Customer
+            $table->string('phone')->nullable();          // No HP untuk kurir/admin
+            $table->text('address')->nullable();          // Alamat kirim pelanggan
+            // --------------------------------------
+
             $table->rememberToken();
             $table->timestamps();
         });
 
+        // Biarkan code password_reset_tokens dan sessions tetap seperti aslinya
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();
             $table->string('token');
