@@ -55,25 +55,25 @@ class ShopController extends Controller
     }
 
     public function postLogin(Request $request)
-{
-    $credentials = $request->validate([
-        'email' => ['required', 'email'],
-        'password' => ['required'],
-    ]);
+    {
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required'],
+        ]);
 
-    if (Auth::attempt($credentials)) {
-        $request->session()->regenerate();
+        if (Auth::attempt($credentials)) {
+            $request->session()->regenerate();
 
-        // LOGIKA PEMISAH: Agar Admin masuk ke tempatnya sendiri
-        if (Auth::user()->role === 'admin') {
-            return redirect()->intended('/admin/dashboard'); // Arahkan ke rute dashboard admin kamu
+            // LOGIKA PEMISAH: Agar Admin masuk ke tempatnya sendiri
+            if (Auth::user()->role === 'admin') {
+                return redirect()->intended('/admin/dashboard'); // Arahkan ke rute dashboard admin kamu
+            }
+
+            return redirect()->intended('/'); // Arahkan ke home customer Rehan
         }
 
-        return redirect()->intended('/'); // Arahkan ke home customer Rehan
+        return back()->withErrors(['email' => 'Invalid credentials.']);
     }
-
-    return back()->withErrors(['email' => 'Invalid credentials.']);
-}
 
     public function logout(Request $request)
     {
@@ -81,5 +81,17 @@ class ShopController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect('/');
+    }
+
+    public function history()
+    {
+        // Cari order berdasarkan user_id yang sedang login
+        $orders = \App\Models\Order::with('products')
+            ->where('user_id', Auth::id())
+            ->latest()
+            ->get();
+
+        // Ubah 'pages.history' jadi 'customer.history'
+        return view('customer.history', compact('orders'));
     }
 } // <--- KURUNG KURAWAL PENUTUP HARUS DI SINI

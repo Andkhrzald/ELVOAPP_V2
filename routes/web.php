@@ -33,3 +33,4 @@ Route::post('/register', [ShopController::class, 'storeRegister'])->name('regist
 
 // Logout
 Route::post('/logout', [ShopController::class, 'logout'])->name('logout');
+Route::get('/history', [ShopController::class, 'history'])->name('history.index');

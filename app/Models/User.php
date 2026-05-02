@@ -29,4 +29,10 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    // Tambahkan ini di dalam class User
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
 }

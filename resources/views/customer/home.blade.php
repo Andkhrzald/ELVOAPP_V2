@@ -52,7 +52,67 @@
         </a>
     </div>
 </section>
+<!-- Section About ELVOAPP -->
+<section id="about" class="pt-10 pb-32">
+</section>
 
+<!-- Section About ELVOAPP -->
+<section class="relative mb-24 px-4" data-aos="fade-up" data-aos-delay="200">
+    <div class="max-w-6xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center p-12 rounded-[40px] border border-white/5 bg-gradient-to-br from-white/[0.03] to-transparent backdrop-blur-xl">
+
+            <div>
+                <h2 class="text-[28px] font-black uppercase tracking-[0.5em] mb-8 text-white leading-tight">
+                    About <br> <span class="text-gray-500">ELVOAPP</span>
+                </h2>
+                <div class="w-12 h-[2px] bg-white mb-8"></div>
+                <p class="text-gray-400 text-[11px] leading-relaxed uppercase tracking-[0.2em] mb-10">
+                    Kami hadir untuk mendefinisikan kembali gaya hidup digital melalui kurasi produk yang berani. ELVOAPP bukan sekadar platform belanja, tapi adalah manifestasi dari kreativitas dan kualitas yang kami bangun khusus untuk lo.
+                </p>
+
+                <div class="flex gap-8">
+                    <div class="border-l border-white/10 pl-4">
+                        <p class="text-white font-black text-[16px] tracking-widest">EST. 2025</p>
+                        <p class="text-gray-600 text-[8px] uppercase font-bold tracking-widest">Established</p>
+                    </div>
+                    <div class="border-l border-white/10 pl-4">
+                        <p class="text-white font-black text-[16px] tracking-widest">JKT</p>
+                        <p class="text-gray-600 text-[8px] uppercase font-bold tracking-widest">Base Operation</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bagian Kanan: Bisa lo isi Image Brand atau Asset Figma lo -->
+            <div class="relative group" data-aos="fade-left">
+                <!-- Glow Effect di Belakang -->
+                <div class="absolute inset-0 bg-white/5 rounded-[40px] blur-3xl group-hover:bg-white/10 transition-all duration-1000"></div>
+
+                <div class="relative aspect-square rounded-[40px] border border-white/10 bg-black/40 backdrop-blur-sm overflow-hidden">
+
+                    <!-- 3D Model Viewer -->
+                    <model-viewer
+                        src="{{ asset('3d/leather_jacket.glb') }}"
+                        poster="{{ asset('images/jacket-placeholder.png') }}"
+                        alt="ELVO Leather Jacket 3D"
+                        auto-rotate
+                        camera-controls
+                        touch-action="pan-y"
+                        shadow-intensity="2"
+                        exposure="1"
+                        class="w-full h-full cursor-grab active:cursor-grabbing"
+                        style="--poster-color: transparent;">
+
+                        <!-- Indikator Loading -->
+                        <div slot="poster" class="flex items-center justify-center h-full">
+                            <p class="text-[9px] text-gray-500 uppercase tracking-[0.4em] animate-pulse">Loading 3D Model...</p>
+                        </div>
+                    </model-viewer>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 <section class="pt-10 pb-32">
 </section>
 <section class="py-24 text-center">
@@ -126,7 +186,9 @@
                 </h2>
             </div>
             <div class="flex gap-4" data-aos="fade-left">
-                <button class="px-6 py-2 border border-white/10 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-all">All</button>
+                <a href="{{ route('shop.index') }}" class="px-6 py-2 border border-white/10 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-all text-gray-500">
+                    All
+                </a>
                 <button class="px-6 py-2 border border-white/10 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-all text-gray-500">Apparel</button>
                 <button class="px-6 py-2 border border-white/10 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-white hover:text-black transition-all text-gray-500">Accessories</button>
             </div>
@@ -229,6 +291,82 @@
             </div>
 
             <!-- Lo bisa duplikat Product Item di atas buat produk lainnya -->
+
+        </div>
+    </div>
+</section>
+
+<section>
+    <div class="container mx-auto px-6">
+</section>
+
+<section class="bg-[#0b0b0b] text-white pt-[100px] pb-20 border-t border-white/5">
+    <div class="container mx-auto px-8">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-12">
+            <!-- Isi konten Shop, Corporate Info, dll lo di sini -->
+        </div>
+    </div>
+</section>
+
+<section clas text-white text-white py-20 mt-[100px] border-t border-white/10">
+    <div class="container mx-auto px-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+
+            <!-- Column 1: SHOP -->
+            <div>
+                <h4 class="text-[10px] font-black uppercase tracking-[0.3em] mb-8 text-gray-500">Shop</h4>
+                <ul class="space-y-4">
+                    <li><a href="#" class="text-[11px] font-bold uppercase tracking-widest hover:text-gray-400 transition">Wanita</a></li>
+                    <li><a href="#" class="text-[11px] font-bold uppercase tracking-widest hover:text-gray-400 transition">Pria</a></li>
+                    <li><a href="#" class="text-[11px] font-bold uppercase tracking-widest hover:text-gray-400 transition">Aksesoris</a></li>
+                    <li><a href="#" class="text-[11px] font-bold uppercase tracking-widest text-red-500 hover:text-red-400 transition">Sale</a></li>
+                </ul>
+            </div>
+
+            <!-- Column 2: CORPORATE INFO -->
+            <div>
+                <h4 class="text-[10px] font-black uppercase tracking-[0.3em] mb-8 text-gray-500">Corporate Info</h4>
+                <ul class="space-y-4">
+                    <li><a href="#" class="text-[11px] font-bold uppercase tracking-widest hover:text-gray-400 transition">Berkarir di ELVO</a></li>
+                    <li><a href="#" class="text-[11px] font-bold uppercase tracking-widest hover:text-gray-400 transition">Sustainability</a></li>
+                    <li><a href="#" class="text-[11px] font-bold uppercase tracking-widest hover:text-gray-400 transition">Investor Relations</a></li>
+                    <li><a href="#" class="text-[11px] font-bold uppercase tracking-widest hover:text-gray-400 transition">Tata Kelola</a></li>
+                </ul>
+            </div>
+
+            <!-- Column 3: HELP -->
+            <div>
+                <h4 class="text-[10px] font-black uppercase tracking-[0.3em] mb-8 text-gray-500">Help</h4>
+                <ul class="space-y-4">
+                    <li><a href="#" class="text-[11px] font-bold uppercase tracking-widest hover:text-gray-400 transition">Customer Service</a></li>
+                    <li><a href="#" class="text-[11px] font-bold uppercase tracking-widest hover:text-gray-400 transition">Lokasi Toko</a></li>
+                    <li><a href="#" class="text-[11px] font-bold uppercase tracking-widest hover:text-gray-400 transition">Kontak</a></li>
+                    <li><a href="#" class="text-[11px] font-bold uppercase tracking-widest hover:text-gray-400 transition underline underline-offset-8 decoration-red-500/50">Kebijakan Privasi</a></li>
+                </ul>
+            </div>
+
+            <!-- Column 4: NEWSLETTER & APPS -->
+            <div>
+                <h4 class="text-[10px] font-black uppercase tracking-[0.3em] mb-8 text-gray-500">Jadi Member</h4>
+                <p class="text-[11px] leading-relaxed text-gray-400 mb-6 tracking-wide">
+                    Bergabunglah sekarang dan dapatkan diskon 10% untuk pembelian pertama anda!
+                </p>
+                <a href="login" class="inline-block text-[11px] font-black uppercase tracking-[0.2em] border-b-2 border-white pb-1 hover:text-gray-400 hover:border-gray-400 transition mb-10">
+                    Bergabung Sekarang &rarr;
+                </a>
+
+                <h4 class="text-[10px] font-black uppercase tracking-[0.3em] mb-6 text-gray-500">Unduh Aplikasi</h4>
+                <div class="flex items-center gap-4">
+                    <!-- App Store -->
+                    <a href="#" class="hover:opacity-70 transition">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" alt="App Store" class="h-8">
+                    </a>
+                    <!-- Play Store -->
+                    <a href="#" class="hover:opacity-70 transition">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Play Store" class="h-8">
+                    </a>
+                </div>
+            </div>
 
         </div>
     </div>
