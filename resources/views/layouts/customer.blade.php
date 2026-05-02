@@ -10,6 +10,7 @@
     <link rel="icon" type="image/png" href="{{ asset('img/elvo_logo1.png') }}">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;800&display=swap" rel="stylesheet">
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
 
     <style>
         html {
@@ -55,7 +56,7 @@
                 </div>
 
                 <a href="#produk" class="hover:text-white transition duration-300 py-2">Collections</a>
-                <a href="#" class="hover:text-white transition duration-300 py-2">About</a>
+                <a href="#about" class="hover:text-white transition duration-300 py-2">About</a>
                 <a href="{{ route('shop.index') }}" class="hover:text-white transition duration-300 py-2">store</a>
             </div>
             <div class="flex items-center space-x-6 text-gray-400">
@@ -67,6 +68,15 @@
                     </svg>
                 </button>
 
+                <!-- Tombol Cart -->
+                <button id="cart-trigger" class="hover:text-white transition relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="9" cy="21" r="1" />
+                        <circle cx="20" cy="21" r="1" />
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+                    </svg>
+                    <span class="absolute -top-1 -right-1 w-2 h-2 bg-white rounded-full"></span>
+                </button>
                 <!-- LOGIC AUTH START -->
                 @auth
                 <div class="relative group">
@@ -98,15 +108,15 @@
                 @endauth
                 <!-- LOGIC AUTH END -->
 
-                <!-- Tombol Cart -->
-                <button id="cart-trigger" class="hover:text-white transition relative">
+                <a href="{{ route('history.index') }}"
+                    class="{{ request()->routeIs('history.index') ? 'text-white' : 'text-gray-400' }} hover:text-white transition flex items-center"
+                    title="My Orders">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
-                        <path d="M3 6h18" />
-                        <path d="M16 10a4 4 0 0 1-8 0" />
+                        <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <path d="M16 10a4 4 0 0 1-8 0"></path>
                     </svg>
-                    <span class="absolute -top-1 -right-1 w-2 h-2 bg-white rounded-full"></span>
-                </button>
+                </a>
             </div>
         </div>
     </nav>
