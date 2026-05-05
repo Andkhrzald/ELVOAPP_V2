@@ -51,4 +51,61 @@ class ProductController extends Controller
 
     return redirect()->route('admin.products')->with('success', 'Produk berhasil ditambahkan!');
 }
+
+// 1. Fungsi untuk menampilkan halaman Edit
+    public function edit($id)
+    {
+        $product = Product::findOrFail($id);
+        // Kita butuh kategori juga supaya bisa pilih kategori saat edit
+        $categories = \App\Models\Category::all(); 
+        return view('admin.products_edit', compact('product', 'categories'));
+    }
+
+    // 2. Fungsi untuk memproses Update data
+    public function update(Request $request, $id)
+    {
+        $product = Product::findOrFail($id);
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'category_id' => 'required',
+            'description' => 'required',
+            'price' => 'required|numeric',
+            'stock' => 'required|integer',
+            'weight' => 'required',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
+        ]);
+
+        $data = $request->all();
+        $data['slug'] = Str::slug($request->name);
+
+        // Jika ada upload foto baru
+        if ($request->hasFile('image')) {
+            // Hapus foto lama dari storage agar tidak menumpuk sampah
+            if ($product->image) {
+                Storage::delete('public/' . $product->image);
+            }
+            // Simpan foto baru
+            $data['image'] = $request->file('image')->store('products', 'public');
+        }
+
+        $product->update($data);
+
+        return redirect()->route('admin.products')->with('success', 'Produk berhasil diupdate!');
+    }
+
+    // 3. Fungsi untuk Hapus data
+    public function destroy($id)
+    {
+        $product = Product::findOrFail($id);
+
+        // Hapus foto dari folder storage sebelum data dihapus
+        if ($product->image) {
+            Storage::delete('public/' . $product->image);
+        }
+
+        $product->delete();
+
+        return redirect()->route('admin.products')->with('success', 'Produk berhasil dihapus!');
+    }
 }

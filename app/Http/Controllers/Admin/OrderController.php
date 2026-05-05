@@ -12,7 +12,7 @@ class OrderController extends Controller
         // 1. Tangkap status dari URL (misal: ?status=pending). Jika tidak ada, defaultnya 'proses'
         $status = $request->query('status', 'proses');
 
-        // 2. Data Dummy Lengkap dengan rincian untuk Detail Pesanan
+        // 2. Data Dummy Lengkap
         $all_orders = [
             [
                 'id' => 'TRX-99211',
@@ -58,19 +58,23 @@ class OrderController extends Controller
             ]
         ];
 
-        // 3. Filter data berdasarkan status yang sedang aktif
-        // Menggunakan array_values agar index array kembali rapi (0, 1, 2) setelah difilter
+        // 3. Filter data berdasarkan status yang sedang aktif (untuk tabel utama)
         $orders = array_values(array_filter($all_orders, function($item) use ($status) {
             return $item['status'] == $status;
         }));
 
-        // 4. Kirim data ke view
-        return view('admin.pesanan-masuk', compact('orders', 'status'));
+        // 4. Tambahkan variabel history (untuk Riwayat Pesanan)
+        // Kita ambil data yang statusnya 'dikirim' sebagai history dummy
+        $history = array_values(array_filter($all_orders, function($item) {
+            return $item['status'] == 'dikirim';
+        }));
+
+        // 5. Kirim data ke view (Pastikan 'history' ada di dalam compact)
+        return view('admin.pesanan-masuk', compact('orders', 'status', 'history'));
     }
 
     /**
      * Fungsi untuk memproses konfirmasi pengiriman
-     * Sesuai dengan route: admin.orders.confirm
      */
     public function confirm(Request $request, $id)
     {
@@ -82,8 +86,8 @@ class OrderController extends Controller
         // 2. Ambil nomor resi dari form modal
         $noResi = $request->input('resi');
 
-        // Note: Nanti di sini tempat kamu update status di Database
-        // Contoh: Order::where('invoice', $id)->update(['status' => 'dikirim', 'no_resi' => $noResi]);
+        // Note: Nanti di sini tempat update status di Database (Contoh)
+        // Order::where('id', $id)->update(['status' => 'dikirim', 'no_resi' => $noResi]);
 
         // 3. Kembali ke halaman sebelumnya dengan pesan sukses
         return redirect()->back()->with('success', 'Pesanan #' . $id . ' berhasil diproses. Nomor Resi: ' . $noResi);
