@@ -11,6 +11,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 
 // 2. Products
 Route::get('/products', [ProductController::class, 'index'])->name('products');
+Route::post('/products/store', [ProductController::class, 'store'])->name('products.store');
 
 // 3. TRANSAKSI (Logic: Langsung pakai Controller History)
 // Kita ganti rute /history tadi menjadi /transaksi supaya URL-nya bagus

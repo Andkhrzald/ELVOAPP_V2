@@ -3,14 +3,25 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Attributes\Fillable; // Import atribut Fillable
-use Illuminate\Database\Eloquent\Relations\BelongsTo; // Import untuk tipe data relasi
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-#[Fillable(['category_id', 'name', 'slug', 'description', 'price', 'stock', 'image'])]
 class Product extends Model
 {
+    // Tambahkan color dan weight ke sini agar bisa disimpan
+    protected $fillable = [
+        'category_id', 
+        'name', 
+        'slug', 
+        'description', 
+        'price', 
+        'stock', 
+        'color',  // Tambahkan ini
+        'weight', // Tambahkan ini
+        'image'
+    ];
+
     /**
-     * Relasi ke Category: Satu produk punya satu kategori
+     * Relasi ke Category
      */
     public function category(): BelongsTo
     {

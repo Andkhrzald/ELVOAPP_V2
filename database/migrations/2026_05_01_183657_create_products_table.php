@@ -13,15 +13,18 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            // Menghubungkan produk ke id di tabel categories
             $table->foreignId('category_id')->constrained()->onDelete('cascade');
+            $table->string('name');
+            $table->string('slug')->unique();
+            $table->text('description');
+            $table->integer('price');
+            $table->integer('stock');
+        
+            // TAMBAHKAN DUA BARIS INI:
+            $table->string('color')->nullable();  // Tambah kolom warna
+            $table->string('weight')->nullable(); // Tambah kolom berat (bisa string/integer)
             
-            $table->string('name');            // Nama Produk (Contoh: Elvo Hoodie Black)
-            $table->string('slug')->unique();  // URL ramah (Contoh: elvo-hoodie-black)
-            $table->text('description');       // Detail produk
-            $table->integer('price');          // Harga produk (integer agar mudah dihitung)
-            $table->integer('stock');          // Stok barang
-            $table->string('image')->nullable(); // Nama file gambar produk
+            $table->string('image')->nullable();
             $table->timestamps();
         });
     }
