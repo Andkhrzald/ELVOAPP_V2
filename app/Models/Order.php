@@ -3,10 +3,36 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 
-#[Fillable(['user_id', 'order_number', 'total_price', 'status'])]
+#[Fillable([
+    'user_id', 
+    'order_number', 
+    'total_price', 
+    'status',
+    'payment_method',
+    'shipping_method',
+    'shipping_cost',
+    'no_resi',
+    'notes',
+])]
 class Order extends Model
 {
-    //
+    /**
+     * Relasi ke User (pelanggan yang memesan)
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Relasi ke OrderItem (detail item dalam pesanan)
+     */
+    public function items(): HasMany
+    {
+        return $this->hasMany(OrderItem::class);
+    }
 }

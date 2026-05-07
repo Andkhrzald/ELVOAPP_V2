@@ -3,93 +3,174 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Order;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
+    /**
+     * Tampilkan halaman manajemen pesanan dengan filter status
+     */
     public function index(Request $request)
     {
-        // 1. Tangkap status dari URL (misal: ?status=pending). Jika tidak ada, defaultnya 'proses'
-        $status = $request->query('status', 'proses');
+        $status = $request->query('status', 'pending');
 
-        // 2. Data Dummy Lengkap
-        $all_orders = [
-            [
-                'id' => 'TRX-99211',
-                'customer_name' => 'Siti Aminah',
-                'phone' => '081234567890',
-                'address' => 'Jl. Merdeka No. 123, Kecamatan Sukajadi, Kota Bandung, Jawa Barat 40162',
-                'payment_method' => 'Transfer Bank BCA',
-                'shipping_method' => 'J&T Express - Reguler',
-                'subtotal' => 1150000,
-                'shipping_cost' => 50000,
-                'total' => 1200000,
-                'status' => 'proses',
-                'items' => '2x Produk Elvo Premium (XL), 1x Aksesoris',
-                'created_at' => '21 Okt 2023 14:20 WIB'
-            ],
-            [
-                'id' => 'TRX-77344',
-                'customer_name' => 'Andi Wijaya',
-                'phone' => '085711223344',
-                'address' => 'Perumahan Indah Kencana Blok C5, Serpong, Tangerang Selatan, Banten 15310',
-                'payment_method' => 'E-Wallet (Gopay)',
-                'shipping_method' => 'SiCepat Best',
-                'subtotal' => 330000,
-                'shipping_cost' => 20000,
-                'total' => 350000,
-                'status' => 'pending',
-                'items' => '1x T-Shirt Elvo Basic (L)',
-                'created_at' => '22 Okt 2023 09:15 WIB'
-            ],
-            [
-                'id' => 'TRX-88122',
-                'customer_name' => 'Budi Santoso',
-                'phone' => '089988776655',
-                'address' => 'Jl. Gajah Mada No. 45, Kec. Genteng, Surabaya, Jawa Timur 60275',
-                'payment_method' => 'Transfer Bank Mandiri',
-                'shipping_method' => 'JNE YES',
-                'subtotal' => 465000,
-                'shipping_cost' => 35000,
-                'total' => 500000,
-                'status' => 'dikirim',
-                'items' => '1x Hoodie Elvo Signature (M)',
-                'created_at' => '20 Okt 2023 11:00 WIB'
-            ]
+        // Query real dari database — filter berdasarkan status
+        $orders = Order::with(['user', 'items.product'])
+            ->where('status', $status)
+            ->latest()
+            ->get();
+
+        // Hitung jumlah per status untuk badge counter
+        $statusCounts = [
+            'pending'  => Order::where('status', 'pending')->count(),
+            'proses'   => Order::where('status', 'proses')->count(),
+            'dikirim'  => Order::where('status', 'dikirim')->count(),
+            'selesai'  => Order::where('status', 'selesai')->count(),
+            'batal'    => Order::where('status', 'batal')->count(),
         ];
 
-        // 3. Filter data berdasarkan status yang sedang aktif (untuk tabel utama)
-        $orders = array_values(array_filter($all_orders, function($item) use ($status) {
-            return $item['status'] == $status;
-        }));
+        // Data riwayat (pesanan yang sudah dikirim/selesai) untuk statistik pendapatan
+        $completedOrders = Order::whereIn('status', ['dikirim', 'selesai'])->get();
+        $totalRevenue = $completedOrders->sum('total_price');
 
-        // 4. Tambahkan variabel history (untuk Riwayat Pesanan)
-        // Kita ambil data yang statusnya 'dikirim' sebagai history dummy
-        $history = array_values(array_filter($all_orders, function($item) {
-            return $item['status'] == 'dikirim';
-        }));
-
-        // 5. Kirim data ke view (Pastikan 'history' ada di dalam compact)
-        return view('admin.pesanan-masuk', compact('orders', 'status', 'history'));
+        return view('admin.pesanan-masuk', compact(
+            'orders', 
+            'status', 
+            'statusCounts', 
+            'totalRevenue'
+        ));
     }
 
     /**
-     * Fungsi untuk memproses konfirmasi pengiriman
+     * ACCEPT — Terima pesanan (pending → proses)
+     * Admin mengkonfirmasi pesanan dan memulai proses packing
      */
-    public function confirm(Request $request, $id)
+    public function accept($id)
     {
-        // 1. Validasi input
-        $request->validate([
-            'resi' => 'required|string|max:50'
+        $order = Order::findOrFail($id);
+
+        // Guard: hanya pending yang bisa di-accept
+        if ($order->status !== 'pending') {
+            return redirect()->back()->with('error', 'Pesanan ini tidak bisa dikonfirmasi karena statusnya bukan pending.');
+        }
+
+        $order->update(['status' => 'proses']);
+
+        ActivityLog::create([
+            'user_id'     => null,
+            'action'      => 'order_confirmed',
+            'description' => 'Pesanan #' . $order->order_number . ' dikonfirmasi & masuk proses packing',
+            'model_type'  => 'Order',
+            'model_id'    => $order->id,
         ]);
 
-        // 2. Ambil nomor resi dari form modal
-        $noResi = $request->input('resi');
+        return redirect()->back()->with('success', '✅ Pesanan #' . $order->order_number . ' berhasil dikonfirmasi. Status: PROSES');
+    }
 
-        // Note: Nanti di sini tempat update status di Database (Contoh)
-        // Order::where('id', $id)->update(['status' => 'dikirim', 'no_resi' => $noResi]);
+    /**
+     * SHIP — Kirim pesanan (proses → dikirim)
+     * Admin memasukkan nomor resi dan kurir pengiriman
+     */
+    public function ship(Request $request, $id)
+    {
+        $request->validate([
+            'no_resi'         => 'required|string|max:50',
+            'shipping_method' => 'nullable|string|max:100',
+        ]);
 
-        // 3. Kembali ke halaman sebelumnya dengan pesan sukses
-        return redirect()->back()->with('success', 'Pesanan #' . $id . ' berhasil diproses. Nomor Resi: ' . $noResi);
+        $order = Order::findOrFail($id);
+
+        // Guard: hanya proses yang bisa di-ship
+        if ($order->status !== 'proses') {
+            return redirect()->back()->with('error', 'Pesanan ini tidak bisa dikirim karena statusnya bukan diproses.');
+        }
+
+        $updateData = [
+            'status'  => 'dikirim',
+            'no_resi' => $request->input('no_resi'),
+        ];
+
+        // Update shipping method jika diisi
+        if ($request->filled('shipping_method')) {
+            $updateData['shipping_method'] = $request->input('shipping_method');
+        }
+
+        $order->update($updateData);
+
+        ActivityLog::create([
+            'user_id'     => null,
+            'action'      => 'order_shipped',
+            'description' => 'Pesanan #' . $order->order_number . ' dikirim via ' . ($order->shipping_method ?? 'Kurir') . ' (Resi: ' . $request->input('no_resi') . ')',
+            'model_type'  => 'Order',
+            'model_id'    => $order->id,
+        ]);
+
+        return redirect()->back()->with('success', '🚚 Pesanan #' . $order->order_number . ' berhasil dikirim! Resi: ' . $request->input('no_resi'));
+    }
+
+    /**
+     * COMPLETE — Tandai selesai (dikirim → selesai)
+     * Pesanan sudah sampai ke pelanggan
+     */
+    public function complete($id)
+    {
+        $order = Order::findOrFail($id);
+
+        // Guard: hanya dikirim yang bisa di-complete
+        if ($order->status !== 'dikirim') {
+            return redirect()->back()->with('error', 'Pesanan ini tidak bisa ditandai selesai karena belum dikirim.');
+        }
+
+        $order->update(['status' => 'selesai']);
+
+        ActivityLog::create([
+            'user_id'     => null,
+            'action'      => 'order_completed',
+            'description' => 'Pesanan #' . $order->order_number . ' telah selesai & diterima pelanggan',
+            'model_type'  => 'Order',
+            'model_id'    => $order->id,
+        ]);
+
+        return redirect()->back()->with('success', '🎉 Pesanan #' . $order->order_number . ' selesai! Pesanan diterima pelanggan.');
+    }
+
+    /**
+     * CANCEL — Batalkan pesanan (any → batal)
+     * Dengan alasan pembatalan
+     */
+    public function cancel(Request $request, $id)
+    {
+        $request->validate([
+            'cancel_reason' => 'required|string|max:500',
+        ]);
+
+        $order = Order::findOrFail($id);
+
+        // Guard: selesai tidak bisa dibatalkan
+        if ($order->status === 'selesai') {
+            return redirect()->back()->with('error', 'Pesanan yang sudah selesai tidak bisa dibatalkan.');
+        }
+
+        if ($order->status === 'batal') {
+            return redirect()->back()->with('error', 'Pesanan ini sudah dibatalkan sebelumnya.');
+        }
+
+        $previousStatus = $order->status;
+        $order->update([
+            'status' => 'batal',
+            'notes'  => 'Dibatalkan dari status ' . $previousStatus . '. Alasan: ' . $request->input('cancel_reason'),
+        ]);
+
+        ActivityLog::create([
+            'user_id'     => null,
+            'action'      => 'order_cancelled',
+            'description' => 'Pesanan #' . $order->order_number . ' dibatalkan. Alasan: ' . $request->input('cancel_reason'),
+            'model_type'  => 'Order',
+            'model_id'    => $order->id,
+        ]);
+
+        return redirect()->back()->with('success', '❌ Pesanan #' . $order->order_number . ' dibatalkan.');
     }
 }

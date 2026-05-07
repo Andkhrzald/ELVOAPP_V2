@@ -10,17 +10,27 @@ use App\Http\Controllers\Admin\ProductController;
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 // 2. Products (CRUD Lengkap)
-Route::get('/products', [ProductController::class, 'index'])->name('products'); // Tampil Tabel
-Route::post('/products/store', [ProductController::class, 'store'])->name('products.store'); // Simpan Produk Baru
-Route::get('/products/edit/{id}', [ProductController::class, 'edit'])->name('products.edit'); // Form Edit
-Route::put('/products/update/{id}', [ProductController::class, 'update'])->name('products.update'); // Proses Update
-Route::delete('/products/destroy/{id}', [ProductController::class, 'destroy'])->name('products.destroy'); // Proses Hapus
+Route::get('/products', [ProductController::class, 'index'])->name('products');
+Route::post('/products/store', [ProductController::class, 'store'])->name('products.store');
+Route::get('/products/edit/{id}', [ProductController::class, 'edit'])->name('products.edit');
+Route::put('/products/update/{id}', [ProductController::class, 'update'])->name('products.update');
+Route::delete('/products/destroy/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
 
-// 3. TRANSAKSI (Logic: Langsung pakai Controller History)
+// 3. TRANSAKSI — Riwayat Semua Transaksi
 Route::get('/transaksi', [TransactionHistoryController::class, 'index'])->name('transaksi');
 
-// 4. PESANAN MASUK (Data Siti Aminah)
+// 4. PESANAN MASUK
 Route::get('/pesanan-masuk', [OrderController::class, 'index'])->name('pesanan-masuk');
 
-// 5. PROSES KONFIRMASI
-Route::post('/admin/orders/confirm/{id}', [OrderController::class, 'confirm'])->name('orders.confirm');
+// 5. MANAJEMEN STATUS PESANAN (Flow Profesional)
+// pending → proses (Konfirmasi Pesanan)
+Route::post('/orders/{id}/accept', [OrderController::class, 'accept'])->name('orders.accept');
+
+// proses → dikirim (Input Resi & Kirim)
+Route::post('/orders/{id}/ship', [OrderController::class, 'ship'])->name('orders.ship');
+
+// dikirim → selesai (Tandai Selesai)
+Route::post('/orders/{id}/complete', [OrderController::class, 'complete'])->name('orders.complete');
+
+// any → batal (Batalkan Pesanan)
+Route::post('/orders/{id}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
