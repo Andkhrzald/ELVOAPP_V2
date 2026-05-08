@@ -77,7 +77,7 @@
                     </svg>
                     <span class="absolute -top-1 -right-1 w-2 h-2 bg-white rounded-full"></span>
                 </button>
-                <!-- LOGIC AUTH START -->
+                {{-- LOGIC AUTH START --}}
                 @auth
                 <div class="relative group">
                     <button class="text-[10px] font-black uppercase tracking-widest text-white flex items-center gap-2">
@@ -87,18 +87,28 @@
                         </svg>
                     </button>
 
-                    <!-- Dropdown Logout -->
-                    <div class="absolute right-0 mt-2 w-40 bg-[#151515] border border-white/5 rounded-xl py-4 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 shadow-2xl">
+                    {{-- Dropdown Menu --}}
+                    <div class="absolute right-0 mt-2 w-48 bg-[#151515] border border-white/5 rounded-xl py-3 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 shadow-2xl">
+                        <a href="{{ route('history.index') }}" class="flex items-center gap-3 px-5 py-2.5 text-[10px] font-bold text-gray-300 hover:text-white hover:bg-white/5 uppercase tracking-widest transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                            Pesanan Saya
+                        </a>
+                        <a href="{{ route('riwayat.index') }}" class="flex items-center gap-3 px-5 py-2.5 text-[10px] font-bold text-gray-300 hover:text-white hover:bg-white/5 uppercase tracking-widest transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                            Riwayat Transaksi
+                        </a>
+                        <div class="border-t border-white/5 my-2"></div>
                         <form action="{{ route('logout') }}" method="POST">
                             @csrf
-                            <button type="submit" class="w-full text-left px-6 py-2 text-[10px] font-bold text-red-500 hover:bg-white/5 uppercase tracking-widest transition">
+                            <button type="submit" class="w-full flex items-center gap-3 px-5 py-2.5 text-[10px] font-bold text-red-500 hover:bg-white/5 uppercase tracking-widest transition">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
                                 Sign Out
                             </button>
                         </form>
                     </div>
                 </div>
                 @else
-                <!-- Tombol User (Trigger Overlay) -->
+                {{-- Tombol User (Trigger Overlay) --}}
                 <button id="user-trigger" class="hover:text-white transition">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
@@ -106,16 +116,19 @@
                     </svg>
                 </button>
                 @endauth
-                <!-- LOGIC AUTH END -->
+                {{-- LOGIC AUTH END --}}
 
+                {{-- Tombol Pesanan Saya (icon paperbag) --}}
                 <a href="{{ route('history.index') }}"
-                    class="{{ request()->routeIs('history.index') ? 'text-white' : 'text-gray-400' }} hover:text-white transition flex items-center"
-                    title="My Orders">
+                    class="relative {{ request()->routeIs('history.index') ? 'text-white' : 'text-gray-400' }} hover:text-white transition flex items-center group"
+                    title="Pesanan Saya">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
                         <line x1="3" y1="6" x2="21" y2="6"></line>
                         <path d="M16 10a4 4 0 0 1-8 0"></path>
                     </svg>
+                    {{-- Tooltip --}}
+                    <span class="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-white text-black text-[8px] font-black uppercase tracking-widest rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">My Orders</span>
                 </a>
             </div>
         </div>

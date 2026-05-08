@@ -17,6 +17,9 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
     'shipping_cost',
     'no_resi',
     'notes',
+    'cancel_reason',
+    'refund_reason',
+    'previous_status',
 ])]
 class Order extends Model
 {

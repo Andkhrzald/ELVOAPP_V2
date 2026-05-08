@@ -3,7 +3,7 @@
 @section('content')
 <section class="min-h-screen flex items-center justify-center px-8 bg-[#0a0a0a]">
     <div class="text-center" data-aos="zoom-in">
-        <!-- Icon Success -->
+        {{-- Icon Success --}}
         <div class="mb-8 flex justify-center">
             <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(255,255,255,0.2)]">
                 <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
@@ -12,7 +12,7 @@
             </div>
         </div>
 
-        <!-- Text Content -->
+        {{-- Text --}}
         <h1 class="text-5xl md:text-7xl font-black italic uppercase tracking-tighter text-white mb-4">
             Payment <span class="text-gray-700">Success.</span>
         </h1>
@@ -20,15 +20,23 @@
             Your order has been placed successfully
         </p>
 
-        <!-- Action Button -->
-        <div class="space-y-6">
-            <a href="{{ url('/') }}" class="inline-block bg-white text-black px-12 py-4 rounded-full text-[10px] font-black uppercase tracking-[0.4em] hover:bg-gray-200 transition-all italic">
-                Back to Home
+        {{-- Order Number Real --}}
+        @if(session('order_number'))
+        <div class="inline-block bg-white/5 border border-white/10 rounded-2xl px-8 py-4 mb-8">
+            <p class="text-[9px] text-gray-500 uppercase tracking-widest mb-1">Order Number</p>
+            <p class="text-xl font-black text-white tracking-widest">{{ session('order_number') }}</p>
+        </div>
+        @endif
+
+        {{-- Actions --}}
+        <div class="space-y-4">
+            <a href="{{ route('history.index') }}" class="inline-block bg-white text-black px-12 py-4 rounded-full text-[10px] font-black uppercase tracking-[0.4em] hover:bg-gray-200 transition-all italic">
+                Lihat Pesanan Saya
             </a>
             <br>
-            <p class="text-[9px] text-gray-700 uppercase tracking-widest mt-8">
-                Order ID: #ELVO-{{ rand(1000, 9999) }}
-            </p>
+            <a href="{{ route('shop.index') }}" class="inline-block text-gray-500 text-[10px] uppercase tracking-widest hover:text-white transition mt-4">
+                Lanjut Belanja →
+            </a>
         </div>
     </div>
 </section>
