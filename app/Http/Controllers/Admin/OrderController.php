@@ -12,11 +12,23 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         $status = $request->query('status', 'pending');
+        $search = $request->query('search');
 
-        $orders = Order::with(['user', 'items.product'])
-            ->where('status', $status)
-            ->latest()
-            ->get();
+        $query = Order::with(['user', 'items.product'])
+            ->where('status', $status);
+
+        // Search by order number, name, or phone
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('order_number', 'like', '%' . $search . '%')
+                  ->orWhereHas('user', function($qu) use ($search) {
+                      $qu->where('name', 'like', '%' . $search . '%')
+                         ->orWhere('phone', 'like', '%' . $search . '%');
+                  });
+            });
+        }
+
+        $orders = $query->latest()->get();
 
         $statusCounts = [
             'pending'       => Order::where('status', 'pending')->count(),

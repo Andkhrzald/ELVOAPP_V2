@@ -322,6 +322,54 @@ class AdminDemoSeeder extends Seeder
             ]
         );
 
+        // Order 6 — Andi Wijaya (MINTA_BATAL)
+        $order6 = Order::firstOrCreate(
+            ['order_number' => 'INV-20260509-006'],
+            [
+                'user_id' => $customer2->id,
+                'total_price' => 450000,
+                'status' => 'minta_batal',
+                'payment_method' => 'E-Wallet (Gopay)',
+                'shipping_method' => 'SiCepat Best',
+                'shipping_cost' => 20000,
+                'cancel_reason' => 'Saya ingin mengganti alamat pengiriman yang salah.',
+                'previous_status' => 'pending',
+            ]
+        );
+        OrderItem::firstOrCreate(
+            ['order_id' => $order6->id, 'product_id' => $prod1->id],
+            [
+                'product_name' => $prod1->name,
+                'quantity' => 1,
+                'price' => $prod1->price,
+                'subtotal' => $prod1->price,
+            ]
+        );
+
+        // Order 7 — Dewi Lestari (MINTA_REFUND)
+        $order7 = Order::firstOrCreate(
+            ['order_number' => 'INV-20260510-007'],
+            [
+                'user_id' => $customer5->id,
+                'total_price' => 185000,
+                'status' => 'minta_refund',
+                'payment_method' => 'Transfer Bank BCA',
+                'shipping_method' => 'JNE Reguler',
+                'shipping_cost' => 15000,
+                'refund_reason' => 'Barang yang sampai ukurannya terlalu kecil, ingin tukar atau uang kembali.',
+                'no_resi' => 'JNE-88776655',
+            ]
+        );
+        OrderItem::firstOrCreate(
+            ['order_id' => $order7->id, 'product_id' => $prod2->id],
+            [
+                'product_name' => $prod2->name,
+                'quantity' => 1,
+                'price' => $prod2->price,
+                'subtotal' => $prod2->price,
+            ]
+        );
+
         // ============================================
         // 6. ACTIVITY LOGS
         // ============================================
