@@ -334,37 +334,33 @@ git checkout Rehan
 
 ## 6. 🖼️ Cara Agar Gambar Produk Muncul di Semua Laptop
 
-### Masalah:
-Gambar produk disimpan di folder `public/uploads/products/`. Secara default, file gambar **TIDAK** masuk Git karena bikin repo berat.
+### Workflow Upload Gambar (PENTING!):
+Kamu **TIDAK PERLU** memindahkan gambar secara manual dari folder `Downloads` ke `public/img`.
 
-### ✅ SOLUSI: Commit Gambar ke Git
+1.  **Admin Upload**: Buka dashboard admin, pilih file dari folder mana saja (misal `Downloads`).
+2.  **Sistem Bekerja**: Saat kamu klik "Simpan", Laravel akan otomatis menyalin file tersebut ke dalam project kamu di folder: `public/uploads/products/`.
+3.  **File Sekarang di Project**: Cek folder `public/uploads/products/` di VS Code, gambar baru pasti sudah ada di sana.
+4.  **Share ke Teman**: Lakukan `git add`, `git commit`, dan `git push` agar file tersebut terkirim ke GitHub.
 
-Karena ini project lokal dan tidak deploy ke server production, cara paling mudah adalah **memasukkan folder gambar ke Git**.
-
-#### Langkah untuk Andikha (yang upload gambar):
+### ✅ Langkah Sinkronisasi untuk Andikha (yang upload gambar):
 
 ```bash
-# 1. Pastikan gambar sudah ada di public/uploads/products/
-# 2. Tambahkan folder uploads ke Git
+# 1. Setelah tambah/edit produk di web admin:
 git add public/uploads/products/
-
-# 3. Commit
-git commit -m "chore: tambah gambar produk baru"
-
-# 4. Push
+git commit -m "chore: tambah gambar produk [Nama Produk]"
 git push origin andikha
 ```
 
-#### Langkah untuk Rehan (agar gambar muncul):
+### ✅ Langkah Sinkronisasi untuk Rehan (agar gambar muncul):
 
 ```bash
-# 1. Pull update terbaru
+# 1. Tarik update terbaru dari GitHub
 git checkout main
 git pull origin main
 git checkout Rehan
 git merge main
 
-# 2. Gambar otomatis ikut ter-download! ✅
+# 2. Gambar otomatis ter-download ke folder public/uploads/products/ Anda! ✅
 ```
 
 #### ⚠️ Pastikan `.gitignore` TIDAK mengabaikan folder uploads
@@ -383,7 +379,29 @@ Gambar statis seperti logo disimpan di `public/img/` dan sudah otomatis masuk Gi
 
 ---
 
-## 7. 🗄️ Cara Sync Database Antar Anggota Tim
+## 7. 🗄️ Cara Sync Data Produk (Database)
+
+### Masalah:
+Meskipun gambarnya sudah ada (setelah `git pull`), data produk (Nama, Harga, dll) di database lokal Rehan **belum ada**.
+
+### Solusi 1: Update Seeder (Sangat Disarankan)
+Jika kamu ingin produk baru tersebut ada di semua laptop selamanya:
+
+1.  Buka file `database/seeders/AdminDemoSeeder.php`.
+2.  Tambahkan data produk baru kamu di dalam kode tersebut.
+3.  Push file `AdminDemoSeeder.php` ke Git.
+4.  Teman kamu tinggal menjalankan: `php artisan db:seed --class=AdminDemoSeeder`.
+
+### Solusi 2: Export SQL (Jika banyak perubahan)
+1.  Andikha export tabel `products` via phpMyAdmin ke file `.sql`.
+2.  Kirim file `.sql` ke Rehan via WhatsApp/Discord.
+3.  Rehan import file tersebut di phpMyAdmin lokalnya.
+
+> 📌 **SOP TERBAIK:** Selalu gunakan **Migrations** untuk struktur tabel dan **Seeders** untuk data awal agar tim tetap sinkron secara otomatis.
+
+---
+
+## 8. 🗄️ Cara Sync Database Antar Anggota Tim
 
 ### Prinsip Utama:
 > **Database TIDAK di-share lewat Git.** Setiap orang punya database lokal masing-masing. Yang di-share adalah **file migration** dan **seeder**.
