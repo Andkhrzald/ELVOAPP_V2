@@ -10,10 +10,30 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Mengambil semua produk beserta kategorinya agar tidak error saat dipanggil di view
-        $products = Product::with('category')->get(); 
+        $query = Product::with('category');
+
+        // Search by name
+        if ($request->filled('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+
+        // Filter by category
+        if ($request->filled('category')) {
+            $query->where('category_id', $request->category);
+        }
+
+        // Filter by status
+        if ($request->filled('status')) {
+            if ($request->status === 'active') {
+                $query->where('is_active', true);
+            } elseif ($request->status === 'hidden') {
+                $query->where('is_active', false);
+            }
+        }
+
+        $products = $query->latest()->get();
         return view('admin.products', compact('products')); 
     }
 
@@ -23,17 +43,18 @@ class ProductController extends Controller
     $request->validate([
         'name' => 'required|string|max:255',
         'category_id' => 'required',
-        'description' => 'required', // Tambahkan validasi ini
+        'description' => 'required',
         'price' => 'required|numeric',
         'stock' => 'required|integer',
         'weight' => 'required',
+        'color' => 'nullable|string|max:50',
         'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
     ]);
 
     // 2. Handle Upload Foto
     $imagePath = null;
     if ($request->hasFile('image')) {
-        $imagePath = $request->file('image')->store('products', 'public');
+        $imagePath = $request->file('image')->store('products', 'uploads');
     }
 
     // 3. Simpan ke Database (Pastikan 'description' ikut disimpan)
@@ -41,12 +62,13 @@ class ProductController extends Controller
         'name'        => $request->name,
         'slug'        => \Illuminate\Support\Str::slug($request->name),
         'category_id' => $request->category_id,
-        'description' => $request->description, // WAJIB ADA INI
+        'description' => $request->description,
         'color'       => $request->color,
         'price'       => $request->price,
         'stock'       => $request->stock,
         'weight'      => $request->weight,
         'image'       => $imagePath,
+        'is_active'   => $request->has('is_active') ? $request->is_active : true,
     ]);
 
     return redirect()->route('admin.products')->with('success', 'Produk berhasil ditambahkan!');
@@ -73,6 +95,7 @@ class ProductController extends Controller
             'price' => 'required|numeric',
             'stock' => 'required|integer',
             'weight' => 'required',
+            'color' => 'nullable|string|max:50',
             'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
         ]);
 
@@ -81,12 +104,14 @@ class ProductController extends Controller
 
         // Jika ada upload foto baru
         if ($request->hasFile('image')) {
-            // Hapus foto lama dari storage agar tidak menumpuk sampah
             if ($product->image) {
-                Storage::delete('public/' . $product->image);
+                Storage::disk('uploads')->delete($product->image);
             }
-            // Simpan foto baru
-            $data['image'] = $request->file('image')->store('products', 'public');
+            $data['image'] = $request->file('image')->store('products', 'uploads');
+        }
+
+        if ($request->has('is_active')) {
+            $data['is_active'] = $request->is_active;
         }
 
         $product->update($data);
@@ -94,14 +119,26 @@ class ProductController extends Controller
         return redirect()->route('admin.products')->with('success', 'Produk berhasil diupdate!');
     }
 
+    public function toggleStatus($id)
+    {
+        $product = Product::findOrFail($id);
+        $product->is_active = !$product->is_active;
+        $product->save();
+
+        return response()->json([
+            'success' => true,
+            'is_active' => $product->is_active
+        ]);
+    }
+
     // 3. Fungsi untuk Hapus data
     public function destroy($id)
     {
         $product = Product::findOrFail($id);
 
-        // Hapus foto dari folder storage sebelum data dihapus
+        // Hapus foto dari folder uploads sebelum data dihapus
         if ($product->image) {
-            Storage::delete('public/' . $product->image);
+            Storage::disk('uploads')->delete($product->image);
         }
 
         $product->delete();

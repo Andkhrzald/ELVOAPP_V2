@@ -16,6 +16,7 @@ Route::get('/products', [ProductController::class, 'index'])->name('products');
 Route::post('/products/store', [ProductController::class, 'store'])->name('products.store');
 Route::get('/products/edit/{id}', [ProductController::class, 'edit'])->name('products.edit');
 Route::put('/products/update/{id}', [ProductController::class, 'update'])->name('products.update');
+Route::patch('/products/toggle-status/{id}', [ProductController::class, 'toggleStatus'])->name('products.toggle-status');
 Route::delete('/products/destroy/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
 
 // 3. TRANSAKSI

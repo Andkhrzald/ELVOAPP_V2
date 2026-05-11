@@ -15,8 +15,9 @@ class Product extends Model
         'description', 
         'price', 
         'stock', 
-        'color',  // Tambahkan ini
-        'weight', // Tambahkan ini
+        'is_active', // Tambahkan ini
+        'color',  
+        'weight', 
         'image'
     ];
 

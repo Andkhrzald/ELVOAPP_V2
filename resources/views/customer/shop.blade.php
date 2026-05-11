@@ -90,7 +90,7 @@
             <div class="group cursor-pointer" data-aos="fade-up" data-aos-delay="{{ ($loop->iteration % 4) * 80 }}">
                 <div class="relative aspect-[3/4] bg-[#0f0f0f] rounded-[24px] overflow-hidden mb-5 border border-white/5 group-hover:border-white/20 transition-all duration-500">
                     @if($product->image)
-                    <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                    <img src="{{ asset('uploads/' . $product->image) }}" alt="{{ $product->name }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
                     @else
                     <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#111] to-[#0a0a0a]">
                         <span class="text-white/[0.03] text-8xl font-black italic uppercase">ELVO</span>

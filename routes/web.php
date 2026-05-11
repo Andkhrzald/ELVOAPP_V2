@@ -36,5 +36,8 @@ Route::post('/reviews', [ShopController::class, 'storeReview'])->name('reviews.s
 
 // API: Get products for cart
 Route::get('/api/products', function () {
-    return \App\Models\Product::select('id', 'name', 'price', 'stock', 'image', 'slug')->where('stock', '>', 0)->get();
+    return \App\Models\Product::select('id', 'name', 'price', 'stock', 'image', 'slug')
+        ->where('stock', '>', 0)
+        ->where('is_active', true)
+        ->get();
 })->name('api.products');

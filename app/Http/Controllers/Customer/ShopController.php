@@ -17,7 +17,7 @@ class ShopController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::with(['category', 'reviews'])->where('stock', '>', 0);
+        $query = Product::with(['category', 'reviews'])->where('stock', '>', 0)->where('is_active', true);
 
         // Filter by category
         if ($request->filled('category')) {
