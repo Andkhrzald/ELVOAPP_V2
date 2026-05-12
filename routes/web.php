@@ -41,3 +41,50 @@ Route::get('/api/products', function () {
         ->where('is_active', true)
         ->get();
 })->name('api.products');
+
+// API: All Categories (for search overlay default chips)
+Route::get('/api/categories', function () {
+    return \App\Models\Category::orderBy('name')->get()->map(fn($c) => [
+        'id'   => $c->id,
+        'name' => $c->name,
+        'slug' => $c->slug,
+        'url'  => route('shop.index', ['category' => $c->slug]),
+    ]);
+})->name('api.categories');
+
+// API: Live Search — products + categories
+Route::get('/api/search', function (\Illuminate\Http\Request $request) {
+    $q = trim($request->get('q', ''));
+
+    if (strlen($q) < 1) {
+        return response()->json(['products' => [], 'categories' => []]);
+    }
+
+    $products = \App\Models\Product::with('category')
+        ->where('stock', '>', 0)
+        ->where('name', 'like', '%' . $q . '%')
+        ->select('id', 'name', 'price', 'image', 'category_id', 'slug')
+        ->limit(6)
+        ->get()
+        ->map(fn($p) => [
+            'id'       => $p->id,
+            'name'     => $p->name,
+            'price'    => $p->price,
+            'image'    => $p->image_url,
+            'category' => $p->category?->name,
+            'url'      => route('shop.index', ['search' => $p->name]),
+        ]);
+
+    $categories = \App\Models\Category::where('name', 'like', '%' . $q . '%')
+        ->orWhere('slug', 'like', '%' . $q . '%')
+        ->limit(4)
+        ->get()
+        ->map(fn($c) => [
+            'id'   => $c->id,
+            'name' => $c->name,
+            'slug' => $c->slug,
+            'url'  => route('shop.index', ['category' => $c->slug]),
+        ]);
+
+    return response()->json(compact('products', 'categories'));
+})->name('api.search');

@@ -124,6 +124,7 @@ class AdminDemoSeeder extends Seeder
                 'stock' => 25,
                 'color' => 'Black',
                 'weight' => '500g',
+                'image' => 'Elvo Signature Hoodie Black.jpg',
             ]
         );
 
@@ -137,6 +138,7 @@ class AdminDemoSeeder extends Seeder
                 'stock' => 50,
                 'color' => 'White',
                 'weight' => '200g',
+                'image' => 'Elvo Basic T-Shirt White.jpg',
             ]
         );
 

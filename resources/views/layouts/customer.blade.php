@@ -25,10 +25,50 @@
 
         /* Efek blur halus untuk navbar saat di-scroll */
         .glass-nav {
-            /* background: rgba(11, 11, 11, 0.8); */
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(9px);
         }
+
+        /* ====== SEARCH OVERLAY ====== */
+        #search-overlay {
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+        #search-overlay.active {
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+        #search-input-box {
+            caret-color: white;
+        }
+        #search-input-box::placeholder {
+            color: rgba(255,255,255,0.2);
+        }
+        .search-result-item {
+            transition: background 0.15s ease, transform 0.15s ease;
+        }
+        .search-result-item:hover,
+        .search-result-item.active-item {
+            background: rgba(255,255,255,0.06);
+            transform: translateX(4px);
+        }
+        .search-category-chip {
+            transition: background 0.15s ease, color 0.15s ease;
+        }
+        .search-category-chip:hover {
+            background: rgba(255,255,255,0.12);
+            color: white;
+        }
+        @keyframes searchFadeUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .search-anim {
+            animation: searchFadeUp 0.25s ease both;
+        }
+        /* Scrollbar thin for results */
+        #search-results-container::-webkit-scrollbar { width: 4px; }
+        #search-results-container::-webkit-scrollbar-track { background: transparent; }
+        #search-results-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
     </style>
 </head>
 
@@ -61,11 +101,12 @@
             </div>
             <div class="flex items-center space-x-6 text-gray-400">
                 <!-- Tombol Search -->
-                <button id="search-trigger" class="hover:text-white transition">
+                <button id="search-trigger" class="hover:text-white transition group flex items-center gap-2" aria-label="Open search">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <circle cx="11" cy="11" r="8" />
                         <path d="m21 21-4.3-4.3" />
                     </svg>
+                    <span class="hidden lg:inline text-[9px] font-bold tracking-[0.25em] uppercase text-gray-600 group-hover:text-gray-300 transition">Search</span>
                 </button>
 
                 <!-- Tombol Cart -->
@@ -146,6 +187,83 @@
     </footer>
 
     <!-- ==========================================
+         SEARCH OVERLAY (Z-300)
+         ========================================== -->
+    <div id="search-overlay"
+         class="fixed inset-0 z-[300] bg-black/95 backdrop-blur-2xl opacity-0 invisible flex flex-col"
+         role="dialog" aria-modal="true" aria-label="Product Search">
+
+        {{-- Top bar --}}
+        <div class="flex items-center gap-4 px-6 md:px-12 py-6 border-b border-white/5">
+            {{-- Search Icon --}}
+            <svg class="w-5 h-5 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+            </svg>
+
+            {{-- Input --}}
+            <input
+                id="search-input-box"
+                type="text"
+                placeholder="Cari produk atau jenis (misal: T-Shirt, Jacket)…"
+                autocomplete="off"
+                class="flex-1 bg-transparent text-white text-lg md:text-2xl font-bold tracking-tight focus:outline-none"
+            >
+
+            {{-- Keyboard hint --}}
+            <span class="hidden md:flex items-center gap-1 text-[9px] text-gray-700 font-bold uppercase tracking-widest">
+                <kbd class="px-2 py-1 bg-white/5 rounded text-gray-600">ESC</kbd> to close
+            </span>
+
+            {{-- Close Button --}}
+            <button id="close-search" class="text-gray-500 hover:text-white transition flex-shrink-0 ml-2" aria-label="Close search">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+                </svg>
+            </button>
+        </div>
+
+        {{-- Body --}}
+        <div class="flex-1 overflow-y-auto px-6 md:px-12 py-8" id="search-results-container">
+
+            {{-- Default state --}}
+            <div id="search-default-state" class="">
+                <p class="text-[10px] font-black uppercase tracking-[0.4em] text-gray-700 mb-6">Browse by Category</p>
+                <div id="search-category-chips" class="flex flex-wrap gap-3">
+                    {{-- Chips are injected by JS from /api/search categories --}}
+                    <div class="w-24 h-9 bg-white/5 rounded-full animate-pulse"></div>
+                    <div class="w-32 h-9 bg-white/5 rounded-full animate-pulse"></div>
+                    <div class="w-20 h-9 bg-white/5 rounded-full animate-pulse"></div>
+                    <div class="w-28 h-9 bg-white/5 rounded-full animate-pulse"></div>
+                </div>
+            </div>
+
+            {{-- Results --}}
+            <div id="search-results" class="hidden"></div>
+
+            {{-- No Results --}}
+            <div id="search-no-results" class="hidden text-center py-20">
+                <svg class="w-16 h-16 mx-auto text-gray-800 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+                </svg>
+                <p class="text-gray-600 text-[11px] font-bold uppercase tracking-widest">Produk tidak ditemukan</p>
+                <p class="text-gray-700 text-[10px] mt-2">Coba kata kunci lain atau telusuri kategori</p>
+            </div>
+
+            {{-- Loading --}}
+            <div id="search-loading" class="hidden text-center py-16">
+                <div class="inline-block w-8 h-8 border-2 border-white/10 border-t-white/60 rounded-full animate-spin"></div>
+            </div>
+        </div>
+
+        {{-- Footer hint --}}
+        <div class="px-6 md:px-12 py-4 border-t border-white/5 flex items-center gap-6 text-[9px] text-gray-700 font-bold uppercase tracking-widest">
+            <span class="flex items-center gap-2"><kbd class="px-1.5 py-0.5 bg-white/5 rounded text-gray-600">↑↓</kbd> Navigasi</span>
+            <span class="flex items-center gap-2"><kbd class="px-1.5 py-0.5 bg-white/5 rounded text-gray-600">↵</kbd> Buka</span>
+            <a id="search-view-all" href="{{ route('shop.index') }}" class="ml-auto text-gray-600 hover:text-white transition">Lihat semua produk →</a>
+        </div>
+    </div>
+
+    <!-- ==========================================
          CART DRAWER (Z-110 & Z-120)
          ========================================== -->
     <div id="cart-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[110] hidden opacity-0 transition-opacity duration-500"></div>
@@ -217,28 +335,31 @@
             once: true
         });
 
-        // Logic Cart Drawer
+        // ============================================
+        // CART DRAWER
+        // ============================================
         const cartTrigger = document.getElementById('cart-trigger');
-        const cartDrawer = document.getElementById('cart-drawer');
+        const cartDrawer  = document.getElementById('cart-drawer');
         const cartOverlay = document.getElementById('cart-overlay');
-        const closeCart = document.getElementById('close-cart');
+        const closeCart   = document.getElementById('close-cart');
 
         cartTrigger.addEventListener('click', () => {
             cartOverlay.classList.remove('hidden');
             setTimeout(() => cartOverlay.classList.add('opacity-100'), 10);
             cartDrawer.classList.remove('translate-x-full');
         });
-
         closeCart.addEventListener('click', () => {
             cartOverlay.classList.remove('opacity-100');
             cartDrawer.classList.add('translate-x-full');
             setTimeout(() => cartOverlay.classList.add('hidden'), 500);
         });
 
-        // Logic User Overlay (Jika lo mau tombol user tetap munculin menu login/regis)
-        const userTrigger = document.querySelector('button:has(svg circle[cx="12"])'); // Menargetkan tombol user
+        // ============================================
+        // USER OVERLAY
+        // ============================================
+        const userTrigger = document.querySelector('button:has(svg circle[cx="12"])');
         const userOverlay = document.getElementById('user-overlay');
-        const closeUser = document.getElementById('close-user');
+        const closeUser   = document.getElementById('close-user');
 
         if (userTrigger) {
             userTrigger.addEventListener('click', () => {
@@ -246,11 +367,235 @@
                 setTimeout(() => userOverlay.classList.add('opacity-100'), 10);
             });
         }
-
         closeUser.addEventListener('click', () => {
             userOverlay.classList.remove('opacity-100');
             setTimeout(() => userOverlay.classList.add('hidden'), 500);
         });
+
+        // ============================================
+        // SEARCH OVERLAY — Live Search by Name & Category
+        // ============================================
+        (function () {
+            const searchTrigger   = document.getElementById('search-trigger');
+            const searchOverlay   = document.getElementById('search-overlay');
+            const closeSearchBtn  = document.getElementById('close-search');
+            const searchInput     = document.getElementById('search-input-box');
+            const searchResults   = document.getElementById('search-results');
+            const searchDefault   = document.getElementById('search-default-state');
+            const searchNoResults = document.getElementById('search-no-results');
+            const searchLoading   = document.getElementById('search-loading');
+            const categoryChips   = document.getElementById('search-category-chips');
+            const viewAllLink     = document.getElementById('search-view-all');
+
+            let debounceTimer = null;
+            let allItems = []; // flat list of result links for keyboard nav
+            let activeIndex = -1;
+
+            // --- Open / Close ---
+            function openSearch() {
+                searchOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                setTimeout(() => searchInput.focus(), 100);
+                loadAllCategories();
+            }
+
+            function closeSearch() {
+                searchOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+                searchInput.value = '';
+                resetState();
+            }
+
+            searchTrigger.addEventListener('click', openSearch);
+            closeSearchBtn.addEventListener('click', closeSearch);
+            searchOverlay.addEventListener('click', (e) => {
+                if (e.target === searchOverlay) closeSearch();
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeSearch();
+            });
+
+            // --- Load all categories for default chips ---
+            function loadAllCategories() {
+                fetch('/api/categories')
+                    .then(r => r.json())
+                    .then(categories => renderDefaultChips(categories))
+                    .catch(() => {
+                        categoryChips.innerHTML = '<span class="text-[10px] text-gray-700">–</span>';
+                    });
+            }
+
+            function renderDefaultChips(categories) {
+                if (!categories.length) {
+                    categoryChips.innerHTML = '<span class="text-[10px] text-gray-700">–</span>';
+                    return;
+                }
+                categoryChips.innerHTML = categories.map(cat => `
+                    <a href="${cat.url}"
+                       class="search-category-chip px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest bg-white/[0.05] border border-white/10 text-gray-400 hover:text-white">
+                        ${escapeHtml(cat.name)}
+                    </a>
+                `).join('');
+            }
+
+            // --- Reset ---
+            function resetState() {
+                searchResults.classList.add('hidden');
+                searchNoResults.classList.add('hidden');
+                searchLoading.classList.add('hidden');
+                searchDefault.classList.remove('hidden');
+                allItems = [];
+                activeIndex = -1;
+            }
+
+            // --- Input handler with debounce ---
+            searchInput.addEventListener('input', () => {
+                const q = searchInput.value.trim();
+                clearTimeout(debounceTimer);
+
+                if (!q) {
+                    resetState();
+                    return;
+                }
+
+                // Update "view all" link
+                viewAllLink.href = `/shop?search=${encodeURIComponent(q)}`;
+
+                // Show loading
+                searchDefault.classList.add('hidden');
+                searchResults.classList.add('hidden');
+                searchNoResults.classList.add('hidden');
+                searchLoading.classList.remove('hidden');
+
+                debounceTimer = setTimeout(() => doSearch(q), 280);
+            });
+
+            // --- AJAX Search ---
+            function doSearch(q) {
+                fetch(`/api/search?q=${encodeURIComponent(q)}`)
+                    .then(r => r.json())
+                    .then(data => renderResults(data, q))
+                    .catch(() => {
+                        searchLoading.classList.add('hidden');
+                        searchNoResults.classList.remove('hidden');
+                    });
+            }
+
+            // --- Render Results ---
+            function renderResults(data, q) {
+                searchLoading.classList.add('hidden');
+                const products   = data.products   || [];
+                const categories = data.categories || [];
+
+                if (!products.length && !categories.length) {
+                    searchNoResults.classList.remove('hidden');
+                    searchResults.classList.add('hidden');
+                    return;
+                }
+
+                searchNoResults.classList.add('hidden');
+
+                let html = '';
+                allItems = [];
+
+                // ---- Category Section ----
+                if (categories.length) {
+                    html += `
+                        <div class="mb-8 search-anim">
+                            <p class="text-[9px] font-black uppercase tracking-[0.4em] text-gray-600 mb-4">Jenis / Kategori</p>
+                            <div class="flex flex-wrap gap-3">
+                                ${categories.map(cat => `
+                                    <a href="${cat.url}"
+                                       class="search-result-item search-category-chip px-5 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-white/[0.05] border border-white/10 text-gray-300 hover:text-white flex items-center gap-2 data-index">
+                                        <svg class="w-3.5 h-3.5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-5 5a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 10V5a2 2 0 012-2z"/></svg>
+                                        ${escapeHtml(cat.name)}
+                                    </a>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // ---- Product Section ----
+                if (products.length) {
+                    html += `
+                        <div class="search-anim" style="animation-delay: 0.05s">
+                            <p class="text-[9px] font-black uppercase tracking-[0.4em] text-gray-600 mb-4">Produk</p>
+                            <div class="space-y-1">
+                                ${products.map((p, i) => `
+                                    <a href="${p.url}"
+                                       class="search-result-item flex items-center gap-4 px-4 py-3 rounded-xl cursor-pointer" data-index="${i}">
+                                        <div class="w-12 h-12 rounded-xl overflow-hidden bg-white/5 flex-shrink-0 border border-white/5">
+                                            ${p.image
+                                                ? `<img src="${p.image}" alt="${escapeHtml(p.name)}" class="w-full h-full object-cover">`
+                                                : `<div class="w-full h-full flex items-center justify-center"><span class="text-white/10 text-xs font-black italic">E</span></div>`
+                                            }
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-sm font-bold text-white truncate">${highlightMatch(escapeHtml(p.name), q)}</p>
+                                            <p class="text-[10px] text-gray-600 uppercase tracking-widest font-bold mt-0.5">${p.category ? escapeHtml(p.category) : ''}</p>
+                                        </div>
+                                        <span class="text-[11px] font-black text-white whitespace-nowrap">Rp ${numberFormat(p.price)}</span>
+                                    </a>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                searchResults.innerHTML = html;
+                searchResults.classList.remove('hidden');
+
+                // Build keyboard nav list (all <a> inside results)
+                allItems = Array.from(searchResults.querySelectorAll('a'));
+                activeIndex = -1;
+            }
+
+            // --- Keyboard Navigation (↑↓ Enter) ---
+            searchInput.addEventListener('keydown', (e) => {
+                if (!allItems.length) return;
+
+                if (e.key === 'ArrowDown') {
+                    e.preventDefault();
+                    setActive(activeIndex + 1);
+                } else if (e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    setActive(activeIndex - 1);
+                } else if (e.key === 'Enter') {
+                    if (activeIndex >= 0 && allItems[activeIndex]) {
+                        e.preventDefault();
+                        allItems[activeIndex].click();
+                    } else {
+                        // Submit to shop page
+                        const q = searchInput.value.trim();
+                        if (q) window.location.href = `/shop?search=${encodeURIComponent(q)}`;
+                    }
+                }
+            });
+
+            function setActive(index) {
+                allItems.forEach(el => el.classList.remove('active-item'));
+                if (index < 0) { activeIndex = -1; return; }
+                if (index >= allItems.length) index = 0;
+                activeIndex = index;
+                allItems[activeIndex].classList.add('active-item');
+                allItems[activeIndex].scrollIntoView({ block: 'nearest' });
+            }
+
+            // --- Helpers ---
+            function escapeHtml(str) {
+                return String(str)
+                    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+                    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+            }
+            function highlightMatch(str, q) {
+                const regex = new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`, 'gi');
+                return str.replace(regex, '<mark class="bg-transparent text-white font-black">$1</mark>');
+            }
+            function numberFormat(n) {
+                return Number(n).toLocaleString('id-ID');
+            }
+        })();
     </script>
 </body>
 
