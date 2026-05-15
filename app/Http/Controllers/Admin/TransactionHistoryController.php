@@ -12,7 +12,8 @@ class TransactionHistoryController extends Controller
         // Query real — semua order dengan relasi user, urutkan dari terbaru
         $history = Order::with('user')
             ->latest()
-            ->get();
+            ->paginate(15)
+            ->withQueryString();
 
         // Statistik untuk card di atas tabel
         $totalTransactions = Order::count();

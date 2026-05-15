@@ -23,28 +23,28 @@
         <div class="bg-[#1a1a1a] p-5 rounded-2xl border border-white/5 shadow-sm">
             <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Total Produk</p>
             <div class="flex items-end justify-between">
-                <h3 class="text-2xl font-black text-white">{{ $products->count() }}</h3>
+                <h3 class="text-2xl font-black text-white">{{ $totalProducts }}</h3>
                 <span class="text-[10px] bg-blue-500/10 text-blue-500 px-2 py-1 rounded-md font-bold">Items</span>
             </div>
         </div>
         <div class="bg-[#1a1a1a] p-5 rounded-2xl border border-white/5 shadow-sm">
             <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Produk Aktif</p>
             <div class="flex items-end justify-between">
-                <h3 class="text-2xl font-black text-green-500">{{ $products->where('is_active', true)->count() }}</h3>
+                <h3 class="text-2xl font-black text-green-500">{{ $activeProducts }}</h3>
                 <span class="text-[10px] bg-green-500/10 text-green-500 px-2 py-1 rounded-md font-bold">Live</span>
             </div>
         </div>
         <div class="bg-[#1a1a1a] p-5 rounded-2xl border border-white/5 shadow-sm">
             <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Disembunyikan</p>
             <div class="flex items-end justify-between">
-                <h3 class="text-2xl font-black text-yellow-500">{{ $products->where('is_active', false)->count() }}</h3>
+                <h3 class="text-2xl font-black text-yellow-500">{{ $hiddenProducts }}</h3>
                 <span class="text-[10px] bg-yellow-500/10 text-yellow-500 px-2 py-1 rounded-md font-bold">Hidden</span>
             </div>
         </div>
         <div class="bg-[#1a1a1a] p-5 rounded-2xl border border-white/5 shadow-sm">
             <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-1">Stok Menipis</p>
             <div class="flex items-end justify-between">
-                <h3 class="text-2xl font-black text-red-500">{{ $products->where('stock', '<', 5)->count() }}</h3>
+                <h3 class="text-2xl font-black text-red-500">{{ $lowStockProducts }}</h3>
                 <span class="text-[10px] bg-red-500/10 text-red-500 px-2 py-1 rounded-md font-bold">Alert</span>
             </div>
         </div>
@@ -194,6 +194,11 @@
                         </tbody>
                     </table>
                 </div>
+                @if($products->hasPages())
+                <div class="p-6 border-t border-white/5">
+                    {{ $products->withQueryString()->links() }}
+                </div>
+                @endif
             </div>
         </div>
     </div>

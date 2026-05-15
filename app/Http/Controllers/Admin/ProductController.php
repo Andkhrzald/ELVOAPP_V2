@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
@@ -33,8 +34,21 @@ class ProductController extends Controller
             }
         }
 
-        $products = $query->latest()->get();
-        return view('admin.products', compact('products')); 
+        $products = $query->latest()->paginate(15)->withQueryString();
+
+        // Total counts for stats (unaffected by pagination)
+        $totalProducts = Product::count();
+        $activeProducts = Product::where('is_active', true)->count();
+        $hiddenProducts = Product::where('is_active', false)->count();
+        $lowStockProducts = Product::where('stock', '<', 5)->count();
+
+        return view('admin.products', compact(
+            'products',
+            'totalProducts',
+            'activeProducts',
+            'hiddenProducts',
+            'lowStockProducts'
+        )); 
     }
 
     public function store(Request $request)

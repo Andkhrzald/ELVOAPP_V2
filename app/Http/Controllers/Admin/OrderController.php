@@ -28,21 +28,22 @@ class OrderController extends Controller
             });
         }
 
-        $orders = $query->latest()->get();
+        $orders = $query->latest()->paginate(10)->withQueryString();
 
-        $statusCounts = [
-            'pending'       => Order::where('status', 'pending')->count(),
-            'proses'        => Order::where('status', 'proses')->count(),
-            'dikirim'       => Order::where('status', 'dikirim')->count(),
-            'selesai'       => Order::where('status', 'selesai')->count(),
-            'minta_batal'   => Order::where('status', 'minta_batal')->count(),
-            'batal'         => Order::where('status', 'batal')->count(),
-            'minta_refund'  => Order::where('status', 'minta_refund')->count(),
-            'refund'        => Order::where('status', 'refund')->count(),
-        ];
+        // Single query for all status counts
+        $statusCounts = Order::selectRaw('status, COUNT(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
+
+        // Ensure all statuses exist in the array
+        $allStatuses = ['pending', 'proses', 'dikirim', 'selesai', 'minta_batal', 'batal', 'minta_refund', 'refund'];
+        foreach ($allStatuses as $s) {
+            $statusCounts[$s] = $statusCounts[$s] ?? 0;
+        }
 
         // Statistik relevan (bukan total pendapatan)
-        $totalOrders = Order::count();
+        $totalOrders = array_sum($statusCounts);
         $needAction = $statusCounts['pending'] + $statusCounts['minta_batal'] + $statusCounts['minta_refund'];
 
         return view('admin.pesanan-masuk', compact('orders', 'status', 'statusCounts', 'totalOrders', 'needAction'));

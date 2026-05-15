@@ -130,6 +130,11 @@
                     </tbody>
                 </table>
             </div>
+            @if($history->hasPages())
+            <div class="p-6 border-t border-white/5">
+                {{ $history->withQueryString()->links() }}
+            </div>
+            @endif
         </div>
     </div>
 
