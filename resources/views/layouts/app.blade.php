@@ -24,10 +24,10 @@
       </div>
       <div class="flex items-center">
           <div class="flex items-center ms-3">
-            <div class="flex items-center gap-3">
-                <span class="text-sm font-mono text-gray-300">Andikha</span>
-                <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs">A</div>
-            </div>
+                <div class="flex items-center gap-3">
+                    <span class="text-sm font-mono text-gray-300">{{ Auth::user()->name }}</span>
+                    <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</div>
+                </div>
           </div>
         </div>
     </div>
@@ -64,8 +64,11 @@
          <svg class="w-5 h-5 text-gray-400 group-hover:text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
          </svg>
-         <span class="ms-3 text-sm">Pesanan Masuk</span>
-         <span class="inline-flex items-center justify-center w-5 h-5 ms-3 text-[10px] font-bold text-white bg-red-600 rounded-full">12</span>
+          <span class="ms-3 text-sm">Pesanan Masuk</span>
+          @php $pendingOrders = \App\Models\Order::whereIn('status', ['pending', 'minta_batal', 'minta_refund'])->count(); @endphp
+          @if($pendingOrders > 0)
+          <span class="inline-flex items-center justify-center w-5 h-5 ms-3 text-[10px] font-bold text-white bg-red-600 rounded-full">{{ $pendingOrders }}</span>
+          @endif
       </a>
    </li>
 
