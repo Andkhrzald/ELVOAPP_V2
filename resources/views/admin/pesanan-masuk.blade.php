@@ -69,21 +69,41 @@
                         <div class="space-y-2">
                             @php
                             $tabs = [
-                                'pending'      => ['label' => 'Pending Request', 'color' => 'blue', 'icon' => 'clock'],
-                                'proses'       => ['label' => 'Processing', 'color' => 'purple', 'icon' => 'cog'],
-                                'dikirim'      => ['label' => 'On Delivery', 'color' => 'indigo', 'icon' => 'truck'],
-                                'selesai'      => ['label' => 'Completed', 'color' => 'green', 'icon' => 'check'],
-                                'minta_batal'  => ['label' => 'Cancellation', 'color' => 'orange', 'icon' => 'x'],
-                                'batal'        => ['label' => 'Canceled', 'color' => 'red', 'icon' => 'trash'],
-                                'minta_refund' => ['label' => 'Refund Request', 'color' => 'amber', 'icon' => 'cash'],
-                                'refund'       => ['label' => 'Refunded', 'color' => 'pink', 'icon' => 'undo'],
+                                'pending'      => ['label' => 'Pending Request'],
+                                'proses'       => ['label' => 'Processing'],
+                                'dikirim'      => ['label' => 'On Delivery'],
+                                'selesai'      => ['label' => 'Completed'],
+                                'minta_batal'  => ['label' => 'Cancellation'],
+                                'batal'        => ['label' => 'Canceled'],
+                                'minta_refund' => ['label' => 'Refund Request'],
+                                'refund'       => ['label' => 'Refunded'],
+                            ];
+                            $tabActiveStyles = [
+                                'pending'      => 'bg-blue-500/10 border-blue-500/50',
+                                'proses'       => 'bg-purple-500/10 border-purple-500/50',
+                                'dikirim'      => 'bg-indigo-500/10 border-indigo-500/50',
+                                'selesai'      => 'bg-green-500/10 border-green-500/50',
+                                'minta_batal'  => 'bg-orange-500/10 border-orange-500/50',
+                                'batal'        => 'bg-red-500/10 border-red-500/50',
+                                'minta_refund' => 'bg-amber-500/10 border-amber-500/50',
+                                'refund'       => 'bg-pink-500/10 border-pink-500/50',
+                            ];
+                            $tabDotStyles = [
+                                'pending'      => 'bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]',
+                                'proses'       => 'bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.5)]',
+                                'dikirim'      => 'bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.5)]',
+                                'selesai'      => 'bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]',
+                                'minta_batal'  => 'bg-orange-500 shadow-[0_0_10px_rgba(249,115,22,0.5)]',
+                                'batal'        => 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]',
+                                'minta_refund' => 'bg-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.5)]',
+                                'refund'       => 'bg-pink-500 shadow-[0_0_10px_rgba(236,72,153,0.5)]',
                             ];
                             @endphp
                             @foreach($tabs as $key => $tab)
                             <a href="?status={{ $key }}&search={{ request('search') }}" 
-                                class="group flex items-center justify-between p-4 rounded-2xl border transition-all {{ $status == $key ? 'bg-'.$tab['color'].'-500/10 border-'.$tab['color'].'-500/50' : 'bg-[#121212] border-white/5 hover:border-white/20' }}">
+                                class="group flex items-center justify-between p-4 rounded-2xl border transition-all {{ $status == $key ? $tabActiveStyles[$key] : 'bg-[#121212] border-white/5 hover:border-white/20' }}">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-2 h-2 rounded-full {{ $status == $key ? 'bg-'.$tab['color'].'-500 shadow-[0_0_10px_rgba(var(--'.$tab['color'].'-500),0.5)]' : 'bg-gray-700' }}"></div>
+                                    <div class="w-2 h-2 rounded-full {{ $status == $key ? $tabDotStyles[$key] : 'bg-gray-700' }}"></div>
                                     <span class="text-xs font-bold {{ $status == $key ? 'text-white' : 'text-gray-500 group-hover:text-gray-300' }}">{{ $tab['label'] }}</span>
                                 </div>
                                 @if(($statusCounts[$key] ?? 0) > 0)
@@ -281,6 +301,12 @@
                 <a href="{{ route('admin.pesanan-masuk') }}" class="inline-block mt-6 text-xs font-black text-blue-500 uppercase tracking-widest hover:text-white transition-colors">Clear all search & filters</a>
             </div>
             @endforelse
+
+            @if($orders->hasPages())
+            <div class="flex justify-center">
+                {{ $orders->withQueryString()->links() }}
+            </div>
+            @endif
         </div>
     </div>
 </div>

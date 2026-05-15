@@ -47,10 +47,19 @@
                         <span class="text-xs text-gray-600 ml-2">{{ $order->created_at->format('d M Y H:i') }}</span>
                     </div>
                     @php
-                    $colors = ['pending'=>'orange','proses'=>'blue','dikirim'=>'purple','selesai'=>'green','batal'=>'red','minta_batal'=>'yellow','minta_refund'=>'amber','refund'=>'pink'];
-                    $c = $colors[$order->status] ?? 'gray';
+                    $statusBadgeClasses = [
+                        'pending'      => 'bg-orange-500/10 text-orange-500',
+                        'proses'       => 'bg-blue-500/10 text-blue-500',
+                        'dikirim'      => 'bg-purple-500/10 text-purple-500',
+                        'selesai'      => 'bg-green-500/10 text-green-500',
+                        'batal'        => 'bg-red-500/10 text-red-500',
+                        'minta_batal'  => 'bg-yellow-500/10 text-yellow-500',
+                        'minta_refund' => 'bg-amber-500/10 text-amber-500',
+                        'refund'       => 'bg-pink-500/10 text-pink-500',
+                    ];
+                    $badgeClass = $statusBadgeClasses[$order->status] ?? 'bg-gray-500/10 text-gray-500';
                     @endphp
-                    <span class="px-3 py-1 bg-{{ $c }}-500/10 text-{{ $c }}-500 rounded-full text-[10px] font-bold uppercase">{{ str_replace('_', ' ', $order->status) }}</span>
+                    <span class="px-3 py-1 {{ $badgeClass }} rounded-full text-[10px] font-bold uppercase">{{ str_replace('_', ' ', $order->status) }}</span>
                 </div>
                 @foreach($order->items as $item)
                 <p class="text-sm text-gray-400">{{ $item->quantity }}x {{ $item->product_name }} — <span class="text-white font-bold">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</span></p>
