@@ -7,12 +7,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-class AdminMiddleware
+class OwnerMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (!Auth::check() || !in_array(Auth::user()->role, ['admin', 'owner'])) {
-            abort(403, 'Unauthorized access. Admin only.');
+        if (!Auth::check() || Auth::user()->role !== 'owner') {
+            abort(403, 'Hanya Owner yang bisa mengakses halaman ini.');
         }
 
         return $next($request);

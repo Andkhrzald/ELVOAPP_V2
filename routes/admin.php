@@ -7,9 +7,12 @@ use App\Http\Controllers\Admin\TransactionHistoryController;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\ReviewController;
+use App\Http\Controllers\Admin\OwnerController;
 
 // 1. Dashboard
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+Route::get('/dashboard/analytics', [DashboardController::class, 'analytics'])->name('dashboard.analytics');
+Route::get('/dashboard/analytics-data', [DashboardController::class, 'getAnalyticsData'])->name('dashboard.analytics-data');
 
 // 2. Products (CRUD Lengkap)
 Route::get('/products', [ProductController::class, 'index'])->name('products');
@@ -45,3 +48,12 @@ Route::get('/pelanggan/{id}', [CustomerController::class, 'show'])->name('pelang
 // 9. REVIEW
 Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews');
 Route::delete('/reviews/{id}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+
+// 10. OWNER ONLY — Manajemen Admin & System
+Route::middleware(['owner'])->prefix('owner')->name('owner.')->group(function () {
+    Route::get('/dashboard', [OwnerController::class, 'index'])->name('dashboard');
+    Route::get('/manage-admins', [OwnerController::class, 'manageAdmins'])->name('manage-admins');
+    Route::post('/manage-admins/store', [OwnerController::class, 'storeAdmin'])->name('manage-admins.store');
+    Route::delete('/manage-admins/{id}', [OwnerController::class, 'destroyAdmin'])->name('manage-admins.destroy');
+    Route::get('/audit-log', [OwnerController::class, 'auditLog'])->name('audit-log');
+});

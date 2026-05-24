@@ -1,252 +1,113 @@
-# PROGRESS ADMIN DASHBOARD ELVO — FIX PRIORITAS P1
+# PROGRESS ADMIN DASHBOARD — Elvoapp
+
+> File ini mencatat semua perubahan, aktivitas, dan keputusan terkait pengembangan Admin Dashboard & Analytics Elvoapp.
 
 ---
 
-## Ringkasan Perubahan
+## Ringkasan Data Analytics Saat Ini (per 24 Mei 2026)
 
-Berikut adalah daftar perubahan yang telah dilakukan pada Admin Dashboard ELVO V2 berdasarkan hasil analisis prioritas tinggi (P1 — Critical). Setiap item mencakup file yang diubah, deskripsi masalah, dan solusi yang diterapkan.
-
----
-
-## 1. ⚠️ CRITICAL: Dynamic Tailwind Classes — Status Pipeline Sidebar
-
-**File:** `resources/views/admin/pesanan-masuk.blade.php`
-
-**Masalah:**
-Sebelumnya class Tailwind digenerate secara dinamis via PHP string concatenation:
-```php
-'bg-'.$tab['color'].'-500/10 border-'.$tab['color'].'-500/50'
-```
-Class seperti `bg-blue-500/10`, `bg-purple-500/10`, dll TIDAK akan terdeteksi oleh Tailwind v4 JIT compiler karena class tidak muncul sebagai string utuh di source code. Akibatnya semua warna sidebar filter hilang.
-
-**Solusi:**
-Mapping array eksplisit untuk setiap status:
-```php
-$tabActiveStyles = [
-    'pending'      => 'bg-blue-500/10 border-blue-500/50',
-    'proses'       => 'bg-purple-500/10 border-purple-500/50',
-    'dikirim'      => 'bg-indigo-500/10 border-indigo-500/50',
-    'selesai'      => 'bg-green-500/10 border-green-500/50',
-    'minta_batal'  => 'bg-orange-500/10 border-orange-500/50',
-    'batal'        => 'bg-red-500/10 border-red-500/50',
-    'minta_refund' => 'bg-amber-500/10 border-amber-500/50',
-    'refund'       => 'bg-pink-500/10 border-pink-500/50',
-];
-$tabDotStyles = [
-    'pending'      => 'bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]',
-    'proses'       => 'bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.5)]',
-    // ... semua status
-];
-```
-
-**Perubahan:**
-- `$tabs` array: dihapus key `color` dan `icon`, diganti mapping class langsung
-- Ditambah `$tabActiveStyles` dan `$tabDotStyles` mapping
-- Line sidebar filter: `class="... {{ $status == $key ? $tabActiveStyles[$key] : '...' }}"`
+| Metrik | Nilai | Keterangan |
+|--------|-------|------------|
+| **Produk Aktif** | 12 | Fashion apparel (hoodie, t-shirt, celana, aksesoris) |
+| **Pelanggan** | 26 | Tersebar daftar 90 hari (Jabodetabek, Bandung, Surabaya, dll) |
+| **Orders (revenue)** | 68 | Status selesai/dikirim/proses |
+| **Total Revenue** | Rp 57.366.000 | 90 hari terakhir |
+| **AOV** | Rp 843.618 | Average Order Value |
+| **Rating Rata-rata** | 4.34 / 5.0 | Dari 62 review |
+| **Low Stock** | 2 produk | Stok < 5 |
 
 ---
 
-## 2. ⚠️ CRITICAL: Dynamic Tailwind Classes — Order Status Badge
+## Riwayat Perubahan
 
-**File:** `resources/views/admin/pelanggan-detail.blade.php`
+### [2026-05-24] — Analytics Demo Data Seeder
 
-**Masalah:**
-```php
-$colors = ['pending'=>'orange','proses'=>'blue', ...];
-$c = $colors[$order->status] ?? 'gray';
-```
-Lalu: `bg-{{ $c }}-500/10 text-{{ $c }}-500`
-Class seperti `bg-orange-500/10 text-orange-500` TIDAK terdeteksi Tailwind v4.
+**Aksi:** Membuat `AnalyticsDemoSeeder` + eksekusi
 
-**Solusi:**
-Mapping array eksplisit:
-```php
-$statusBadgeClasses = [
-    'pending'      => 'bg-orange-500/10 text-orange-500',
-    'proses'       => 'bg-blue-500/10 text-blue-500',
-    'dikirim'      => 'bg-purple-500/10 text-purple-500',
-    'selesai'      => 'bg-green-500/10 text-green-500',
-    'batal'        => 'bg-red-500/10 text-red-500',
-    'minta_batal'  => 'bg-yellow-500/10 text-yellow-500',
-    'minta_refund' => 'bg-amber-500/10 text-amber-500',
-    'refund'       => 'bg-pink-500/10 text-pink-500',
-];
-```
+**File dibuat:**
+- `database/seeders/AnalyticsDemoSeeder.php` — Seeder komprehensif (500+ baris)
 
-**Perubahan:**
-- Hapus array `$colors` dan variable `$c`
-- Ganti dengan `$statusBadgeClasses` mapping penuh
-- Badge class: `class="px-3 py-1 {{ $badgeClass }} rounded-full ..."`
+**File dimodifikasi:**
+- `database/seeders/DatabaseSeeder.php` — Menambah panggilan `AnalyticsDemoSeeder::class`
+- Database: memperbarui harga & stok produk existing agar konsisten
 
----
+**Data yang di-generate:**
+- **12 produk** fashion: Hoodie (3), T-Shirt (4), Celana (3), Aksesoris (4)
+  - 5 produk existing (diupdate harga/stok) + 7 produk baru
+  - Image: file `public/uploads/products/{slug}.jpg` otomatis terdeteksi
+- **25 pelanggan** dengan `created_at` tersebar 90 hari:
+  - 6 existing (Siti, Andi, Budi, Rehan, Dewi, Test Customer — diperbarui `created_at`)
+  - 19 baru (Rina, Fajar, Putri, Dimas, Anita, Hendra, Sari, Aditya, Nining, Rizky, Mita, Dani, Winda, Yoga, Mega, Iqbal, Fitri, Arif, Cantika)
+  - Kota: Bandung, Jakarta, Tangsel, Surabaya, Yogyakarta, Bekasi, Medan, Makassar, Bali, Malang, Bogor, Palembang, Depok, Semarang
+- **87 order baru** (total 97 dengan existing) tersebar 90 hari:
+  - Distribusi: selesai (34), dikirim (18), proses (17), pending (11), minta_batal (3), batal (3), minta_refund (6), refund (5)
+  - Masing2 order: 1-3 item, random dari 12 produk
+- **62 review** untuk order selesai:
+  - Rating 5: 35, Rating 4: 15, Rating 3: 10, Rating 2: 2
+  - Komentar realistis Bahasa Indonesia (30+ variasi)
+- **272 activity logs** dengan event: order_created, payment_confirmed, order_shipped, order_completed, order_cancelled, refund_processed
 
-## 3. 🛡️ CRITICAL: Auth Middleware — Proteksi Route Admin
+**Idempotensi:** Semua data menggunakan `firstOrCreate` — aman di-run berulang kali
 
-**File Baru:** `app/Http/Middleware/AdminMiddleware.php`
-**File Diubah:** `bootstrap/app.php`
+**Image produk:** Cek otomatis file di `public/uploads/products/{slug}.jpg` atau `.png`
 
-**Masalah:**
-Semua route `/admin/*` hanya menggunakan middleware `web`, tidak ada pengecekan role `admin`. Customer yang login bisa mengakses halaman admin dengan mengetik URL langsung.
+### [2026-05-24] — Migration Kolom Orders
 
-**Solusi:**
-1. Buat middleware `AdminMiddleware`:
-```php
-public function handle(Request $request, Closure $next): Response
-{
-    if (!Auth::check() || Auth::user()->role !== 'admin') {
-        abort(403, 'Unauthorized access. Admin only.');
-    }
-    return $next($request);
-}
-```
+**Aksi:** Membuat migration untuk kolom `cancel_reason`, `refund_reason`, `previous_status`
 
-2. Register alias di `bootstrap/app.php`:
-```php
-$middleware->alias([
-    'admin' => \App\Http\Middleware\AdminMiddleware::class,
-]);
-```
+**File dibuat:**
+- `database/migrations/2026_05_24_080247_add_cancel_refund_columns_to_orders_table.php`
 
-3. Tambahkan ke route group:
-```php
-Route::middleware(['web', 'auth', 'admin'])->prefix('admin')->name('admin.')...
-```
+**Catatan:** Kolom ternyata sudah ada di database (kemungkinan ditambahkan manual). Migration di-mark sebagai sudah jalan.
 
-**Dampak:** Hanya user dengan role `admin` yang bisa mengakses halaman `/admin/*`. User lain akan mendapat 403 Forbidden.
+### [2026-05-24] — Pembersihan Data Legacy
+
+**Aksi:** Memperbaiki data lama yang merusak analytics
+
+**Detail:**
+- Order `INV-20260507-004` (selesai, Rp 60.205.000) → diubah statusnya jadi `batal`
+  - Ini order test dengan produk "Elvo Jennis" (harga Rp 60jt) yang bukan produk fashion
+  - Dengan status batal, tidak masuk hitungan revenue analytics
 
 ---
 
-## 4. 📄 HIGH: Pagination — Products
+## Akun yang Tersedia
 
-**File:** `app/Http/Controllers/Admin/ProductController.php`
-**File:** `resources/views/admin/products.blade.php`
+| Email | Password | Role | Nama |
+|-------|----------|------|------|
+| admin1@elvoapp.com | password | admin | Admin Andikha |
+| admin2@elvoapp.com | password2 | admin | Rehan Admin |
+| owner@elvo.com | password | owner | Amin Owner |
+| testcus@elvo.com | password | customer | Test Customer |
 
-**Masalah:**
-Controller menggunakan `->get()` tanpa pagination. Semua produk di-load dalam satu request. Dengan jumlah produk ratusan, performa akan menurun drastis.
-
-**Solusi:**
-- Ubah `->latest()->get()` menjadi `->latest()->paginate(15)->withQueryString()`
-- Pisahkan statistik card agar tetap menampilkan total (tidak terpengaruh pagination):
-  - `$totalProducts = Product::count();`
-  - `$activeProducts = Product::where('is_active', true)->count();`
-  - `$hiddenProducts = Product::where('is_active', false)->count();`
-  - `$lowStockProducts = Product::where('stock', '<', 5)->count();`
-- Update view: ganti `$products->count()` dll dengan variable stats
-- Tambah pagination links di bawah tabel
+Semua pelanggan demo (siti@gmail.com, andi@gmail.com, dll) password: `password`
 
 ---
 
-## 5. 📄 HIGH: Pagination — Orders (Pesanan Masuk)
+## Cara Menambahkan Foto Produk
 
-**File:** `app/Http/Controllers/Admin/OrderController.php`
-**File:** `resources/views/admin/pesanan-masuk.blade.php`
+Letakkan file gambar di `public/uploads/products/` dengan nama:
+- `elvo-signature-hoodie-black.jpg` (atau .png)
+- `elvo-basic-t-shirt-white.jpg`
+- `elvo-premium-cap.jpg`
+- `elvo-cargo-pants-olive.jpg`
+- `elvo-oversized-tshirt-navy.jpg`
+- `elvo-varsity-jacket.jpg`
+- `elvo-tote-bag.jpg`
+- `elvo-jogger-pants-black.jpg`
+- `elvo-graphic-t-shirt-red.jpg`
+- `elvo-beanie.jpg`
+- `elvo-bomber-jacket.jpg`
+- `elvo-shorts.jpg`
 
-**Masalah:**
-Controller menggunakan `->get()` tanpa pagination. Setiap status filter bisa menampilkan banyak order. Juga menjalankan **8 query terpisah** untuk status counts (N+1 problem).
-
-**Solusi:**
-- Ubah `->latest()->get()` menjadi `->latest()->paginate(10)->withQueryString()`
-- Optimasi status counts dari 8 query jadi 1 query:
-  ```php
-  $statusCounts = Order::selectRaw('status, COUNT(*) as count')
-      ->groupBy('status')
-      ->pluck('count', 'status')
-      ->toArray();
-  ```
-- Tambah pagination links di bawah daftar order
-
----
-
-## 6. 📄 HIGH: Pagination — Transaction History
-
-**File:** `app/Http/Controllers/Admin/TransactionHistoryController.php`
-**File:** `resources/views/admin/transaksi.blade.php`
-
-**Masalah:**
-Controller menggunakan `->get()` tanpa pagination. Semua transaksi dari awal toko di-load sekaligus.
-
-**Solusi:**
-- Ubah `->latest()->get()` menjadi `->latest()->paginate(15)->withQueryString()`
-- Tambah pagination links di bawah tabel
+Seeder otomatis mendeteksi file dan mengisi kolom `image` di database.
 
 ---
 
-## 7. 👤 HIGH: Hardcoded User Data
+## Catatan Penting
 
-### 7a. Navbar Admin
-**File:** `resources/views/layouts/app.blade.php`
-
-**Masalah:** Nama "Andikha" dan initial "A" hardcoded.
-
-**Solusi:**
-```php
-<span class="text-sm font-mono text-gray-300">{{ Auth::user()->name }}</span>
-<div class="...">{{ strtoupper(substr(Auth::user()->name, 0, 1)) }}</div>
-```
-
-### 7b. Badge Sidebar
-**File:** `resources/views/layouts/app.blade.php`
-
-**Masalah:** Badge merah "12" di menu Pesanan Masuk hardcoded.
-
-**Solusi:**
-```php
-@php $pendingOrders = \App\Models\Order::whereIn('status', ['pending', 'minta_batal', 'minta_refund'])->count(); @endphp
-@if($pendingOrders > 0)
-<span class="...">{{ $pendingOrders }}</span>
-@endif
-```
-
-### 7c. Dashboard Greeting
-**File:** `resources/views/admin/dashboard.blade.php`
-
-**Masalah:** "Selamat datang kembali, Andikha!" hardcoded.
-
-**Solusi:**
-```php
-<p>Selamat datang kembali, {{ Auth::user()->name }}! ...</p>
-```
-
----
-
-## File yang Diubah / Dibuat
-
-### File Baru:
-| File | Deskripsi |
-|------|-----------|
-| `app/Http/Middleware/AdminMiddleware.php` | Middleware untuk proteksi route admin berdasarkan role |
-
-### File Diubah:
-| File | Deskripsi Perubahan |
-|------|---------------------|
-| `bootstrap/app.php` | Registrasi alias middleware `admin`, tambah middleware group route |
-| `app/Http/Controllers/Admin/ProductController.php` | Pagination + import Category + pisah stats variable |
-| `app/Http/Controllers/Admin/OrderController.php` | Pagination + optimasi status counts 1 query |
-| `app/Http/Controllers/Admin/TransactionHistoryController.php` | Pagination |
-| `resources/views/admin/pesanan-masuk.blade.php` | Fix dynamic TW classes + pagination links |
-| `resources/views/admin/pelanggan-detail.blade.php` | Fix dynamic TW classes |
-| `resources/views/admin/products.blade.php` | Pagination links + stats variable |
-| `resources/views/admin/transaksi.blade.php` | Pagination links |
-| `resources/views/admin/dashboard.blade.php` | Hardcoded greeting → dinamis |
-| `resources/views/layouts/app.blade.php` | Hardcoded name + badge → dinamis |
-| `PROGRESS_ADMIN_DASHBOARD.md` | File ini |
-
----
-
-## Catatan
-
-### Yang Belum Tersentuh (Akan di Tahap P2):
-- Export Excel button no-op
-- View Audit Log button no-op
-- Order notes field hidden
-- Shipping cost tidak dipakai
-- Order image null safety
-- Realtime updates / polling
-- Bulk actions produk & review
-- Filter tanggal transaksi
-- Variant produk (size)
-- Notifikasi / order_status_histories table
-
----
-
-*Dokumentasi dibuat: {{ date('d M Y H:i') }}*
+- **PHP 8.3.30** dari Laragon (`C:/laragon/bin/php/php-8.3.30-Win32-vs16-x64/php.exe`) — bukan default system (8.1)
+- **Vite** harus `npm run dev` untuk development atau `npm run build` untuk production
+- **ApexCharts** di-import via `resources/js/app.js` dan di-assign ke `window.ApexCharts`
+- Ada 3 produk legacy yang tidak dihapus (Macbook Pro, ElvoPopKey, Elvo Jennis) — bisa dihapus manual via admin
+- Ada 1 produk duplikat (Elvo Basic T-Shirt White slug `elvo-basic-tshirt-white` tanpa T) — bisa dihapus via admin

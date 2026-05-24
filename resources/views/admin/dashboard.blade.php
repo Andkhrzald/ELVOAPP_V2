@@ -2,7 +2,12 @@
 
 @section('content')
 <div class="mb-6">
-    <h1 class="text-2xl font-bold text-white">Dashboard Overview</h1>
+    <div class="flex items-center gap-2 mb-1">
+        <h1 class="text-2xl font-bold text-white">Dashboard Overview</h1>
+        @if(Auth::user()->role !== 'owner')
+        <span class="px-2 py-0.5 text-[10px] font-bold text-blue-500 bg-blue-500/10 rounded-full uppercase tracking-wider">Admin</span>
+        @endif
+    </div>
     <p class="text-sm text-gray-400">Selamat datang kembali, {{ Auth::user()->name }}! Berikut adalah performa Elvoapp hari ini.</p>
 </div>
 

@@ -180,7 +180,7 @@ class ShopController extends Controller
         ]);
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            if (Auth::user()->role === 'admin') {
+            if (in_array(Auth::user()->role, ['admin', 'owner'])) {
                 return redirect()->intended('/admin/dashboard');
             }
             return redirect()->intended('/');

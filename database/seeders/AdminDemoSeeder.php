@@ -20,12 +20,12 @@ class AdminDemoSeeder extends Seeder
     public function run(): void
     {
         // ============================================
-        // 1. AKUN ADMIN
+        // 1. AKUN ADMIN (Update: pakai email baru)
         // ============================================
         $admin = User::firstOrCreate(
-            ['email' => 'admin@elvoapp.com'],
+            ['email' => 'admin1@elvoapp.com'],
             [
-                'name' => 'Andikha Admin',
+                'name' => 'Admin Andikha',
                 'password' => Hash::make('password'),
                 'role' => 'admin',
                 'phone' => '081234567890',

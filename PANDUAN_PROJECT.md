@@ -45,6 +45,10 @@
 | 💰 Transaksi | Riwayat semua transaksi |
 | 👥 Pelanggan | Data pelanggan + detail pesanan per customer |
 | ⭐ Review | Moderasi review dari customer |
+| **OWNER PANEL** | |
+| 👑 Owner Dashboard | Dashboard khusus owner dengan overview sistem |
+| 👥 Manajemen Admin | CRUD akun admin & owner (hanya owner) |
+| 📜 Audit Log | Semua aktivitas sistem (lengkap dengan pagination) |
 
 ### Struktur Route:
 
@@ -458,7 +462,36 @@ git push origin andikha
 php artisan db:seed --class=AdminDemoSeeder
 ```
 
-### 7.3 — Jika Database Bermasalah / Mau Reset Total
+### 7.3 — Jika Ada Perubahan Akun / Role Baru
+
+Ada kalanya kita update akun admin, role, atau data user. Caranya:
+
+**Yang Buat:**
+```bash
+# 1. Buat file seeder baru (misal UpdateAccountsSeeder.php)
+# 2. Jalankan seeder untuk update akun
+php artisan db:seed --class=UpdateAccountsSeeder
+
+# 3. Commit & Push
+git add database/seeders/UpdateAccountsSeeder.php
+git commit -m "chore: update akun admin + tambah role owner"
+git push origin [branch-kamu]
+```
+
+**Yang Menerima:**
+```bash
+# 1. Pull update
+git checkout main
+git pull origin main
+git merge [branch-kamu]
+
+# 2. Jalankan seeder
+php artisan db:seed --class=UpdateAccountsSeeder
+
+# ✅ Akun baru sudah tersedia di lokal kamu!
+```
+
+### 7.4 — Jika Database Bermasalah / Mau Reset Total
 
 ```bash
 # ⚠️ HATI-HATI: Ini akan HAPUS semua data dan buat ulang dari awal!
@@ -466,8 +499,9 @@ php artisan db:seed --class=AdminDemoSeeder
 # 1. Fresh migration (hapus semua tabel + buat ulang)
 php artisan migrate:fresh
 
-# 2. Jalankan seeder lagi
+# 2. Jalankan semua seeder secara berurutan
 php artisan db:seed --class=AdminDemoSeeder
+php artisan db:seed --class=UpdateAccountsSeeder
 ```
 
 ---
@@ -653,15 +687,30 @@ npm run dev
 
 ## 10. 👤 Akun Demo
 
-### Admin:
+### Hierarki Role:
+| Role | Akses |
+|------|-------|
+| 👑 **Owner** | Full akses — dashboard, manajemen admin, audit log, pengaturan sistem |
+| 🛡️ **Admin** | Dashboard (terbatas), Produk, Pesanan, Transaksi, Pelanggan, Review |
+| 👤 **Customer** | Hanya toko & pesanan sendiri |
+
+### Owner:
 | Field | Value |
 |-------|-------|
-| Email | `admin@elvoapp.com` |
+| Email | `owner@elvo.com` |
 | Password | `password` |
+| Nama | Amin Owner |
 
-### Customer Demo:
+### Admin:
 | Nama | Email | Password |
 |------|-------|----------|
+| Admin Andikha | `admin1@elvoapp.com` | `password` |
+| Rehan Admin | `admin2@elvoapp.com` | `password2` |
+
+### Customer Demo (untuk test checkout):
+| Nama | Email | Password |
+|------|-------|----------|
+| Test Customer | `testcus@elvo.com` | `password` |
 | Siti Aminah | `siti@gmail.com` | `password` |
 | Andi Wijaya | `andi@gmail.com` | `password` |
 | Budi Santoso | `budi@gmail.com` | `password` |
