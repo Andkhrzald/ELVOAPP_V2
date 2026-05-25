@@ -3,25 +3,25 @@
 @section('content')
 <div class="mb-6">
     <div class="flex items-center gap-2 mb-1">
-        <h1 class="text-2xl font-bold text-white">Owner Dashboard</h1>
+        <h1 class="text-2xl font-bold animate-fade-up animate-fade-up text-white">Owner Dashboard</h1>
         <span class="px-2 py-0.5 text-[10px] font-bold text-yellow-500 bg-yellow-500/10 rounded-full uppercase tracking-wider">Owner Only</span>
     </div>
     <p class="text-sm text-gray-400">Panel khusus Owner — Manajemen akun & pengawasan sistem.</p>
 </div>
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-    <div class="p-5 bg-[#1a1a1a] rounded-xl border border-white/5 shadow-sm">
+    <div class="p-5 bg-elvo-surface rounded-xl border border-white/[0.06] shadow-[0_0_25px_rgba(0,0,0,0.2)] card-hover">
         <div class="flex items-center justify-between mb-2">
             <span class="text-xs font-bold text-gray-500 uppercase">Total Admin</span>
-            <div class="p-2 bg-blue-500/10 rounded-lg text-blue-500">
+            <div class="p-2 bg-elvo-primary/10 rounded-lg text-elvo-primary">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
             </div>
         </div>
         <p class="text-2xl font-bold text-white">{{ $totalAdmins }}</p>
-        <span class="text-xs text-blue-500 font-medium">Akun admin terdaftar</span>
+        <span class="text-xs text-elvo-primary font-medium">Akun admin terdaftar</span>
     </div>
 
-    <div class="p-5 bg-[#1a1a1a] rounded-xl border border-white/5 shadow-sm">
+    <div class="p-5 bg-elvo-surface rounded-xl border border-white/[0.06] shadow-[0_0_25px_rgba(0,0,0,0.2)] card-hover">
         <div class="flex items-center justify-between mb-2">
             <span class="text-xs font-bold text-gray-500 uppercase">Total Owner</span>
             <div class="p-2 bg-yellow-500/10 rounded-lg text-yellow-500">
@@ -32,7 +32,7 @@
         <span class="text-xs text-yellow-500 font-medium">Pemilik toko</span>
     </div>
 
-    <div class="p-5 bg-[#1a1a1a] rounded-xl border border-white/5 shadow-sm">
+    <div class="p-5 bg-elvo-surface rounded-xl border border-white/[0.06] shadow-[0_0_25px_rgba(0,0,0,0.2)] card-hover">
         <div class="flex items-center justify-between mb-2">
             <span class="text-xs font-bold text-gray-500 uppercase">Total Pesanan</span>
             <div class="p-2 bg-purple-500/10 rounded-lg text-purple-500">
@@ -43,7 +43,7 @@
         <span class="text-xs text-purple-500 font-medium">Semua status</span>
     </div>
 
-    <div class="p-5 bg-[#1a1a1a] rounded-xl border border-white/5 shadow-sm">
+    <div class="p-5 bg-elvo-surface rounded-xl border border-white/[0.06] shadow-[0_0_25px_rgba(0,0,0,0.2)] card-hover">
         <div class="flex items-center justify-between mb-2">
             <span class="text-xs font-bold text-gray-500 uppercase">Total Revenue</span>
             <div class="p-2 bg-green-500/10 rounded-lg text-green-500">
@@ -56,15 +56,15 @@
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-    <div class="lg:col-span-2 p-6 bg-[#1a1a1a] rounded-xl border border-white/5 shadow-sm">
+    <div class="lg:col-span-2 p-6 bg-elvo-surface rounded-xl border border-white/[0.06] shadow-[0_0_25px_rgba(0,0,0,0.2)] card-hover">
         <div class="flex items-center justify-between mb-4">
             <h3 class="font-bold text-white text-lg">Manajemen Akses</h3>
-            <a href="{{ route('admin.owner.manage-admins') }}" class="text-sm text-blue-400 hover:text-blue-300 transition">Kelola Admin →</a>
+            <a href="{{ route('admin.owner.manage-admins') }}" class="text-sm text-[#8b7df2] hover:text-[#9a8df4] transition">Kelola Admin →</a>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <a href="{{ route('admin.owner.manage-admins') }}" class="p-4 bg-blue-500/5 rounded-xl border border-blue-500/10 hover:bg-blue-500/10 transition group">
+            <a href="{{ route('admin.owner.manage-admins') }}" class="p-4 bg-elvo-primary/5 rounded-xl border border-elvo-primary/10 hover:bg-elvo-primary/10 transition group">
                 <div class="flex items-center gap-3 mb-2">
-                    <div class="p-2 bg-blue-500/10 rounded-lg text-blue-500 group-hover:scale-110 transition">
+                    <div class="p-2 bg-elvo-primary/10 rounded-lg text-elvo-primary group-hover:scale-110 transition">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
                     </div>
                     <div>
@@ -87,13 +87,13 @@
         </div>
     </div>
 
-    <div class="p-6 bg-[#1a1a1a] rounded-xl border border-white/5 shadow-sm">
+    <div class="p-6 bg-elvo-surface rounded-xl border border-white/[0.06] shadow-[0_0_25px_rgba(0,0,0,0.2)] card-hover">
         <h3 class="font-bold text-white mb-4">Aktivitas Terkini (20)</h3>
         <div class="space-y-3 max-h-[400px] overflow-y-auto">
             @forelse($activities as $activity)
             <div class="flex gap-3">
                 <div class="w-2 h-2 mt-2 rounded-full 
-                    @if(str_contains($activity->action, 'created')) bg-blue-500
+                    @if(str_contains($activity->action, 'created')) bg-elvo-primary
                     @elseif(str_contains($activity->action, 'deleted')) bg-red-500
                     @elseif(str_contains($activity->action, 'updated')) bg-green-500
                     @else bg-gray-500
@@ -112,7 +112,7 @@
             <p class="text-sm text-gray-500 italic">Belum ada aktivitas.</p>
             @endforelse
         </div>
-        <a href="{{ route('admin.owner.audit-log') }}" class="block w-full mt-4 py-2 text-sm font-semibold text-blue-400 bg-blue-500/10 rounded-lg hover:bg-blue-500 hover:text-white transition text-center">
+        <a href="{{ route('admin.owner.audit-log') }}" class="block w-full mt-4 py-2 text-sm font-semibold text-[#8b7df2] bg-elvo-primary/10 rounded-lg hover:bg-[#6a5cd8] hover:text-white transition text-center">
             Lihat Semua Log
         </a>
     </div>

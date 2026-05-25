@@ -3,9 +3,9 @@
 @section('content')
 <div class="mb-6">
     <div class="flex items-center gap-2 mb-1">
-        <h1 class="text-2xl font-bold text-white">Dashboard Overview</h1>
+        <h1 class="text-2xl font-bold animate-fade-up animate-fade-up text-white">Dashboard Overview</h1>
         @if(Auth::user()->role !== 'owner')
-        <span class="px-2 py-0.5 text-[10px] font-bold text-blue-500 bg-blue-500/10 rounded-full uppercase tracking-wider">Admin</span>
+        <span class="px-2 py-0.5 text-[10px] font-bold text-elvo-primary bg-elvo-primary/10 rounded-full uppercase tracking-wider">Admin</span>
         @endif
     </div>
     <p class="text-sm text-gray-400">Selamat datang kembali, {{ Auth::user()->name }}! Berikut adalah performa Elvoapp hari ini.</p>
@@ -13,7 +13,7 @@
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
     {{-- Card 1: Total Pendapatan --}}
-    <div class="p-5 bg-[#1a1a1a] rounded-xl border border-white/5 shadow-sm">
+    <div class="p-5 bg-elvo-surface rounded-xl border border-white/[0.06] shadow-[0_0_25px_rgba(0,0,0,0.2)] card-hover">
         <div class="flex items-center justify-between mb-2">
             <span class="text-xs font-bold text-gray-500 uppercase">Total Pendapatan</span>
             <div class="p-2 bg-green-500/10 rounded-lg text-green-500">
@@ -25,19 +25,19 @@
     </div>
 
     {{-- Card 2: Pesanan Aktif --}}
-    <div class="p-5 bg-[#1a1a1a] rounded-xl border border-white/5 shadow-sm">
+    <div class="p-5 bg-elvo-surface rounded-xl border border-white/[0.06] shadow-[0_0_25px_rgba(0,0,0,0.2)] card-hover">
         <div class="flex items-center justify-between mb-2">
             <span class="text-xs font-bold text-gray-500 uppercase">Pesanan Aktif</span>
-            <div class="p-2 bg-blue-500/10 rounded-lg text-blue-500">
+            <div class="p-2 bg-elvo-primary/10 rounded-lg text-elvo-primary">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
             </div>
         </div>
         <p class="text-2xl font-bold text-white">{{ $activeOrders }}</p>
-        <span class="text-xs text-blue-500 font-medium">Perlu segera diproses</span>
+        <span class="text-xs text-elvo-primary font-medium">Perlu segera diproses</span>
     </div>
 
     {{-- Card 3: Total Produk --}}
-    <div class="p-5 bg-[#1a1a1a] rounded-xl border border-white/5 shadow-sm">
+    <div class="p-5 bg-elvo-surface rounded-xl border border-white/[0.06] shadow-[0_0_25px_rgba(0,0,0,0.2)] card-hover">
         <div class="flex items-center justify-between mb-2">
             <span class="text-xs font-bold text-gray-500 uppercase">Total Produk</span>
             <div class="p-2 bg-orange-500/10 rounded-lg text-orange-500">
@@ -49,7 +49,7 @@
     </div>
 
     {{-- Card 4: Pelanggan Baru --}}
-    <div class="p-5 bg-[#1a1a1a] rounded-xl border border-white/5 shadow-sm">
+    <div class="p-5 bg-elvo-surface rounded-xl border border-white/[0.06] shadow-[0_0_25px_rgba(0,0,0,0.2)] card-hover">
         <div class="flex items-center justify-between mb-2">
             <span class="text-xs font-bold text-gray-500 uppercase">Pelanggan Baru</span>
             <div class="p-2 bg-purple-500/10 rounded-lg text-purple-500">
@@ -63,14 +63,14 @@
 
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
     {{-- Chart Section --}}
-    <div class="lg:col-span-2 p-6 bg-[#1a1a1a] rounded-xl border border-white/5 shadow-sm">
+    <div class="lg:col-span-2 p-6 bg-elvo-surface rounded-xl border border-white/[0.06] shadow-[0_0_25px_rgba(0,0,0,0.2)] card-hover">
         <div class="flex justify-between items-center mb-6">
             <div>
                 <h3 class="font-bold text-white text-lg">Grafik Penjualan Elvoapp</h3>
                 <p class="text-xs text-gray-500">Pantau performa penjualan produk kamu</p>
             </div>
             
-            <select class="block pl-3 pr-10 py-2 text-sm border-white/10 focus:ring-blue-500 focus:border-blue-500 rounded-lg bg-[#252525] text-gray-300 font-medium cursor-pointer transition">
+            <select class="block pl-3 pr-10 py-2 text-sm border-white/10 focus:ring-elvo-primary focus:border-elvo-primary rounded-lg bg-[#252525] text-gray-300 font-medium cursor-pointer transition">
                 <option value="7" selected>7 Hari Terakhir</option>
             </select>
         </div>
@@ -81,13 +81,13 @@
     </div>
 
     {{-- Activity Section --}}
-    <div class="p-6 bg-[#1a1a1a] rounded-xl border border-white/5 shadow-sm">
+    <div class="p-6 bg-elvo-surface rounded-xl border border-white/[0.06] shadow-[0_0_25px_rgba(0,0,0,0.2)] card-hover">
         <h3 class="font-bold text-white mb-4">Aktivitas Terkini</h3>
         <div class="space-y-4">
             @forelse($activities as $activity)
             <div class="flex gap-3">
                 <div class="w-2 h-2 mt-2 rounded-full 
-                    @if($activity->action === 'order_created') bg-blue-500
+                    @if($activity->action === 'order_created') bg-elvo-primary
                     @elseif($activity->action === 'stock_updated') bg-green-500
                     @elseif($activity->action === 'payment_confirmed') bg-orange-400
                     @elseif($activity->action === 'order_shipped') bg-purple-500
@@ -106,7 +106,7 @@
             <p class="text-sm text-gray-500 italic">Belum ada aktivitas.</p>
             @endforelse
         </div>
-        <a href="{{ route('admin.transaksi') }}" class="block w-full mt-6 py-2 text-sm font-semibold text-blue-400 bg-blue-500/10 rounded-lg hover:bg-blue-500 hover:text-white transition text-center">
+        <a href="{{ route('admin.transaksi') }}" class="block w-full mt-6 py-2 text-sm font-semibold text-[#8b7df2] bg-elvo-primary/10 rounded-lg hover:bg-[#6a5cd8] hover:text-white transition text-center">
             Lihat Semua Aktivitas
         </a>
     </div>

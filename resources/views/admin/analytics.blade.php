@@ -4,12 +4,12 @@
 <div class="mb-6">
     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-            <h1 class="text-2xl font-bold text-white">Analytics Dashboard</h1>
+            <h1 class="text-2xl font-bold animate-fade-up animate-fade-up text-white">Analytics Dashboard</h1>
             <p class="text-sm text-gray-400">Analisis mendalam performa bisnis Elvoapp</p>
         </div>
         <div class="flex items-center gap-3">
             <select id="chartRange"
-                class="px-3 py-2 text-sm border border-white/10 rounded-lg bg-[#252525] text-gray-300 focus:ring-blue-500 focus:border-blue-500 cursor-pointer">
+                class="px-3 py-2 text-sm border border-white/10 rounded-lg bg-[#252525] text-gray-300 focus:ring-elvo-primary focus:border-elvo-primary cursor-pointer">
                 <option value="7">7 Hari Terakhir</option>
                 <option value="30" selected>30 Hari Terakhir</option>
                 <option value="90">90 Hari Terakhir</option>
@@ -18,12 +18,12 @@
             </select>
             <div id="customDateRange" class="hidden items-center gap-2">
                 <input type="date" id="startDate"
-                    class="px-2 py-1.5 text-sm border border-white/10 rounded-lg bg-[#252525] text-gray-300 focus:ring-blue-500 focus:border-blue-500">
+                    class="px-2 py-1.5 text-sm border border-white/10 rounded-lg bg-[#252525] text-gray-300 focus:ring-elvo-primary focus:border-elvo-primary">
                 <span class="text-gray-500">—</span>
                 <input type="date" id="endDate"
-                    class="px-2 py-1.5 text-sm border border-white/10 rounded-lg bg-[#252525] text-gray-300 focus:ring-blue-500 focus:border-blue-500">
+                    class="px-2 py-1.5 text-sm border border-white/10 rounded-lg bg-[#252525] text-gray-300 focus:ring-elvo-primary focus:border-elvo-primary">
                 <button id="applyCustomRange"
-                    class="px-3 py-1.5 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition">
+                    class="px-3 py-1.5 text-sm font-semibold btn-primary rounded-lg">
                     Terapkan
                 </button>
             </div>
@@ -38,7 +38,7 @@
 {{-- Loading --}}
 <div id="analyticsLoading" class="flex items-center justify-center py-20">
     <div class="flex flex-col items-center gap-3">
-        <svg class="animate-spin h-8 w-8 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <svg class="animate-spin h-8 w-8 text-elvo-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
         </svg>
@@ -51,32 +51,32 @@
 
     {{-- KPI Cards --}}
     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-6" id="kpiCards">
-        <div class="p-4 bg-[#1a1a1a] rounded-xl border border-white/5 shadow-sm">
+        <div class="p-4 bg-elvo-surface rounded-xl border border-white/[0.06] shadow-[0_0_25px_rgba(0,0,0,0.2)]">
             <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">Total Revenue</span>
             <p class="text-lg font-bold text-white mt-1" id="kpiRevenue">—</p>
             <div class="flex items-center gap-1 mt-1"><span class="text-xs font-medium" id="kpiRevenueGrowth">—</span></div>
         </div>
-        <div class="p-4 bg-[#1a1a1a] rounded-xl border border-white/5 shadow-sm">
+        <div class="p-4 bg-elvo-surface rounded-xl border border-white/[0.06] shadow-[0_0_25px_rgba(0,0,0,0.2)]">
             <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">Total Orders</span>
             <p class="text-lg font-bold text-white mt-1" id="kpiOrders">—</p>
             <div class="flex items-center gap-1 mt-1"><span class="text-xs font-medium" id="kpiOrderGrowth">—</span></div>
         </div>
-        <div class="p-4 bg-[#1a1a1a] rounded-xl border border-white/5 shadow-sm">
+        <div class="p-4 bg-elvo-surface rounded-xl border border-white/[0.06] shadow-[0_0_25px_rgba(0,0,0,0.2)]">
             <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">AOV</span>
             <p class="text-lg font-bold text-white mt-1" id="kpiAov">—</p>
             <div class="flex items-center gap-1 mt-1"><span class="text-xs font-medium" id="kpiAovGrowth">—</span></div>
         </div>
-        <div class="p-4 bg-[#1a1a1a] rounded-xl border border-white/5 shadow-sm">
+        <div class="p-4 bg-elvo-surface rounded-xl border border-white/[0.06] shadow-[0_0_25px_rgba(0,0,0,0.2)]">
             <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">Customers</span>
             <p class="text-lg font-bold text-white mt-1" id="kpiCustomers">—</p>
             <div class="flex items-center gap-1 mt-1"><span class="text-xs font-medium" id="kpiCustomerGrowth">—</span></div>
         </div>
-        <div class="p-4 bg-[#1a1a1a] rounded-xl border border-white/5 shadow-sm">
+        <div class="p-4 bg-elvo-surface rounded-xl border border-white/[0.06] shadow-[0_0_25px_rgba(0,0,0,0.2)]">
             <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">Rating</span>
             <p class="text-lg font-bold text-white mt-1" id="kpiRating">—</p>
             <div class="flex items-center gap-1 mt-1"><span class="text-xs font-medium text-gray-500">Rata-rata</span></div>
         </div>
-        <div class="p-4 bg-[#1a1a1a] rounded-xl border border-white/5 shadow-sm">
+        <div class="p-4 bg-elvo-surface rounded-xl border border-white/[0.06] shadow-[0_0_25px_rgba(0,0,0,0.2)]">
             <span class="text-[10px] font-semibold text-gray-500 uppercase tracking-wider">Low Stock</span>
             <p class="text-lg font-bold text-white mt-1" id="kpiLowStock">—</p>
             <div class="flex items-center gap-1 mt-1"><span class="text-xs font-medium text-red-400">Perlu restock</span></div>
@@ -84,11 +84,11 @@
     </div>
 
     {{-- Revenue & Orders Trend --}}
-    <div class="p-5 bg-[#1a1a1a] rounded-xl border border-white/5 shadow-sm mb-6">
+    <div class="p-5 bg-elvo-surface rounded-xl border border-white/[0.06] shadow-[0_0_25px_rgba(0,0,0,0.2)] mb-6 card-hover">
         <div class="flex items-center justify-between mb-4">
             <h3 class="font-bold text-white">Revenue & Orders Trend</h3>
             <div class="flex items-center gap-4 text-xs text-gray-500">
-                <span class="flex items-center gap-1"><span class="w-3 h-0.5 bg-blue-500 inline-block"></span> Revenue</span>
+                <span class="flex items-center gap-1"><span class="w-3 h-0.5 bg-elvo-primary inline-block"></span> Revenue</span>
                 <span class="flex items-center gap-1"><span class="w-3 h-0.5 bg-cyan-400 inline-block"></span> Orders</span>
             </div>
         </div>
@@ -97,11 +97,11 @@
 
     {{-- Row 2 --}}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div class="p-5 bg-[#1a1a1a] rounded-xl border border-white/5 shadow-sm">
+        <div class="p-5 bg-elvo-surface rounded-xl border border-white/[0.06] shadow-[0_0_25px_rgba(0,0,0,0.2)] card-hover">
             <h3 class="font-bold text-white mb-4">Top Products by Revenue</h3>
             <div id="topProductsChart" class="h-72 chart-container"></div>
         </div>
-        <div class="p-5 bg-[#1a1a1a] rounded-xl border border-white/5 shadow-sm">
+        <div class="p-5 bg-elvo-surface rounded-xl border border-white/[0.06] shadow-[0_0_25px_rgba(0,0,0,0.2)] card-hover">
             <h3 class="font-bold text-white mb-4">Sales by Category</h3>
             <div id="categorySalesChart" class="h-72 chart-container"></div>
         </div>
@@ -109,11 +109,11 @@
 
     {{-- Row 3 --}}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div class="p-5 bg-[#1a1a1a] rounded-xl border border-white/5 shadow-sm">
+        <div class="p-5 bg-elvo-surface rounded-xl border border-white/[0.06] shadow-[0_0_25px_rgba(0,0,0,0.2)] card-hover">
             <h3 class="font-bold text-white mb-4">Order Status Distribution</h3>
             <div id="orderStatusChart" class="h-72 chart-container"></div>
         </div>
-        <div class="p-5 bg-[#1a1a1a] rounded-xl border border-white/5 shadow-sm">
+        <div class="p-5 bg-elvo-surface rounded-xl border border-white/[0.06] shadow-[0_0_25px_rgba(0,0,0,0.2)] card-hover">
             <h3 class="font-bold text-white mb-4">Payment Methods</h3>
             <div id="paymentMethodsChart" class="h-72 chart-container"></div>
         </div>
@@ -121,11 +121,11 @@
 
     {{-- Row 4 --}}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <div class="p-5 bg-[#1a1a1a] rounded-xl border border-white/5 shadow-sm">
+        <div class="p-5 bg-elvo-surface rounded-xl border border-white/[0.06] shadow-[0_0_25px_rgba(0,0,0,0.2)] card-hover">
             <h3 class="font-bold text-white mb-4">Average Order Value Trend</h3>
             <div id="aovTrendChart" class="h-72 chart-container"></div>
         </div>
-        <div class="p-5 bg-[#1a1a1a] rounded-xl border border-white/5 shadow-sm">
+        <div class="p-5 bg-elvo-surface rounded-xl border border-white/[0.06] shadow-[0_0_25px_rgba(0,0,0,0.2)] card-hover">
             <h3 class="font-bold text-white mb-4">New Customers</h3>
             <div id="customerTrendChart" class="h-72 chart-container"></div>
         </div>
@@ -133,11 +133,11 @@
 
     {{-- Row 5 --}}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="p-5 bg-[#1a1a1a] rounded-xl border border-white/5 shadow-sm">
+        <div class="p-5 bg-elvo-surface rounded-xl border border-white/[0.06] shadow-[0_0_25px_rgba(0,0,0,0.2)] card-hover">
             <h3 class="font-bold text-white mb-4">Low Stock Alerts</h3>
             <div id="lowStockContainer" class="space-y-3"><p class="text-sm text-gray-500 italic">Memuat...</p></div>
         </div>
-        <div class="p-5 bg-[#1a1a1a] rounded-xl border border-white/5 shadow-sm">
+        <div class="p-5 bg-elvo-surface rounded-xl border border-white/[0.06] shadow-[0_0_25px_rgba(0,0,0,0.2)] card-hover">
             <h3 class="font-bold text-white mb-4">Rating Distribution</h3>
             <div id="ratingDistChart" class="h-72 chart-container"></div>
         </div>
@@ -416,7 +416,7 @@ function updateLowStock(products) {
             '<div class="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center text-red-400">' +
             '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/></svg></div>' +
             '<div><p class="text-sm font-medium text-white">' + p.name + '</p><p class="text-xs ' + (p.stock <= 2 ? 'text-red-400 font-semibold' : 'text-orange-400') + '">Stok: ' + p.stock + (p.stock <= 2 ? ' — Segera restock!' : '') + '</p></div></div>' +
-            '<a href="/admin/products/edit/' + p.id + '" class="text-xs text-blue-400 hover:text-blue-300">Edit</a></div>';
+            '<a href="/admin/products/edit/' + p.id + '" class="text-xs text-[#8b7df2] hover:text-[#9a8df4]">Edit</a></div>';
     }).join('');
 }
 

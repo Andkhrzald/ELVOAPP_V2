@@ -6,6 +6,119 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+    --font-sans: 'Plus Jakarta Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
+
+    --color-elvo-bg: #0c0e1a;
+    --color-elvo-surface: #151a2e;
+    --color-elvo-elevated: #1c2340;
+    --color-elvo-primary: #7c6df0;
+    --color-elvo-secondary: #3ce0c4;
+    --color-elvo-rose: #ff6b8a;
+    --color-elvo-amber: #fbbf24;
+    --color-elvo-emerald: #4ade80;
+    --color-elvo-sky: #38bdf8;
+}
+
+@utility btn-primary {
+    @apply bg-gradient-to-br from-[#7c6df0] to-[#6a5cd8] text-white font-bold rounded-xl transition-all duration-300;
+    box-shadow: 0 4px 20px rgba(124, 109, 240, 0.25);
+    &:hover {
+        @apply from-[#6a5cd8] to-[#5a4ec8];
+        box-shadow: 0 6px 30px rgba(124, 109, 240, 0.4);
+    }
+}
+
+@utility btn-danger {
+    @apply bg-elvo-rose text-white font-bold rounded-xl transition-all duration-300;
+    box-shadow: 0 4px 20px rgba(255, 107, 138, 0.25);
+    &:hover {
+        @apply bg-[#e55a7a];
+        box-shadow: 0 6px 30px rgba(255, 107, 138, 0.4);
+    }
+}
+
+@utility btn-ghost {
+    @apply bg-white/5 border border-white/[0.06] text-gray-400 rounded-xl font-bold transition-all duration-300;
+    &:hover {
+        @apply bg-white/10 text-white border-elvo-primary/30;
+    }
+}
+
+@utility card {
+    @apply bg-elvo-surface rounded-xl border border-white/[0.06];
+    box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
+}
+
+@utility input-elvo {
+    @apply bg-elvo-bg border border-white/[0.06] rounded-xl text-sm text-white outline-none transition-all duration-300 placeholder-gray-600;
+    &:focus {
+        @apply border-elvo-primary;
+        box-shadow: 0 0 0 3px rgba(124, 109, 240, 0.15);
+    }
+}
+
+/* ── Custom Scrollbar ── */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(124, 109, 240, 0.25);
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(124, 109, 240, 0.4);
+}
+* {
+    scrollbar-color: rgba(124, 109, 240, 0.25) transparent;
+    scrollbar-width: thin;
+}
+
+/* ── Page Entrance Animation ── */
+@keyframes fade-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-up {
+    animation: fade-up 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Card Hover Lift ── */
+.card-hover {
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.card-hover:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* ── Modal/Drawer Entrance ── */
+@keyframes modal-in {
+    from { opacity: 0; transform: scale(0.95) translateY(10px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.animate-modal-in {
+    animation: modal-in 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slide-in {
+    from { opacity: 0; transform: translateX(100%); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+.animate-slide-in {
+    animation: slide-in 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Status Badge Pulse ── */
+@keyframes badge-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(124, 109, 240, 0.4); }
+    50%      { box-shadow: 0 0 0 6px rgba(124, 109, 240, 0); }
+}
+.animate-badge-pulse {
+    animation: badge-pulse 2s infinite;
 }
