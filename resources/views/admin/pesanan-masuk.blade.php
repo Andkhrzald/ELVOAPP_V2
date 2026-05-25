@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="min-h-screen bg-[#0f0f0f] text-gray-300 pb-12">
+<div class="min-h-screen text-gray-300 pb-12">
 
     {{-- Toast Notification --}}
     @if(session('success') || session('error'))

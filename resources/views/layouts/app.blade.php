@@ -9,6 +9,29 @@
 </head>
 <body class="bg-elvo-bg text-white font-sans">
 
+{{-- Brand Watermark + Event Decor --}}
+<div class="fixed inset-0 pointer-events-none select-none z-0 overflow-hidden">
+    {{-- Subtle grid pattern --}}
+    <div class="absolute inset-0 opacity-[0.015]" style="background-image: linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px); background-size: 60px 60px;"></div>
+    {{-- Brand watermark --}}
+    <span class="absolute bottom-8 right-8 text-[200px] sm:text-[300px] font-black italic text-white/[0.04] tracking-tighter leading-none select-none">
+        ELVO.
+    </span>
+    <span class="absolute top-20 left-8 text-[100px] font-black italic text-white/[0.02] tracking-tighter leading-none select-none">
+        ADMIN
+    </span>
+    @if(($eventTheme['active'] ?? false))
+    <span class="absolute top-32 right-16 text-9xl opacity-[0.06] pointer-events-none select-none">
+        {{ $eventTheme['icon'] ?? '' }}
+    </span>
+    <span class="absolute bottom-40 left-10 text-[14px] font-black text-white/[0.05] uppercase tracking-[0.5em] rotate-90 origin-left whitespace-nowrap">
+        {{ $eventTheme['name'] ?? '' }}
+    </span>
+    <div class="absolute top-1/3 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/[0.03] to-transparent"></div>
+    <div class="absolute bottom-1/3 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/[0.02] to-transparent"></div>
+    @endif
+</div>
+
 <nav class="fixed top-0 z-50 w-full bg-elvo-surface/80 backdrop-blur-xl border-b border-white/[0.06]">
   <div class="px-3 py-3 lg:px-5 lg:pl-3">
     <div class="flex items-center justify-between">
@@ -52,7 +75,7 @@
 </nav>
 
 <aside id="logo-sidebar" class="fixed top-0 left-0 z-40 w-64 h-full transition-transform -translate-x-full sm:translate-x-0" aria-label="Sidebar">
-   <div class="h-full px-3 py-4 overflow-y-auto bg-elvo-surface border-e border-white/[0.06] pt-20 shadow-[4px_0_30px_rgba(0,0,0,0.3)]">
+   <div class="h-full px-3 py-4 overflow-y-auto bg-gradient-to-b from-elvo-surface to-[#1a2040] border-e border-white/[0.06] pt-20 shadow-[4px_0_30px_rgba(0,0,0,0.3)]">
       <ul class="space-y-1 font-medium">
    <li>
       <a href="{{ route('admin.dashboard') }}" class="flex items-center p-2 text-Bold rounded-lg hover:bg-white/[0.03] group {{ request()->routeIs('admin.dashboard') && !request()->routeIs('admin.dashboard.analytics') ? 'bg-elvo-elevated border-l-4 border-elvo-primary shadow-[0_0_20px_rgba(124,109,240,0.12)]' : '' }}">
@@ -171,7 +194,7 @@
 </div>
 </aside>
 
-<div class="p-4 sm:ml-64">
+<div class="p-4 sm:ml-64 relative z-10">
    <div class="p-4 mt-14 animate-fade-up">
       @yield('content')
    </div>

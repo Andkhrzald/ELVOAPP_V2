@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="min-h-screen bg-[#0f0f0f] text-gray-300 pb-12">
+<div class="min-h-screen text-gray-300 pb-12">
 
     {{-- Header --}}
     <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-end justify-between mb-8 px-4 lg:px-0 pt-10 gap-4">
