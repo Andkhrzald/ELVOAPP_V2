@@ -41,9 +41,9 @@ class UpdateAccountsSeeder extends Seeder
             'address'  => 'Kantor Elvo Cabang',
         ]);
 
-        // 3. Owner Amin
+        // 3. Owner Admin
         User::create([
-            'name'     => 'Amin Owner',
+            'name'     => 'Admin Owner',
             'email'    => 'owner@elvo.com',
             'password' => Hash::make('password'),
             'role'     => 'owner',
@@ -64,7 +64,7 @@ class UpdateAccountsSeeder extends Seeder
         $this->command->info('✅ Akun berhasil diperbarui!');
         $this->command->info('   admin1@elvoapp.com / password   → Admin Andikha');
         $this->command->info('   admin2@elvoapp.com / password2  → Rehan Admin');
-        $this->command->info('   owner@elvo.com     / password   → Amin Owner');
+        $this->command->info('   owner@elvo.com     / password   → Admin Owner');
         $this->command->info('   testcus@elvo.com   / password   → Test Customer');
     }
 }

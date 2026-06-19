@@ -699,7 +699,7 @@ npm run dev
 |-------|-------|
 | Email | `owner@elvo.com` |
 | Password | `password` |
-| Nama | Amin Owner |
+| Nama | Admin Owner |
 
 ### Admin:
 | Nama | Email | Password |

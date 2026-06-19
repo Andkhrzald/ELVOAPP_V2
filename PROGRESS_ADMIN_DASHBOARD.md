@@ -77,7 +77,7 @@
 |-------|----------|------|------|
 | admin1@elvoapp.com | password | admin | Admin Andikha |
 | admin2@elvoapp.com | password2 | admin | Rehan Admin |
-| owner@elvo.com | password | owner | Amin Owner |
+| owner@elvo.com | password | owner | Admin Owner |
 | testcus@elvo.com | password | customer | Test Customer |
 
 Semua pelanggan demo (siti@gmail.com, andi@gmail.com, dll) password: `password`
