@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Exports\TransactionExport;
 
 class TransactionHistoryController extends Controller
 {
@@ -29,5 +30,10 @@ class TransactionHistoryController extends Controller
             'monthlyRevenue',
             'pendingCount'
         ));
+    }
+
+    public function export()
+    {
+        return TransactionExport::export();
     }
 }

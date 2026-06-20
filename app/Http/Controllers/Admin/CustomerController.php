@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Order;
+use App\Exports\CustomerExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -59,5 +60,10 @@ class CustomerController extends Controller
             ->get();
 
         return view('admin.pelanggan-detail', compact('customer', 'orders'));
+    }
+
+    public function export()
+    {
+        return CustomerExport::export();
     }
 }

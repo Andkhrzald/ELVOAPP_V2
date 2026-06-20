@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\StockMutation;
+use App\Exports\ProductExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
@@ -168,5 +169,10 @@ class ProductController extends Controller
         $product->delete();
 
         return redirect()->route('admin.products')->with('success', 'Produk berhasil dihapus!');
+    }
+
+    public function export()
+    {
+        return ProductExport::export();
     }
 }

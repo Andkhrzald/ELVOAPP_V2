@@ -56,7 +56,12 @@ Route::get('/pelanggan/{id}', [CustomerController::class, 'show'])->name('pelang
 Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews');
 Route::delete('/reviews/{id}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
 
-// 11. OWNER ONLY — Manajemen Admin, System, Laporan
+// 11. EXPORT (admin level)
+Route::get('/products/export', [ProductController::class, 'export'])->name('products.export');
+Route::get('/transaksi/export', [TransactionHistoryController::class, 'export'])->name('transaksi.export');
+Route::get('/pelanggan/export', [CustomerController::class, 'export'])->name('pelanggan.export');
+
+// 12. OWNER ONLY — Manajemen Admin, System, Laporan
 Route::middleware(['owner'])->prefix('owner')->name('owner.')->group(function () {
     Route::get('/dashboard', [OwnerController::class, 'index'])->name('dashboard');
     Route::get('/manage-admins', [OwnerController::class, 'manageAdmins'])->name('manage-admins');
@@ -70,10 +75,12 @@ Route::middleware(['owner'])->prefix('owner')->name('owner.')->group(function ()
 
     // Laporan Keuangan
     Route::get('/financial-reports', [OwnerController::class, 'financialReports'])->name('financial-reports');
+    Route::get('/financial-reports/export', [OwnerController::class, 'exportFinancial'])->name('financial-reports.export');
 
     // Laporan Produk
     Route::get('/product-reports', [OwnerController::class, 'productReports'])->name('product-reports');
 
     // Riwayat Stok
     Route::get('/stock-history', [OwnerController::class, 'stockHistory'])->name('stock-history');
+    Route::get('/stock-history/export', [OwnerController::class, 'exportStock'])->name('stock-history.export');
 });

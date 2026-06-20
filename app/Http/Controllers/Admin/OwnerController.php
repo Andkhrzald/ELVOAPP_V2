@@ -11,6 +11,8 @@ use App\Models\OrderItem;
 use App\Models\Setting;
 use App\Models\StockMutation;
 use App\Models\Review;
+use App\Exports\FinancialExport;
+use App\Exports\StockExport;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
@@ -398,5 +400,15 @@ class OwnerController extends Controller
         $products = Product::orderBy('name')->get(['id', 'name']);
 
         return view('admin.owner.stock-history', compact('mutations', 'products'));
+    }
+
+    public function exportFinancial(Request $request)
+    {
+        return FinancialExport::export($request);
+    }
+
+    public function exportStock()
+    {
+        return StockExport::export();
     }
 }

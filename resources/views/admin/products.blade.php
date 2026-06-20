@@ -9,6 +9,11 @@
             <p class="text-sm text-gray-500 mt-1">Kelola inventaris, harga, dan visibilitas produk Anda.</p>
         </div>
         <div class="flex items-center gap-3">
+            <a href="{{ route('admin.products.export') }}"
+               class="px-4 py-2.5 text-sm font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-xl hover:bg-emerald-500/20 transition-all flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                Export Excel
+            </a>
             <button onclick="toggleModal('modal-tambah')" class="btn-primary px-5 py-2.5 text-sm flex items-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
