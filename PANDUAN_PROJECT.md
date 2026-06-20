@@ -3,7 +3,7 @@
 > **Nama Project:** ELVOAPP V2  
 > **Repo GitHub:** https://github.com/Andkhrzald/ELVOAPP_V2.git  
 > **Framework:** Laravel 13 + Vite + TailwindCSS v4 + Flowbite  
-> **Database:** MySQL  
+> **Database:** PostgreSQL (Supabase Cloud)  
 > **Branch Aktif:** `main`, `andikha`, `Rehan`
 
 ---
@@ -16,10 +16,11 @@
 4. [Cara Running Sehari-hari](#4--cara-running-sehari-hari)
 5. [Panduan Git Kolaborasi Tim](#5--panduan-git-kolaborasi-tim)
 6. [Cara Agar Gambar Produk Muncul di Semua Laptop](#6--cara-agar-gambar-produk-muncul-di-semua-laptop)
-7. [Cara Sync Database Antar Anggota Tim](#7--cara-sync-database-antar-anggota-tim)
-8. [SOP: Alur Lengkap Push Fitur Baru](#8--sop-alur-lengkap-push-fitur-baru)
-9. [Troubleshooting / Masalah Umum](#9--troubleshooting--masalah-umum)
-10. [Akun Demo](#10--akun-demo)
+7. [Cara Setup Database Online (Supabase)](#7--cara-setup-database-online-supabase)
+8. [Cara Sync Database Antar Anggota Tim](#8--cara-sync-database-antar-anggota-tim)
+9. [SOP: Alur Lengkap Push Fitur Baru](#9--sop-alur-lengkap-push-fitur-baru)
+10. [Troubleshooting / Masalah Umum](#10--troubleshooting--masalah-umum)
+11. [Akun Demo](#11--akun-demo)
 
 ---
 
@@ -65,7 +66,7 @@
 | Backend | PHP 8.3 + Laravel 13 |
 | Frontend | Blade Template + TailwindCSS v4 + Flowbite |
 | Build Tool | Vite 8 |
-| Database | MySQL |
+| Database | PostgreSQL (Supabase Cloud) |
 | Package Manager | Composer (PHP) + NPM (Node.js) |
 | Chart | ApexCharts |
 | Version Control | Git + GitHub |
@@ -115,10 +116,9 @@ elvoapp/
 | PHP 8.3+ | https://windows.php.net/download/ atau via XAMPP/Laragon |
 | Composer | https://getcomposer.org/download/ |
 | Node.js 18+ | https://nodejs.org/ |
-| MySQL | Bisa pakai XAMPP, Laragon, atau MySQL standalone |
 | Git | https://git-scm.com/download/win |
 
-> 💡 **Rekomendasi:** Pakai **Laragon** karena sudah include PHP, MySQL, Composer, dan otomatis setting PATH.
+> 💡 **Rekomendasi:** Pakai **Laragon** karena sudah include PHP, Composer, dan otomatis setting PATH.
 
 ### Step-by-Step Setup:
 
@@ -148,39 +148,66 @@ copy .env.example .env
 php artisan key:generate
 ```
 
-#### Step 6: Setup Database MySQL
+#### Step 6: Aktifkan Extension PostgreSQL di Laragon
 
-1. Buka **phpMyAdmin** atau MySQL client
-2. Buat database baru dengan nama: **`elvoapp`**
-3. Edit file `.env`, pastikan konfigurasi database seperti ini:
+Karena kita pakai **Supabase (PostgreSQL)**, Laragon perlu extension khusus.
+
+1. Buka Laragon → klik **Menu** → **PHP** → **Extensions**
+2. Centang **`pgsql`** dan **`pdo_pgsql`**
+3. Restart Laragon (klik kanan → Restart)
+
+> ✅ Kalau pakai XAMPP, buka `php.ini` lalu hapus `;` di depan `extension=pgsql` dan `extension=pdo_pgsql`, lalu restart Apache.
+
+#### Step 7: Setup Database Online (Supabase)
+
+Kita pakai **1 database online** yang bisa diakses berdua. **Tidak perlu install MySQL di lokal.**
+
+1. **Andikha (cukup sekali):** Buka https://supabase.com → Login GitHub
+2. Klik **New project**:
+   - **Name:** `elvoapp`
+   - **Database Password:** buat password kuat (catat!)
+   - **Region:** Pilih **Singapore** (terdekat)
+3. Tunggu ~2 menit sampai selesai
+4. Masuk ke **Project Settings → Database → Connection string**
+5. Copy string URI-nya, bentuknya:
+   ```
+   postgresql://postgres:******@db.xxxxxxxxxxx.supabase.co:5432/postgres
+   ```
+6. Edit file `.env` di project, isi seperti ini:
 
 ```env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=elvoapp
-DB_USERNAME=root
-DB_PASSWORD=
+DB_CONNECTION=pgsql
+DB_HOST=db.xxxxxxxxxxx.supabase.co
+DB_PORT=5432
+DB_DATABASE=postgres
+DB_USERNAME=postgres
+DB_PASSWORD=password_yang_kamu_buat
 ```
 
-> ⚠️ Jika pakai password MySQL, isi `DB_PASSWORD` sesuai password kamu.
+> ⚠️ **Password dan host ini rahasia! Jangan di-commit ke Git!**
 
-#### Step 7: Jalankan Migrasi Database
+#### Step 8: Jalankan Migrasi Database (Cukup 1 Kali)
+
+> **PENTING:** Karena database sudah online dan dipakai bareng, **cukup Andikha yang jalankan ini sekali saja**. Rehan TIDAK perlu migrate lagi.
+
 ```bash
 php artisan migrate
 ```
 
-#### Step 8: Jalankan Seeder (Data Demo)
+#### Step 9: Jalankan Seeder (Data Demo) (Cukup 1 Kali)
 ```bash
 php artisan db:seed --class=AdminDemoSeeder
+php artisan db:seed --class=AnalyticsDemoSeeder
 ```
 
-#### Step 9: Buat Symbolic Link untuk Storage (Opsional)
+> Jika ada error `could not find driver`, berarti extension PostgreSQL belum aktif. Ulangi Step 6.
+
+#### Step 10: Buat Symbolic Link untuk Storage (Opsional)
 ```bash
 php artisan storage:link
 ```
 
-#### Step 10: Jalankan Server! 🎉
+#### Step 11: Jalankan Server! 🎉
 
 Buka **2 terminal** secara bersamaan:
 
@@ -202,7 +229,7 @@ composer run dev
 ```
 > Perintah ini otomatis jalankan `php artisan serve` + `npm run dev` + `queue:listen` + `pail` sekaligus!
 
-#### Step 11: Buka di Browser
+#### Step 12: Buka di Browser
 ```
 http://127.0.0.1:8000
 ```
@@ -383,130 +410,159 @@ Gambar statis seperti logo disimpan di `public/img/` dan sudah otomatis masuk Gi
 
 ---
 
-## 7. 🗄️ Cara Sync Data Produk (Database)
+## 7. ☁️ Cara Setup Database Online (Supabase)
 
-### Masalah:
-Meskipun gambarnya sudah ada (setelah `git pull`), data produk (Nama, Harga, dll) di database lokal Rehan **belum ada**.
+### Kenapa Pindah ke Supabase?
 
-### Solusi 1: Update Seeder (Sangat Disarankan)
-Jika kamu ingin produk baru tersebut ada di semua laptop selamanya:
+| Dulu (MySQL Lokal) | Sekarang (Supabase Cloud) |
+|-------------------|--------------------------|
+| Database di laptop masing-masing | **1 database di cloud** |
+| Andikha punya data A, Rehan punya data B | **Data kalian SAMA PERSIS** |
+| Kalau Andikha tambah produk, Rehan gak lihat | **Langsung kelihatan** |
+| Ribet sinkronisasi tiap hari | **Tinggal colok, langsung jalan** |
 
-1.  Buka file `database/seeders/AdminDemoSeeder.php`.
-2.  Tambahkan data produk baru kamu di dalam kode tersebut.
-3.  Push file `AdminDemoSeeder.php` ke Git.
-4.  Teman kamu tinggal menjalankan: `php artisan db:seed --class=AdminDemoSeeder`.
+### Cara Setting Pertama Kali (Cukup Andikha)
 
-### Solusi 2: Export SQL (Jika banyak perubahan)
-1.  Andikha export tabel `products` via phpMyAdmin ke file `.sql`.
-2.  Kirim file `.sql` ke Rehan via WhatsApp/Discord.
-3.  Rehan import file tersebut di phpMyAdmin lokalnya.
+#### 1. Buat Akun Supabase
 
-> 📌 **SOP TERBAIK:** Selalu gunakan **Migrations** untuk struktur tabel dan **Seeders** untuk data awal agar tim tetap sinkron secara otomatis.
+1. Buka **https://supabase.com**
+2. Klik **"Start your project"** → Login pakai **GitHub**
+3. Klik **"New project"**
+4. Isi:
+   - **Name:** `elvoapp`
+   - **Database Password:** buat password (catat di notes!)
+   - **Region:** Singapore 🌏
+5. Klik **"Create new project"** — tunggu ~2 menit
+
+#### 2. Ambil String Koneksi
+
+1. Di dashboard Supabase, klik **Project Settings → Database**
+2. Cari bagian **"Connection string"** → pilih tab **"URI"**
+3. Copy seluruh string, bentuknya seperti ini:
+   ```
+   postgresql://postgres:******@db.xxxxxxxxxxx.supabase.co:5432/postgres
+   ```
+
+#### 3. Setup Laragon (Andikha & Rehan masing-masing)
+
+1. Buka Laragon → klik kanan → **Tools → Quick Settings → PHP Extensions**
+2. Centang **pgsql** dan **pdo_pgsql**
+3. Restart Laragon
+
+> **Alternatif XAMPP:** Buka `php.ini`, cari `;extension=pgsql` dan `;extension=pdo_pgsql`, hapus tanda `;` di depannya, lalu restart Apache.
+
+#### 4. Update File `.env`
+
+Edit `.env` di root project:
+
+```env
+DB_CONNECTION=pgsql
+DB_HOST=db.xxxxxxxxxxx.supabase.co
+DB_PORT=5432
+DB_DATABASE=postgres
+DB_USERNAME=postgres
+DB_PASSWORD=[password_kamu]
+```
+
+#### 5. Jalankan Migrasi (Andikha aja)
+
+```bash
+php artisan migrate
+```
+
+#### 6. Jalankan Seeder (Andikha aja)
+
+```bash
+php artisan db:seed --class=AdminDemoSeeder
+php artisan db:seed --class=AnalyticsDemoSeeder
+```
+
+### Cara Setting Rehan (Cukup 2 Langkah)
+
+1. **Aktifkan extension pgsql** di Laragon (sama seperti Step 3)
+2. **Isi `.env`** dengan host & password yang sama dari Supabase
+3. Selesai ✅ — **Rehan TIDAK perlu migrate/seed lagi**
+
+### Cara Cek Database Online
+
+Buka **supabase.com** → login → klik project `elvoapp`:
+- **Table Editor:** Lihat isi tabel seperti Excel
+- **SQL Editor:** Jalankan query SQL
+- **Database:** Cek koneksi, backup, dll
 
 ---
 
-## 8. 🗄️ Cara Sync Database Antar Anggota Tim
+## 8. 🗄️ Cara Sync Database — Karena Udah 1 Database Online
 
-### Prinsip Utama:
-> **Database TIDAK di-share lewat Git.** Setiap orang punya database lokal masing-masing. Yang di-share adalah **file migration** dan **seeder**.
+### Kabar Baik 🎉
 
-### 7.1 — Jika Ada Tabel Baru / Kolom Baru
+Karena kalian sekarang pakai **1 database online (Supabase)**, sync database jadi **JAUH LEBIH MUDAH**:
 
-**Yang Buat (misal Andikha):**
+| Situasi | Cara |
+|---------|------|
+| Andikha tambah produk | Rehan langsung lihat ✅ |
+| Rehan bikin order | Andikha langsung lihat ✅ |
+| Ada perubahan status | Semua realtime ✅ |
+
+### Kapan Perlu Migrasi?
+
+Migrasi cuma perlu kalau ada **perubahan struktur tabel** (nambah kolom, tabel baru).
+
+#### Yang Buat Perubahan (misal Andikha):
 ```bash
 # 1. Buat file migration
-php artisan make:migration create_nama_tabel_table
+php artisan make:migration add_wishlist_to_users_table
 
-# 2. Edit file migration di database/migrations/
-# 3. Jalankan migration di laptop sendiri
+# 2. Edit file migration
+# 3. Jalankan migration (langsung ke database online)
 php artisan migrate
 
 # 4. Commit & Push
 git add database/migrations/
-git commit -m "feat: tambah tabel wishlist"
+git commit -m "feat: tambah kolom wishlist di users"
 git push origin andikha
 ```
 
-**Yang Menerima (misal Rehan):**
+#### Yang Menerima (Rehan):
 ```bash
-# 1. Pull update terbaru (ikuti langkah di bagian 5)
+# 1. Pull update dari Git
 git checkout main
 git pull origin main
 git checkout Rehan
 git merge main
 
-# 2. Jalankan migration agar database lokal ikut update
-php artisan migrate
-
-# ✅ Database Rehan sekarang sama strukturnya dengan Andikha!
+# 2. Data di Supabase udah otomatis update oleh Andikha
+#    Rehan TIDAK perlu migrate lagi ✅
 ```
 
-### 7.2 — Jika Ada Data Demo Baru
+> ⚠️ **Bedanya sama dulu:**
+> - **Dulu (MySQL lokal):** Setiap orang harus `php artisan migrate` sendiri
+> - **Sekarang (Supabase):** Cukup **satu orang** yang migrate, database online langsung berubah
 
-**Yang Buat:**
+### Kalau Mau Tambah Data Demo
+
+Karena database 1, kalau Andikha jalanin seeder, **data langsung masuk** dan Rehan langsung lihat.
+
 ```bash
-# 1. Edit file seeder (misal AdminDemoSeeder.php)
-# 2. Jalankan seeder
-php artisan db:seed --class=AdminDemoSeeder
-
-# 3. Commit & Push
-git add database/seeders/
-git commit -m "feat: tambah data demo produk baru"
-git push origin andikha
+# Andikha jalanin (cukup sekali):
+php artisan db:seed --class=NamaSeeder
 ```
 
-**Yang Menerima:**
-```bash
-# 1. Pull update
-# 2. Jalankan seeder
-php artisan db:seed --class=AdminDemoSeeder
-```
-
-### 7.3 — Jika Ada Perubahan Akun / Role Baru
-
-Ada kalanya kita update akun admin, role, atau data user. Caranya:
-
-**Yang Buat:**
-```bash
-# 1. Buat file seeder baru (misal UpdateAccountsSeeder.php)
-# 2. Jalankan seeder untuk update akun
-php artisan db:seed --class=UpdateAccountsSeeder
-
-# 3. Commit & Push
-git add database/seeders/UpdateAccountsSeeder.php
-git commit -m "chore: update akun admin + tambah role owner"
-git push origin [branch-kamu]
-```
-
-**Yang Menerima:**
-```bash
-# 1. Pull update
-git checkout main
-git pull origin main
-git merge [branch-kamu]
-
-# 2. Jalankan seeder
-php artisan db:seed --class=UpdateAccountsSeeder
-
-# ✅ Akun baru sudah tersedia di lokal kamu!
-```
-
-### 7.4 — Jika Database Bermasalah / Mau Reset Total
+### Hati-hati dengan `migrate:fresh`! ⚠️
 
 ```bash
-# ⚠️ HATI-HATI: Ini akan HAPUS semua data dan buat ulang dari awal!
-
-# 1. Fresh migration (hapus semua tabel + buat ulang)
+# ⚠️ INI BERBAHAYA! Akan HAPUS SEMUA DATA di database ONLINE!
 php artisan migrate:fresh
-
-# 2. Jalankan semua seeder secara berurutan
-php artisan db:seed --class=AdminDemoSeeder
-php artisan db:seed --class=UpdateAccountsSeeder
 ```
+
+Karena database online dipakai berdua, **jangan sembarangan** jalanin `migrate:fresh`. Pastikan:
+- Semua orang tau
+- Data penting udah di-backup
+- Baru jalanin setelah diskusi
 
 ---
 
-## 8. 📋 SOP: Alur Lengkap Push Fitur Baru
+## 9. 📋 SOP: Alur Lengkap Push Fitur Baru
 
 Ini adalah **step-by-step lengkap** setiap kali kamu mau menambah fitur baru:
 
@@ -610,12 +666,12 @@ git checkout main
 git pull origin main
 git checkout Rehan
 git merge main
-php artisan migrate        # kalau ada migration baru
+# ⚠️ Dengan Supabase: Kalau teman udah migrate, kamu TIDAK perlu migrate lagi
 ```
 
 ---
 
-## 9. ❓ Troubleshooting / Masalah Umum
+## 10. ❓ Troubleshooting / Masalah Umum
 
 ### ❌ Error: "Vite manifest not found"
 **Penyebab:** `npm run dev` belum dijalankan  
@@ -624,17 +680,28 @@ php artisan migrate        # kalau ada migration baru
 npm run dev
 ```
 
+### ❌ Error: "could not find driver"
+**Penyebab:** Extension PostgreSQL belum aktif di PHP  
+**Solusi:**
+1. Laragon: Menu → PHP → Extensions → centang **pgsql** + **pdo_pgsql** → restart
+2. XAMPP: Edit `php.ini`, hapus `;` di depan `extension=pgsql` dan `extension=pdo_pgsql` → restart Apache
+
 ### ❌ Error: "SQLSTATE[42S01]: Table already exists"
 **Penyebab:** Migration sudah pernah dijalankan  
 **Solusi:**
 ```bash
+# ⚠️ HATI-HATI: Ini hapus SEMUA data di database online!
 php artisan migrate:fresh
 php artisan db:seed --class=AdminDemoSeeder
+php artisan db:seed --class=AnalyticsDemoSeeder
 ```
 
-### ❌ Error: "SQLSTATE[HY000] [1049] Unknown database 'elvoapp'"
-**Penyebab:** Database belum dibuat  
-**Solusi:** Buat database `elvoapp` di phpMyAdmin/MySQL
+### ❌ Error: "Connection refused" atau "Timeout"
+**Penyebab:** Database Supabase sedang mati / internet bermasalah  
+**Solusi:**
+1. Cek internet kamu
+2. Buka https://supabase.com → cek status database
+3. Database Supabase free bisa "pause" kalau gak dipakai 7 hari. Buka dashboard Supabase untuk mengaktifkan kembali
 
 ### ❌ Gambar Produk Tidak Muncul
 **Penyebab:** Gambar belum di-commit/di-pull  
@@ -685,7 +752,7 @@ npm run dev
 
 ---
 
-## 10. 👤 Akun Demo
+## 11. 👤 Akun Demo
 
 ### Hierarki Role:
 | Role | Akses |
@@ -748,7 +815,10 @@ docs: tambah panduan setup project
 1. **File `.env` TIDAK boleh di-push ke Git** — setiap orang punya `.env` sendiri dengan konfigurasi lokal masing-masing.
 2. **Folder `vendor/` dan `node_modules/` TIDAK di-push** — setiap orang install sendiri dengan `composer install` dan `npm install`.
 3. **Selalu komunikasi** sebelum merge ke `main` — beritahu teman kamu supaya tidak conflict.
-4. **Backup sebelum `migrate:fresh`** — perintah ini menghapus SEMUA data di database.
+4. **Backup sebelum `migrate:fresh`** — perintah ini menghapus SEMUA data di database online!
+5. **Database online (Supabase) bisa "pause"** setelah 7 hari tidak dipakai. Buka dashboard Supabase dan jalanin query apa saja untuk mengaktifkannya lagi.
+6. **Password Supabase simpan di `.env`** — jangan pernah di-commit ke Git!
+7. **Pastikan extension pgsql aktif** — kalau error "could not find driver", aktifkan pgsql & pdo_pgsql di Laragon.
 
 ---
 
