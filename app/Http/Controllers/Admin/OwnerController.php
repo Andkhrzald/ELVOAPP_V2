@@ -150,10 +150,46 @@ class OwnerController extends Controller
             ->with('success', 'Akun ' . $name . ' berhasil dihapus.');
     }
 
-    public function auditLog()
+    public function auditLog(Request $request)
     {
-        $activities = ActivityLog::with('user')->latest()->paginate(50);
-        return view('admin.owner.audit-log', compact('activities'));
+        $query = ActivityLog::with('user');
+
+        // Filter by date range
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        // Filter by action type
+        if ($request->filled('action')) {
+            $query->where('action', $request->action);
+        }
+
+        // Search by user name or description
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('description', 'like', "%{$search}%")
+                  ->orWhereHas('user', fn ($uq) => $uq->where('name', 'like', "%{$search}%"));
+            });
+        }
+
+        $activities = $query->latest()->paginate(30)->withQueryString();
+
+        // Stats
+        $todayCount  = ActivityLog::whereDate('created_at', now()->today())->count();
+        $weekCount   = ActivityLog::where('created_at', '>=', now()->startOfWeek())->count();
+        $monthCount  = ActivityLog::whereMonth('created_at', now()->month)
+                         ->whereYear('created_at', now()->year)->count();
+
+        // Distinct action types for filter dropdown
+        $actionTypes = ActivityLog::select('action')->distinct()->orderBy('action')->pluck('action');
+
+        return view('admin.owner.audit-log', compact(
+            'activities', 'todayCount', 'weekCount', 'monthCount', 'actionTypes'
+        ));
     }
 
     // ============ PENGATURAN TOKO ============
