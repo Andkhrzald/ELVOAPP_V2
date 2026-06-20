@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\StockMutation;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
@@ -72,7 +73,7 @@ class ProductController extends Controller
     }
 
     // 3. Simpan ke Database (Pastikan 'description' ikut disimpan)
-    Product::create([
+    $product = Product::create([
         'name'        => $request->name,
         'slug'        => \Illuminate\Support\Str::slug($request->name),
         'category_id' => $request->category_id,
@@ -84,6 +85,8 @@ class ProductController extends Controller
         'image'       => $imagePath,
         'is_active'   => $request->has('is_active') ? $request->is_active : true,
     ]);
+
+    StockMutation::log($product, 'in', $request->stock, 'Stok awal produk baru');
 
     return redirect()->route('admin.products')->with('success', 'Produk berhasil ditambahkan!');
 }
@@ -128,7 +131,14 @@ class ProductController extends Controller
             $data['is_active'] = $request->is_active;
         }
 
+        $oldStock = $product->stock;
         $product->update($data);
+
+        if ((int) $request->stock !== $oldStock) {
+            $diff = (int) $request->stock - $oldStock;
+            $type = $diff > 0 ? 'in' : 'out';
+            StockMutation::log($product, 'adjustment', (int) $request->stock, 'Penyesuaian stok oleh admin');
+        }
 
         return redirect()->route('admin.products')->with('success', 'Produk berhasil diupdate!');
     }

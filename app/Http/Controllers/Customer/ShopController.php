@@ -10,6 +10,7 @@ use App\Models\Product;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\ActivityLog;
+use App\Models\StockMutation;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 
@@ -132,6 +133,7 @@ class ShopController extends Controller
                     'subtotal'     => $item['subtotal'],
                 ]);
                 $item['product']->decrement('stock', $item['qty']);
+                StockMutation::log($item['product'], 'order', $item['qty'], 'Pesanan #' . $orderNumber);
             }
 
             // Activity Log

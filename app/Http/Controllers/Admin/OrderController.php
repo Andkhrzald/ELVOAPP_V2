@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Product;
 use App\Models\ActivityLog;
+use App\Models\StockMutation;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
@@ -110,12 +113,22 @@ class OrderController extends Controller
             return redirect()->back()->with('error', 'Pesanan ini tidak dalam status permintaan batal.');
         }
         $order->update(['status' => 'batal']);
+
+        // Return stock
+        foreach ($order->items as $item) {
+            $product = Product::find($item->product_id);
+            if ($product) {
+                $product->increment('stock', $item->quantity);
+                StockMutation::log($product, 'cancel', $item->quantity, 'Pembatalan pesanan #' . $order->order_number);
+            }
+        }
+
         ActivityLog::create([
             'action' => 'cancel_confirmed',
             'description' => 'Pembatalan pesanan #' . $order->order_number . ' dikonfirmasi admin. Alasan customer: ' . $order->cancel_reason,
             'model_type' => 'Order', 'model_id' => $order->id,
         ]);
-        return redirect()->back()->with('success', '✅ Pembatalan #' . $order->order_number . ' dikonfirmasi.');
+        return redirect()->back()->with('success', '✅ Pembatalan #' . $order->order_number . ' dikonfirmasi. Stok dikembalikan.');
     }
 
     // ── REJECT CANCEL: minta_batal → rollback previous_status ──

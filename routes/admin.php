@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderController; 
 use App\Http\Controllers\Admin\TransactionHistoryController;
 use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\CustomerController;
 use App\Http\Controllers\Admin\ReviewController;
 use App\Http\Controllers\Admin\OwnerController;
@@ -22,38 +23,57 @@ Route::put('/products/update/{id}', [ProductController::class, 'update'])->name(
 Route::patch('/products/toggle-status/{id}', [ProductController::class, 'toggleStatus'])->name('products.toggle-status');
 Route::delete('/products/destroy/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
 
-// 3. TRANSAKSI
+// 3. Categories (admin & owner)
+Route::get('/categories', [CategoryController::class, 'index'])->name('categories');
+Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
+Route::put('/categories/{id}', [CategoryController::class, 'update'])->name('categories.update');
+Route::delete('/categories/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+
+// 4. TRANSAKSI
 Route::get('/transaksi', [TransactionHistoryController::class, 'index'])->name('transaksi');
 
-// 4. PESANAN MASUK
+// 5. PESANAN MASUK
 Route::get('/pesanan-masuk', [OrderController::class, 'index'])->name('pesanan-masuk');
 
-// 5. MANAJEMEN STATUS PESANAN
+// 6. MANAJEMEN STATUS PESANAN
 Route::post('/orders/{id}/accept', [OrderController::class, 'accept'])->name('orders.accept');
 Route::post('/orders/{id}/ship', [OrderController::class, 'ship'])->name('orders.ship');
 Route::post('/orders/{id}/complete', [OrderController::class, 'complete'])->name('orders.complete');
 
-// 6. KONFIRMASI / TOLAK PEMBATALAN
+// 7. KONFIRMASI / TOLAK PEMBATALAN
 Route::post('/orders/{id}/confirm-cancel', [OrderController::class, 'confirmCancel'])->name('orders.confirm-cancel');
 Route::post('/orders/{id}/reject-cancel', [OrderController::class, 'rejectCancel'])->name('orders.reject-cancel');
 
-// 7. KONFIRMASI / TOLAK REFUND
+// 8. KONFIRMASI / TOLAK REFUND
 Route::post('/orders/{id}/confirm-refund', [OrderController::class, 'confirmRefund'])->name('orders.confirm-refund');
 Route::post('/orders/{id}/reject-refund', [OrderController::class, 'rejectRefund'])->name('orders.reject-refund');
 
-// 8. PELANGGAN
+// 9. PELANGGAN
 Route::get('/pelanggan', [CustomerController::class, 'index'])->name('pelanggan');
 Route::get('/pelanggan/{id}', [CustomerController::class, 'show'])->name('pelanggan.show');
 
-// 9. REVIEW
+// 10. REVIEW
 Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews');
 Route::delete('/reviews/{id}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
 
-// 10. OWNER ONLY — Manajemen Admin & System
+// 11. OWNER ONLY — Manajemen Admin, System, Laporan
 Route::middleware(['owner'])->prefix('owner')->name('owner.')->group(function () {
     Route::get('/dashboard', [OwnerController::class, 'index'])->name('dashboard');
     Route::get('/manage-admins', [OwnerController::class, 'manageAdmins'])->name('manage-admins');
     Route::post('/manage-admins/store', [OwnerController::class, 'storeAdmin'])->name('manage-admins.store');
     Route::delete('/manage-admins/{id}', [OwnerController::class, 'destroyAdmin'])->name('manage-admins.destroy');
     Route::get('/audit-log', [OwnerController::class, 'auditLog'])->name('audit-log');
+
+    // Pengaturan Toko
+    Route::get('/settings', [OwnerController::class, 'settings'])->name('settings');
+    Route::post('/settings', [OwnerController::class, 'updateSettings'])->name('settings.update');
+
+    // Laporan Keuangan
+    Route::get('/financial-reports', [OwnerController::class, 'financialReports'])->name('financial-reports');
+
+    // Laporan Produk
+    Route::get('/product-reports', [OwnerController::class, 'productReports'])->name('product-reports');
+
+    // Riwayat Stok
+    Route::get('/stock-history', [OwnerController::class, 'stockHistory'])->name('stock-history');
 });
