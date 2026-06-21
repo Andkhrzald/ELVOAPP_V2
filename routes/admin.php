@@ -36,7 +36,11 @@ Route::get('/transaksi', [TransactionHistoryController::class, 'index'])->name('
 Route::get('/pesanan-masuk', [OrderController::class, 'index'])->name('pesanan-masuk');
 Route::get('/orders/{id}/invoice', [OrderController::class, 'invoice'])->name('orders.invoice');
 
-// 6. MANAJEMEN STATUS PESANAN
+// 6. KONFIRMASI PEMBAYARAN (pending → proses)
+Route::post('/orders/{id}/confirm-payment', [OrderController::class, 'confirmPayment'])->name('orders.confirm-payment');
+Route::get('/orders/{id}/payment-proof', [OrderController::class, 'viewProof'])->name('orders.payment-proof');
+
+// 7. MANAJEMEN STATUS PESANAN
 Route::post('/orders/{id}/accept', [OrderController::class, 'accept'])->name('orders.accept');
 Route::post('/orders/{id}/ship', [OrderController::class, 'ship'])->name('orders.ship');
 Route::post('/orders/{id}/complete', [OrderController::class, 'complete'])->name('orders.complete');
@@ -70,10 +74,6 @@ Route::middleware(['owner'])->prefix('owner')->name('owner.')->group(function ()
     Route::delete('/manage-admins/{id}', [OwnerController::class, 'destroyAdmin'])->name('manage-admins.destroy');
     Route::get('/audit-log', [OwnerController::class, 'auditLog'])->name('audit-log');
 
-    // Pengaturan Toko
-    Route::get('/settings', [OwnerController::class, 'settings'])->name('settings');
-    Route::post('/settings', [OwnerController::class, 'updateSettings'])->name('settings.update');
-
     // Laporan Keuangan
     Route::get('/financial-reports', [OwnerController::class, 'financialReports'])->name('financial-reports');
     Route::get('/financial-reports/export', [OwnerController::class, 'exportFinancial'])->name('financial-reports.export');
@@ -85,3 +85,7 @@ Route::middleware(['owner'])->prefix('owner')->name('owner.')->group(function ()
     Route::get('/stock-history', [OwnerController::class, 'stockHistory'])->name('stock-history');
     Route::get('/stock-history/export', [OwnerController::class, 'exportStock'])->name('stock-history.export');
 });
+
+// 13. PENGATURAN TOKO — Visible all admin, editable only owner
+Route::get('/settings', [OwnerController::class, 'settings'])->name('settings');
+Route::post('/settings', [OwnerController::class, 'updateSettings'])->name('settings.update');

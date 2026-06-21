@@ -30,7 +30,7 @@
             
             <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <div class="bg-elvo-surface p-5 rounded-2xl border border-white/[0.06] flex flex-col items-center justify-center text-center group hover:border-elvo-primary/30 transition-all card-hover">
-                    <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-1 group-hover:text-elvo-primary">Total Orders</p>
+                    <p class="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-1 group-hover:text-elvo-primary">Total Pesanan</p>
                     <p class="text-2xl font-black text-white leading-none">{{ $totalOrders }}</p>
                 </div>
                 <div class="bg-elvo-surface p-5 rounded-2xl border border-white/[0.06] flex flex-col items-center justify-center text-center group hover:border-orange-500/30 transition-all card-hover">
@@ -50,12 +50,12 @@
         {{-- Sidebar Section --}}
         <div class="col-span-12 lg:col-span-3 space-y-6">
             <div class="bg-elvo-surface p-6 rounded-[2rem] border border-white/[0.06] sticky top-24">
-                <form action="{{ route('admin.pesanan-masuk') }}" method="GET" class="space-y-8">
+                <form action="{{ route('admin.pesanan-masuk') }}" method="GET" class="space-y-6">
                     {{-- Search --}}
                     <div>
                         <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Pencarian Cepat</label>
                         <div class="relative group">
-                            <input type="text" name="search" value="{{ request('search') }}" placeholder="Order ID / Nama / HP" 
+                            <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari No. Order / Nama / HP / Produk"
                                 class="w-full bg-elvo-bg border border-white/[0.06] rounded-xl px-5 py-3 text-sm text-white focus:border-elvo-primary outline-none transition-all placeholder-gray-700">
                             <button type="submit" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within:text-elvo-primary transition-colors">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="3"/></svg>
@@ -63,20 +63,42 @@
                         </div>
                     </div>
 
+                    {{-- Date Range --}}
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Filter Tanggal</label>
+                        <div class="grid grid-cols-2 gap-3">
+                            <input type="date" name="date_from" value="{{ request('date_from') }}"
+                                class="w-full bg-elvo-bg border border-white/[0.06] rounded-xl px-3.5 py-2.5 text-[11px] text-white focus:border-elvo-primary outline-none">
+                            <input type="date" name="date_to" value="{{ request('date_to') }}"
+                                class="w-full bg-elvo-bg border border-white/[0.06] rounded-xl px-3.5 py-2.5 text-[11px] text-white focus:border-elvo-primary outline-none">
+                        </div>
+                    </div>
+
+                    {{-- Sort --}}
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-3">Urutkan</label>
+                        <select name="sort"
+                            class="w-full bg-elvo-bg border border-white/[0.06] rounded-xl px-4 py-2.5 text-[11px] text-white focus:border-elvo-primary outline-none">
+                            <option value="latest" {{ request('sort') == 'latest' ? 'selected' : '' }}>Terbaru</option>
+                            <option value="total_desc" {{ request('sort') == 'total_desc' ? 'selected' : '' }}>Total Tertinggi</option>
+                            <option value="total_asc" {{ request('sort') == 'total_asc' ? 'selected' : '' }}>Total Terendah</option>
+                        </select>
+                    </div>
+
                     {{-- Status Filter --}}
                     <div>
-                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-4">Pipeline Status</label>
+                        <label class="block text-[10px] font-black text-gray-500 uppercase tracking-widest mb-4">Filter Status</label>
                         <div class="space-y-2">
                             @php
                             $tabs = [
-                                'pending'      => ['label' => 'Pending Request'],
-                                'proses'       => ['label' => 'Processing'],
-                                'dikirim'      => ['label' => 'On Delivery'],
-                                'selesai'      => ['label' => 'Completed'],
-                                'minta_batal'  => ['label' => 'Cancellation'],
-                                'batal'        => ['label' => 'Canceled'],
-                                'minta_refund' => ['label' => 'Refund Request'],
-                                'refund'       => ['label' => 'Refunded'],
+                                'pending'      => ['label' => 'Menunggu Bayar'],
+                                'proses'       => ['label' => 'Diproses'],
+                                'dikirim'      => ['label' => 'Dikirim'],
+                                'selesai'      => ['label' => 'Selesai'],
+                                'minta_batal'  => ['label' => 'Minta Batal', 'urgent' => true],
+                                'batal'        => ['label' => 'Dibatalkan'],
+                                'minta_refund' => ['label' => 'Minta Refund', 'urgent' => true],
+                                'refund'       => ['label' => 'Direfund'],
                             ];
                             $tabActiveStyles = [
                                 'pending'      => 'bg-elvo-primary/10 border-elvo-primary/50 shadow-[0_0_15px_rgba(124,109,240,0.15)]',
@@ -100,11 +122,16 @@
                             ];
                             @endphp
                             @foreach($tabs as $key => $tab)
-                            <a href="?status={{ $key }}&search={{ request('search') }}" 
+                            <a href="?status={{ $key }}&search={{ request('search') }}&date_from={{ request('date_from') }}&date_to={{ request('date_to') }}&sort={{ request('sort') }}"
                                 class="group flex items-center justify-between p-4 rounded-2xl border transition-all {{ $status == $key ? $tabActiveStyles[$key] : 'bg-elvo-bg border-white/[0.06] hover:border-white/20' }}">
                                 <div class="flex items-center gap-3">
                                     <div class="w-2 h-2 rounded-full {{ $status == $key ? $tabDotStyles[$key] : 'bg-gray-700' }}"></div>
-                                    <span class="text-xs font-bold {{ $status == $key ? 'text-white' : 'text-gray-500 group-hover:text-gray-300' }}">{{ $tab['label'] }}</span>
+                                    <span class="text-xs font-bold {{ $status == $key ? 'text-white' : 'text-gray-500 group-hover:text-gray-300' }}">
+                                        {{ $tab['label'] }}
+                                        @if(!empty($tab['urgent']))
+                                        <span class="ml-1.5 px-1.5 py-0.5 text-[7px] font-black uppercase tracking-wider bg-red-500/20 text-red-500 rounded">urgent</span>
+                                        @endif
+                                    </span>
                                 </div>
                                 @if(($statusCounts[$key] ?? 0) > 0)
                                 <span class="px-2 py-0.5 rounded-lg text-[9px] font-black {{ $status == $key ? 'bg-white text-black' : 'bg-white/5 text-gray-600' }}">{{ $statusCounts[$key] }}</span>
@@ -114,7 +141,8 @@
                         </div>
                     </div>
 
-                    <a href="{{ route('admin.pesanan-masuk') }}" class="block w-full py-4 text-center text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] hover:text-white transition-colors">Reset All Filters</a>
+                    <button type="submit" class="w-full py-3 bg-elvo-primary/10 border border-elvo-primary/20 rounded-xl text-[10px] font-black text-elvo-primary uppercase tracking-widest hover:bg-elvo-primary hover:text-white transition-all">Terapkan Filter</button>
+                    <a href="{{ route('admin.pesanan-masuk') }}" class="block w-full text-center text-[10px] font-black text-gray-500 uppercase tracking-[0.3em] hover:text-white transition-colors">Reset Filter</a>
                 </form>
             </div>
         </div>
@@ -195,10 +223,30 @@
                             Logistics Metadata
                         </h4>
                         <div class="space-y-4">
+                            @if($order->payment_method === 'bank_transfer' && $order->selected_bank && $order->va_number)
+                            <div class="bg-elvo-bg p-3 rounded-xl border border-white/[0.06]">
+                                <p class="text-[8px] font-black text-gray-600 uppercase mb-1">Virtual Account</p>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="w-7 h-7 rounded-lg flex items-center justify-center text-white text-[7px] font-black uppercase shrink-0 {{ $order->selected_bank === 'BCA' ? 'bg-blue-600' : ($order->selected_bank === 'BRI' ? 'bg-blue-800' : ($order->selected_bank === 'BNI' ? 'bg-orange-600' : 'bg-gray-600')) }}">
+                                        {{ $order->selected_bank }}
+                                    </span>
+                                    <span class="text-[10px] text-gray-400 font-bold">Virtual Account</span>
+                                </div>
+                                <div class="flex items-center justify-between mt-2 p-2.5 bg-black/30 rounded-lg border border-white/[0.04]">
+                                    <span class="text-xs font-mono font-black tracking-widest text-white">{{ $order->va_number }}</span>
+                                    <button onclick="copyToClipboard('{{ $order->va_number }}')" class="text-[7px] font-black text-elvo-primary uppercase tracking-widest hover:text-white transition shrink-0">Salin</button>
+                                </div>
+                                @if($order->va_expires_at)
+                                <p class="text-[7px] text-gray-600 mt-1.5 font-bold">Berlaku hingga {{ $order->va_expires_at->format('d M Y H:i') }}</p>
+                                @endif
+                            </div>
+                            @else
                             <div class="bg-elvo-bg p-3 rounded-xl border border-white/[0.06]">
                                 <p class="text-[8px] font-black text-gray-600 uppercase mb-1">Gateway</p>
-                                <p class="text-[10px] font-black text-white uppercase">{{ $order->payment_method ?? 'CREDIT/DEBIT' }}</p>
+                                <p class="text-[10px] font-black text-white uppercase">{{ 
+                                    $order->payment_method === 'qris' ? 'QRIS' : ($order->payment_method ?? 'CREDIT/DEBIT') }}</p>
                             </div>
+                            @endif
                             <div class="bg-elvo-bg p-3 rounded-xl border border-white/[0.06]">
                                 <p class="text-[8px] font-black text-gray-600 uppercase mb-1">Carrier Service</p>
                                 <p class="text-[10px] font-black text-elvo-primary uppercase">{{ $order->shipping_method ?? 'PENDING ASSIGNMENT' }}</p>
@@ -207,6 +255,12 @@
                             <div class="bg-elvo-primary/10 p-3 rounded-xl border border-elvo-primary/20">
                                 <p class="text-[8px] font-black text-elvo-primary uppercase mb-1">Tracking Number</p>
                                 <p class="text-xs font-black text-white font-mono tracking-widest">{{ $order->no_resi }}</p>
+                            </div>
+                            @endif
+                            @if($order->payment_proof)
+                            <div class="bg-green-500/10 p-3 rounded-xl border border-green-500/20">
+                                <p class="text-[8px] font-black text-green-500 uppercase mb-1">Payment Proof</p>
+                                <p class="text-[10px] font-black text-white">✅ Bukti terupload</p>
                             </div>
                             @endif
                         </div>
@@ -232,12 +286,22 @@
                         <span class="text-[10px] font-black text-gray-600 uppercase tracking-widest">Active Operations:</span>
                         
                         @if($order->status === 'pending')
-                        <form action="{{ route('admin.orders.accept', $order->id) }}" method="POST">
-                            @csrf
-                            <button class="px-6 py-2.5 btn-primary text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-xl shadow-[#7c6df0]/20">
-                                Confirm & Process
-                            </button>
-                        </form>
+                            @if($order->payment_proof)
+                            <a href="{{ route('admin.orders.payment-proof', $order->id) }}" target="_blank"
+                                class="px-4 py-2.5 bg-white/5 text-elvo-primary border border-elvo-primary/30 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-elvo-primary/10 transition">
+                                📎 Lihat Bukti Bayar
+                            </a>
+                            <form action="{{ route('admin.orders.confirm-payment', $order->id) }}" method="POST" class="inline">
+                                @csrf
+                                <button class="px-6 py-2.5 bg-gradient-to-br from-[#4ade80] to-[#22c55e] text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-xl shadow-green-900/20 hover:from-[#22c55e] hover:to-[#16a34a]">
+                                    ✅ Konfirmasi Pembayaran
+                                </button>
+                            </form>
+                            @else
+                            <span class="text-[10px] font-black text-yellow-500 uppercase tracking-widest border border-yellow-500/20 px-4 py-2 rounded-xl bg-yellow-500/5">
+                                ⏳ Menunggu Bukti Bayar
+                            </span>
+                            @endif
                         @endif
 
                         @if($order->status === 'proses')
@@ -301,8 +365,8 @@
                 <div class="w-20 h-20 bg-elvo-bg rounded-full flex items-center justify-center mx-auto mb-6">
                     <svg class="w-8 h-8 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" stroke-width="2"/></svg>
                 </div>
-                <p class="text-gray-500 text-sm font-bold italic uppercase tracking-widest">No matching manifests found for this status.</p>
-                <a href="{{ route('admin.pesanan-masuk') }}" class="inline-block mt-6 text-xs font-black text-elvo-primary uppercase tracking-widest hover:text-white transition-colors">Clear all search & filters</a>
+                <p class="text-gray-500 text-sm font-bold italic uppercase tracking-widest">Tidak ada pesanan ditemukan.</p>
+                <a href="{{ route('admin.pesanan-masuk') }}" class="inline-block mt-6 text-xs font-black text-elvo-primary uppercase tracking-widest hover:text-white transition-colors">Hapus semua filter</a>
             </div>
             @endforelse
 
@@ -369,6 +433,9 @@ function openShipModal(id, num) {
 function closeShipModal() { 
     document.getElementById('ship-modal').classList.add('hidden'); 
     document.getElementById('ship-modal').classList.remove('flex');
+}
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text);
 }
 
 // Fade out toasts

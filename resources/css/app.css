@@ -92,6 +92,45 @@ body::before {
     scrollbar-width: thin;
 }
 
+/* ── Auth: Floating Nebula Orbs ── */
+@keyframes auth-float {
+    0%, 100% { transform: translateY(0) scale(1); opacity: 0.3; }
+    50%      { transform: translateY(-30px) scale(1.05); opacity: 0.5; }
+}
+@keyframes auth-float-delayed {
+    0%, 100% { transform: translateY(0) scale(1); opacity: 0.2; }
+    50%      { transform: translateY(20px) scale(1.08); opacity: 0.4; }
+}
+.orb-1 {
+    animation: auth-float 8s ease-in-out infinite;
+}
+.orb-2 {
+    animation: auth-float-delayed 10s ease-in-out infinite;
+}
+.orb-3 {
+    animation: auth-float 12s ease-in-out infinite reverse;
+}
+
+/* ── Auth: Password Strength ── */
+.password-strength-bar {
+    transition: width 0.3s ease, background 0.3s ease;
+}
+.password-strength-0 { width: 0%; background: transparent; }
+.password-strength-1 { width: 25%; background: #ef4444; }
+.password-strength-2 { width: 50%; background: #f59e0b; }
+.password-strength-3 { width: 75%; background: #22c55e; }
+.password-strength-4 { width: 100%; background: #4ade80; }
+
+/* ── Auth: Shimmer Text ── */
+@keyframes shimmer {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+}
+.animate-shimmer {
+    background-size: 200% auto;
+    animation: shimmer 4s linear infinite;
+}
+
 /* ── Page Entrance Animation ── */
 @keyframes fade-up {
     from { opacity: 0; transform: translateY(12px); }

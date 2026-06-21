@@ -51,7 +51,7 @@
         </div>
         <div class="info-box" style="text-align: right;">
             <h4>Detail Pesanan</h4>
-            <p><strong>No. Invoice:</strong> INV-{{ $order->order_number }}</p>
+            <p><strong>No. Invoice:</strong> {{ $order->order_number }}</p>
             <p><strong>Tanggal:</strong> {{ $order->created_at->format('d/m/Y H:i') }}</p>
             <p><strong>Status:</strong> 
                 <span class="status-badge {{ $order->status === 'selesai' ? 'status-completed' : 'status-other' }}">

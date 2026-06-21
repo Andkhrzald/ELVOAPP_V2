@@ -10,8 +10,6 @@
     <link rel="icon" type="image/png" href="{{ asset('img/elvo_logo1.png') }}">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;800&display=swap" rel="stylesheet">
-    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.5.0/model-viewer.min.js"></script>
-
     <style>
         html {
             scroll-behavior: smooth;
@@ -68,6 +66,15 @@
                     </svg>
                 </button>
 
+                <!-- Tombol Wishlist -->
+                <a href="{{ route('wishlist.index') }}"
+                    class="relative {{ request()->routeIs('wishlist.index') ? 'text-white' : 'text-gray-400' }} hover:text-white transition flex items-center group"
+                    title="Wishlist">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                    </svg>
+                </a>
+
                 <!-- Tombol Cart -->
                 <button id="cart-trigger" class="hover:text-white transition relative">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -75,7 +82,7 @@
                         <circle cx="20" cy="21" r="1" />
                         <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
                     </svg>
-                    <span class="absolute -top-1 -right-1 w-2 h-2 bg-white rounded-full"></span>
+                    <span id="cart-count" class="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] bg-white text-black text-[8px] font-black flex items-center justify-center rounded-full px-1 hidden">0</span>
                 </button>
                 {{-- LOGIC AUTH START --}}
                 @auth
@@ -109,7 +116,7 @@
                 </div>
                 @else
                 {{-- Tombol User (Trigger Overlay) --}}
-                <button id="user-trigger" class="hover:text-white transition">
+                <button id="user-btn" class="hover:text-white transition">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
                         <circle cx="12" cy="7" r="4" />
@@ -162,20 +169,16 @@
                 </button>
             </div>
 
-            <div class="flex-grow overflow-y-auto space-y-6 pr-2 custom-scrollbar">
-                <div class="flex items-center space-x-4 border-b border-white/5 pb-6">
-                    <div class="w-20 h-20 bg-[#1a1a1a] rounded-xl flex-shrink-0 border border-white/5"></div>
-                    <div class="flex-grow">
-                        <h4 class="text-[10px] font-bold uppercase tracking-widest mb-1">Signature Black</h4>
-                        <p class="text-[10px] text-gray-500 tracking-wider font-medium uppercase">IDR 185.000</p>
-                    </div>
+            <div id="cart-items" class="flex-grow overflow-y-auto space-y-6 pr-2 custom-scrollbar">
+                <div class="text-center py-12 text-gray-600 text-[10px] uppercase tracking-widest font-bold" id="cart-empty">
+                    Keranjang kosong
                 </div>
             </div>
 
             <div class="mt-auto pt-8 border-t border-white/10">
                 <div class="flex justify-between items-center mb-6">
                     <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Total</span>
-                    <span class="text-lg font-black italic">IDR 185.000</span>
+                    <span class="text-lg font-black italic" id="cart-total">IDR 0</span>
                 </div>
                 <a href="{{ route('checkout') }}" class="block w-full bg-white text-black text-center py-4 rounded-full text-[10px] font-black uppercase tracking-[0.3em] hover:bg-gray-200 transition-all duration-300">
                     Checkout Now
@@ -224,6 +227,7 @@
         const closeCart = document.getElementById('close-cart');
 
         cartTrigger.addEventListener('click', () => {
+            renderCart();
             cartOverlay.classList.remove('hidden');
             setTimeout(() => cartOverlay.classList.add('opacity-100'), 10);
             cartDrawer.classList.remove('translate-x-full');
@@ -235,8 +239,8 @@
             setTimeout(() => cartOverlay.classList.add('hidden'), 500);
         });
 
-        // Logic User Overlay (Jika lo mau tombol user tetap munculin menu login/regis)
-        const userTrigger = document.querySelector('button:has(svg circle[cx="12"])'); // Menargetkan tombol user
+        // Logic User Overlay
+        const userTrigger = document.getElementById('user-btn');
         const userOverlay = document.getElementById('user-overlay');
         const closeUser = document.getElementById('close-user');
 
@@ -251,7 +255,86 @@
             userOverlay.classList.remove('opacity-100');
             setTimeout(() => userOverlay.classList.add('hidden'), 500);
         });
+
+        // ── Cart Functions ──
+        function getCart() { return JSON.parse(localStorage.getItem('elvo_cart') || '[]'); }
+        function saveCart(cart) { localStorage.setItem('elvo_cart', JSON.stringify(cart)); }
+
+        function updateCartBadge() {
+            const cart = getCart();
+            const badge = document.getElementById('cart-count');
+            if (badge) {
+                const total = cart.reduce((s, i) => s + i.qty, 0);
+                badge.textContent = total;
+                badge.classList.toggle('hidden', total === 0);
+            }
+        }
+
+        function formatPrice(num) {
+            return 'IDR ' + Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        }
+
+        function renderCart() {
+            const cart = getCart();
+            const container = document.getElementById('cart-items');
+            const empty = document.getElementById('cart-empty');
+            const totalEl = document.getElementById('cart-total');
+
+            if (cart.length === 0) {
+                container.innerHTML = '<div class="text-center py-12 text-gray-600 text-[10px] uppercase tracking-widest font-bold" id="cart-empty">Keranjang kosong</div>';
+                totalEl.textContent = 'IDR 0';
+                return;
+            }
+
+            let html = '';
+            let grandTotal = 0;
+            cart.forEach((item, idx) => {
+                const subtotal = item.price * item.qty;
+                grandTotal += subtotal;
+                html += `
+                    <div class="flex items-center space-x-4 border-b border-white/5 pb-6 cart-item-${idx}">
+                        <div class="w-16 h-16 bg-[#1a1a1a] rounded-xl flex-shrink-0 border border-white/5 overflow-hidden">
+                            ${item.image ? '<img src="/uploads/' + item.image + '" class="w-full h-full object-cover">' : ''}
+                        </div>
+                        <div class="flex-grow min-w-0">
+                            <h4 class="text-[10px] font-bold uppercase tracking-widest mb-1 truncate">${item.name}</h4>
+                            <div class="flex items-center gap-2">
+                                <button onclick="changeQty(${idx}, -1)" class="text-gray-500 hover:text-white transition text-sm font-bold">−</button>
+                                <span class="text-[10px] font-bold text-white">${item.qty}</span>
+                                <button onclick="changeQty(${idx}, 1)" class="text-gray-500 hover:text-white transition text-sm font-bold">+</button>
+                            </div>
+                            <p class="text-[10px] text-gray-500 tracking-wider font-medium uppercase">${formatPrice(subtotal)}</p>
+                        </div>
+                        <button onclick="removeCartItem(${idx})" class="text-gray-600 hover:text-red-500 transition shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                        </button>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+            totalEl.textContent = formatPrice(grandTotal);
+        }
+
+        function changeQty(idx, delta) {
+            const cart = getCart();
+            if (!cart[idx]) return;
+            cart[idx].qty = Math.max(1, cart[idx].qty + delta);
+            saveCart(cart);
+            renderCart();
+            updateCartBadge();
+        }
+
+        function removeCartItem(idx) {
+            const cart = getCart();
+            cart.splice(idx, 1);
+            saveCart(cart);
+            renderCart();
+            updateCartBadge();
+        }
+
+        document.addEventListener('DOMContentLoaded', updateCartBadge);
     </script>
+    @stack('scripts')
 </body>
 
 </html>

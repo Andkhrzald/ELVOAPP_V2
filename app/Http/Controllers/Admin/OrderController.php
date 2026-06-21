@@ -18,22 +18,43 @@ class OrderController extends Controller
     {
         $status = $request->query('status', 'pending');
         $search = $request->query('search');
+        $sort = $request->query('sort', 'latest');
+        $dateFrom = $request->query('date_from');
+        $dateTo = $request->query('date_to');
 
         $query = Order::with(['user', 'items.product'])
             ->where('status', $status);
 
-        // Search by order number, name, or phone
+        // Search by order number, customer name, phone, or product name
         if ($search) {
             $query->where(function($q) use ($search) {
                 $q->where('order_number', 'like', '%' . $search . '%')
                   ->orWhereHas('user', function($qu) use ($search) {
                       $qu->where('name', 'like', '%' . $search . '%')
                          ->orWhere('phone', 'like', '%' . $search . '%');
+                  })
+                  ->orWhereHas('items', function($qi) use ($search) {
+                      $qi->where('product_name', 'like', '%' . $search . '%');
                   });
             });
         }
 
-        $orders = $query->latest()->paginate(10)->withQueryString();
+        // Date range filter
+        if ($dateFrom) {
+            $query->whereDate('created_at', '>=', $dateFrom);
+        }
+        if ($dateTo) {
+            $query->whereDate('created_at', '<=', $dateTo);
+        }
+
+        // Sort
+        $query = match($sort) {
+            'total_asc'  => $query->orderBy('total_price'),
+            'total_desc' => $query->orderBy('total_price', 'desc'),
+            default      => $query->latest(),
+        };
+
+        $orders = $query->paginate(10)->withQueryString();
 
         // Single query for all status counts
         $statusCounts = Order::selectRaw('status, COUNT(*) as count')
@@ -51,7 +72,7 @@ class OrderController extends Controller
         $totalOrders = array_sum($statusCounts);
         $needAction = $statusCounts['pending'] + $statusCounts['minta_batal'] + $statusCounts['minta_refund'];
 
-        return view('admin.pesanan-masuk', compact('orders', 'status', 'statusCounts', 'totalOrders', 'needAction'));
+        return view('admin.pesanan-masuk', compact('orders', 'status', 'statusCounts', 'totalOrders', 'needAction', 'search', 'sort', 'dateFrom', 'dateTo'));
     }
 
     // ── ACCEPT: pending → proses ──
@@ -158,12 +179,22 @@ class OrderController extends Controller
             return redirect()->back()->with('error', 'Pesanan ini tidak dalam status permintaan refund.');
         }
         $order->update(['status' => 'refund']);
+
+        // Kembalikan stok
+        foreach ($order->items as $item) {
+            $product = Product::find($item->product_id);
+            if ($product) {
+                $product->increment('stock', $item->quantity);
+                StockMutation::log($product, 'refund', $item->quantity, 'Refund pesanan #' . $order->order_number);
+            }
+        }
+
         ActivityLog::create([
             'action' => 'refund_confirmed',
             'description' => 'Refund pesanan #' . $order->order_number . ' dikonfirmasi. Alasan customer: ' . $order->refund_reason,
             'model_type' => 'Order', 'model_id' => $order->id,
         ]);
-        return redirect()->back()->with('success', '💰 Refund #' . $order->order_number . ' dikonfirmasi.');
+        return redirect()->back()->with('success', '💰 Refund #' . $order->order_number . ' dikonfirmasi. Stok dikembalikan.');
     }
 
     // ── REJECT REFUND: minta_refund → rollback ke dikirim ──
@@ -180,6 +211,31 @@ class OrderController extends Controller
             'model_type' => 'Order', 'model_id' => $order->id,
         ]);
         return redirect()->back()->with('success', '❌ Refund #' . $order->order_number . ' ditolak. Status kembali ke Dikirim.');
+    }
+
+    public function confirmPayment($id)
+    {
+        $order = Order::findOrFail($id);
+        if ($order->status !== 'pending') {
+            return redirect()->back()->with('error', 'Pesanan ini tidak dalam status pending.');
+        }
+        $order->update(['status' => 'proses']);
+
+        ActivityLog::create([
+            'action' => 'payment_confirmed',
+            'description' => 'Pembayaran #' . $order->order_number . ' dikonfirmasi. Pesanan diproses.',
+            'model_type' => 'Order', 'model_id' => $order->id,
+        ]);
+        return redirect()->back()->with('success', '✅ Pembayaran #' . $order->order_number . ' dikonfirmasi.');
+    }
+
+    public function viewProof($id)
+    {
+        $order = Order::findOrFail($id);
+        if (!$order->payment_proof) {
+            return redirect()->back()->with('error', 'Tidak ada bukti pembayaran.');
+        }
+        return response()->file(storage_path('app/public/' . $order->payment_proof));
     }
 
     public function invoice($id)

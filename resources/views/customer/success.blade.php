@@ -1,36 +1,29 @@
 @extends('layouts.customer')
 
 @section('content')
-<section class="min-h-screen flex items-center justify-center px-8 bg-[#0a0a0a]">
+<section class="min-h-screen flex items-center justify-center px-8 pt-28 pb-20 bg-[#0a0a0a]">
     <div class="text-center" data-aos="zoom-in">
-        {{-- Icon Success --}}
         <div class="mb-8 flex justify-center">
-            <div class="w-24 h-24 bg-white rounded-full flex items-center justify-center shadow-[0_0_50px_rgba(255,255,255,0.2)]">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+            <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-[0_0_60px_rgba(255,255,255,0.15)]">
+                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="black" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
                     <polyline points="20 6 9 17 4 12" />
                 </svg>
             </div>
         </div>
-
-        {{-- Text --}}
-        <h1 class="text-5xl md:text-7xl font-black italic uppercase tracking-tighter text-white mb-4">
+        <h1 class="text-4xl md:text-5xl font-black italic uppercase tracking-tighter text-white mb-2">
             Payment <span class="text-gray-700">Success.</span>
         </h1>
-        <p class="text-gray-500 text-[10px] md:text-xs tracking-[0.5em] uppercase font-bold mb-12">
-            Your order has been placed successfully
-        </p>
+        <p class="text-gray-500 text-[10px] tracking-[0.5em] uppercase font-bold mb-8">Your order has been placed</p>
 
-        {{-- Order Number Real --}}
-        @if(session('order_number'))
-        <div class="inline-block bg-white/5 border border-white/10 rounded-2xl px-8 py-4 mb-8">
+        @if($order)
+        <div class="inline-block bg-white/[0.03] border border-white/[0.08] rounded-2xl px-8 py-5 mb-8">
             <p class="text-[9px] text-gray-500 uppercase tracking-widest mb-1">Order Number</p>
-            <p class="text-xl font-black text-white tracking-widest">{{ session('order_number') }}</p>
+            <p class="text-xl font-black text-white tracking-widest">{{ $order->order_number }}</p>
         </div>
         @endif
 
-        {{-- Actions --}}
         <div class="space-y-4">
-            <a href="{{ route('history.index') }}" class="inline-block bg-white text-black px-12 py-4 rounded-full text-[10px] font-black uppercase tracking-[0.4em] hover:bg-gray-200 transition-all italic">
+            <a href="{{ route('history.index') }}" class="inline-block bg-white text-black px-10 py-4 rounded-full text-[10px] font-black uppercase tracking-[0.4em] hover:bg-gray-200 transition-all italic">
                 Lihat Pesanan Saya
             </a>
             <br>

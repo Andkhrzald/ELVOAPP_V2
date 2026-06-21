@@ -13,6 +13,8 @@ use App\Models\ActivityLog;
 use App\Models\StockMutation;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use App\Models\Wishlist;
+use App\Models\Setting;
 
 class ShopController extends Controller
 {
@@ -42,12 +44,17 @@ class ShopController extends Controller
         $products = $query->get();
         $categories = \App\Models\Category::orderBy('name')->get();
 
-        return view('customer.shop', compact('products', 'categories'));
+        $wishlistIds = Auth::check()
+            ? Wishlist::where('user_id', Auth::id())->pluck('product_id')->toArray()
+            : [];
+
+        return view('customer.shop', compact('products', 'categories', 'wishlistIds'));
     }
 
     public function checkout()
     {
-        return view('customer.checkout');
+        $qrisPath = Setting::getValue('payment_qris', '');
+        return view('customer.checkout', compact('qrisPath'));
     }
 
     /**
@@ -60,8 +67,9 @@ class ShopController extends Controller
             'name'           => 'required|string|max:255',
             'phone'          => 'required|string|max:20',
             'address'        => 'required|string|max:1000',
+            'landmark'       => 'nullable|string|max:255',
             'payment_method' => 'required|string',
-            'cart'           => 'required|string', // JSON string dari localStorage
+            'cart'           => 'required|string',
         ]);
 
         // 2. Decode cart
@@ -88,7 +96,7 @@ class ShopController extends Controller
             ];
         }
 
-        $shippingCost = 20000; // Ongkir flat
+        $shippingCost = (int) (Setting::getValue('shipping_cost', '20000'));
         $grandTotal = $totalPrice + $shippingCost;
 
         // 4. Generate order number: INV-YYYYMMDD-XXX
@@ -109,8 +117,27 @@ class ShopController extends Controller
             $userId = null;
         }
 
+        // Generate VA number
+        $bankPrefixes = ['BCA' => '88008', 'BRI' => '88009', 'BNI' => '88010', 'Mandiri' => '88011'];
+        $selectedBank = null;
+        $vaNumber = null;
+        if ($request->payment_method === 'bank_transfer' && $request->filled('selected_bank')) {
+            $selectedBank = $request->selected_bank;
+            $prefix = $bankPrefixes[$selectedBank] ?? '88000';
+            $vaNumber = $prefix . str_pad((Order::max('id') ?? 0) + 1, 6, '0', STR_PAD_LEFT);
+        }
+
         // 6. Simpan ke database (transaction untuk keamanan)
-        DB::transaction(function () use ($orderNumber, $userId, $grandTotal, $shippingCost, $request, $validatedItems, &$order) {
+        DB::transaction(function () use ($orderNumber, $userId, $grandTotal, $shippingCost, $request, $validatedItems, $vaNumber, $selectedBank, &$order) {
+            // Build notes with landmark
+            $orderNotes = '';
+            if ($request->filled('landmark')) {
+                $orderNotes = 'Patokan: ' . $request->landmark;
+            }
+
+            // VA expiry: 24 jam
+            $vaExpiresAt = now()->addHours(24);
+
             // Buat Order
             $order = Order::create([
                 'user_id'         => $userId,
@@ -118,8 +145,12 @@ class ShopController extends Controller
                 'total_price'     => $grandTotal,
                 'status'          => 'pending',
                 'payment_method'  => $request->input('payment_method'),
+                'selected_bank'   => $selectedBank,
+                'va_number'       => $vaNumber,
+                'va_expires_at'   => $vaExpiresAt,
                 'shipping_method' => 'Standard Shipping',
                 'shipping_cost'   => $shippingCost,
+                'notes'           => $orderNotes,
             ]);
 
             // Buat OrderItems + kurangi stok
@@ -146,13 +177,88 @@ class ShopController extends Controller
             ]);
         });
 
-        // 7. Redirect ke success dengan order number
-        return redirect()->route('checkout.success')->with('order_number', $orderNumber);
+        // 7. Redirect ke halaman pembayaran
+        return redirect()->route('payment.page', $order->id);
     }
 
-    public function success()
+    public function payment($orderId)
     {
-        return view('customer.success');
+        $order = Order::with('items')->where('id', $orderId)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        return view('customer.payment', compact('order'));
+    }
+
+    public function checkPaymentStatus($orderId)
+    {
+        $order = Order::where('id', $orderId)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        // Auto-expire jika VA sudah kadaluarsa
+        $expired = false;
+        if ($order->status === 'pending' && $order->va_expires_at && now()->gt($order->va_expires_at)) {
+            $order->update([
+                'status' => 'batal',
+                'cancel_reason' => 'VA expired',
+            ]);
+            // Restore stock
+            foreach ($order->items as $item) {
+                $product = Product::find($item->product_id);
+                if ($product) {
+                    $product->increment('stock', $item->quantity);
+                    StockMutation::log($product, 'expired', $item->quantity, 'VA expired #' . $order->order_number);
+                }
+            }
+            ActivityLog::create([
+                'user_id' => Auth::id(),
+                'action' => 'order_expired',
+                'description' => 'Pesanan #' . $order->order_number . ' expired (VA 24 jam)',
+                'model_type' => 'Order', 'model_id' => $order->id,
+            ]);
+            $expired = true;
+        }
+
+        return response()->json([
+            'status'  => $order->status,
+            'success' => $order->status === 'proses',
+            'expired' => $expired,
+        ]);
+    }
+
+    public function forceComplete($orderId)
+    {
+        $order = Order::where('id', $orderId)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        if ($order->status !== 'pending') {
+            return redirect()->back()->with('error', 'Pesanan ini sudah diproses.');
+        }
+
+        // Langsung set ke proses (seperti admin confirm payment)
+        $order->update(['status' => 'proses']);
+
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'action' => 'payment_force_completed',
+            'description' => 'Pembayaran #' . $order->order_number . ' diselesaikan (bypass demo)',
+            'model_type' => 'Order', 'model_id' => $order->id,
+        ]);
+
+        return redirect()->route('checkout.success', ['order' => $order->id]);
+    }
+
+    public function success(Request $request)
+    {
+        $order = null;
+        if ($request->has('order')) {
+            $order = Order::with('items')->where('id', $request->order)
+                ->where('user_id', Auth::id())
+                ->first();
+        }
+        return view('customer.success', compact('order'));
     }
 
     // --- AUTH ---
@@ -198,11 +304,64 @@ class ShopController extends Controller
         return redirect('/');
     }
 
+    // --- WISHLIST ---
+    public function wishlist()
+    {
+        $items = Wishlist::with('product')
+            ->where('user_id', Auth::id())
+            ->latest()
+            ->get();
+        return view('customer.wishlist', compact('items'));
+    }
+
+    public function toggleWishlist(Request $request)
+    {
+        if (!Auth::check()) {
+            return response()->json(['error' => 'Login dulu'], 401);
+        }
+        $request->validate(['product_id' => 'required|exists:products,id']);
+        $existing = Wishlist::where('user_id', Auth::id())
+            ->where('product_id', $request->product_id)->first();
+
+        if ($existing) {
+            $existing->delete();
+            return response()->json(['status' => 'removed']);
+        }
+
+        $count = Wishlist::where('user_id', Auth::id())->count();
+        if ($count >= 20) {
+            return response()->json(['error' => 'Wishlist penuh (max 20)'], 422);
+        }
+
+        Wishlist::create([
+            'user_id' => Auth::id(),
+            'product_id' => $request->product_id,
+        ]);
+        return response()->json(['status' => 'added']);
+    }
+
+    public function moveToCart($id)
+    {
+        $item = Wishlist::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
+        $item->delete();
+        return redirect()->back()->with('success', 'Produk dipindahkan ke keranjang');
+    }
+
+    // --- UPLOAD BUKTI BAYAR ---
+    public function uploadProof(Request $request, $id)
+    {
+        $request->validate(['payment_proof' => 'required|image|max:2048']);
+        $order = Order::where('id', $id)->where('user_id', Auth::id())->firstOrFail();
+        $path = $request->file('payment_proof')->store('payment-proofs', 'public');
+        $order->update(['payment_proof' => $path]);
+        return redirect()->back()->with('success', 'Bukti bayar terkirim. Menunggu konfirmasi admin.');
+    }
+
     // --- PESANAN SAYA (hanya pesanan aktif) ---
     public function history()
     {
         $activeStatuses = ['pending', 'proses', 'dikirim', 'minta_batal', 'minta_refund'];
-        $orders = Order::with('items')
+        $orders = Order::with('items.product')
             ->where('user_id', Auth::id())
             ->whereIn('status', $activeStatuses)
             ->latest()
@@ -214,7 +373,7 @@ class ShopController extends Controller
     public function riwayat()
     {
         $finalStatuses = ['selesai', 'batal', 'refund'];
-        $orders = Order::with('items')
+        $orders = Order::with('items.product')
             ->where('user_id', Auth::id())
             ->whereIn('status', $finalStatuses)
             ->latest()

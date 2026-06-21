@@ -97,6 +97,15 @@
                     </div>
                     @endif
 
+                    {{-- Wishlist Heart --}}
+                    <button onclick="toggleWishlist({{ $product->id }})"
+                        class="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/60 backdrop-blur-md border border-white/10 flex items-center justify-center transition-all duration-300 hover:bg-white hover:scale-110 z-10 {{ $product->id }}"
+                        id="wishlist-btn-{{ $product->id }}">
+                        <svg class="w-4 h-4 {{ in_array($product->id, $wishlistIds) ? 'text-red-500 fill-red-500' : 'text-white' }} transition-colors" id="wishlist-icon-{{ $product->id }}" fill="{{ in_array($product->id, $wishlistIds) ? 'currentColor' : 'none' }}" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+                        </svg>
+                    </button>
+
                     {{-- Category Badge --}}
                     @if($product->category)
                     <div class="absolute top-4 left-4 px-3 py-1 bg-black/60 backdrop-blur-md text-white text-[8px] font-black uppercase tracking-widest rounded-full border border-white/10">
@@ -106,7 +115,7 @@
 
                     {{-- Stock Badge --}}
                     @if($product->stock <= 5)
-                    <div class="absolute top-4 right-4 px-3 py-1 bg-red-500/80 text-white text-[8px] font-black uppercase tracking-widest rounded-full">
+                    <div class="absolute top-4 right-14 px-3 py-1 bg-red-500/80 text-white text-[8px] font-black uppercase tracking-widest rounded-full">
                         Sisa {{ $product->stock }}
                     </div>
                     @endif
@@ -170,10 +179,52 @@ function addToCart(id, name, price, image) {
     let existing = cart.find(item => item.id === id);
     if (existing) { existing.qty += 1; } else { cart.push({ id, name, price, image, qty: 1 }); }
     saveCart(cart);
+    updateCartBadge();
     const toast = document.getElementById('cart-toast');
     document.getElementById('cart-toast-text').textContent = name + ' added!';
     toast.classList.remove('translate-y-20', 'opacity-0');
     setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), 2000);
 }
+
+function updateCartBadge() {
+    const cart = getCart();
+    const badge = document.getElementById('cart-count');
+    if (badge) {
+        const total = cart.reduce((sum, item) => sum + item.qty, 0);
+        badge.textContent = total;
+        badge.classList.toggle('hidden', total === 0);
+    }
+}
+
+function toggleWishlist(productId) {
+    @auth
+    fetch('{{ route('wishlist.toggle') }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+        body: JSON.stringify({ product_id: productId })
+    })
+    .then(r => r.json())
+    .then(data => {
+        const icon = document.getElementById('wishlist-icon-' + productId);
+        const btn = document.getElementById('wishlist-btn-' + productId);
+        if (data.status === 'added') {
+            icon.classList.add('text-red-500', 'fill-red-500');
+            icon.setAttribute('fill', 'currentColor');
+            btn.classList.add('wishlist-active');
+        } else {
+            icon.classList.remove('text-red-500', 'fill-red-500');
+            icon.setAttribute('fill', 'none');
+            btn.classList.remove('wishlist-active');
+        }
+    })
+    .catch(err => {
+        if (err.status === 422 || err.status === 401) alert('Wishlist penuh (max 20)!');
+    });
+    @else
+    window.location.href = '{{ route('login') }}';
+    @endauth
+}
+
+document.addEventListener('DOMContentLoaded', updateCartBadge);
 </script>
 @endsection

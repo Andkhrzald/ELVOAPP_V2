@@ -199,33 +199,43 @@ class OwnerController extends Controller
     public function settings()
     {
         $settings = Setting::getGroup('store');
-        return view('admin.owner.settings', compact('settings'));
+        $canEdit = auth()->user()->role === 'owner';
+        return view('admin.owner.settings', compact('settings', 'canEdit'));
     }
 
     public function updateSettings(Request $request)
     {
+        if (auth()->user()->role !== 'owner') {
+            abort(403, 'Hanya owner yang dapat mengubah pengaturan toko.');
+        }
+
         $request->validate([
-            'store_name'     => 'required|string|max:255',
-            'store_address'  => 'required|string',
-            'store_phone'    => 'required|string|max:20',
-            'store_email'    => 'required|email|max:255',
-            'shipping_cost'  => 'required|numeric|min:0',
-            'tax_rate'       => 'required|numeric|min:0|max:100',
-            'payment_methods'=> 'required|string',
+            'store_name'    => 'required|string|max:255',
+            'store_address' => 'required|string',
+            'store_phone'   => 'required|string|max:20',
+            'store_email'   => 'required|email|max:255',
+            'shipping_cost' => 'required|numeric|min:0',
+            'payment_qris'  => 'nullable|image|max:2048',
         ]);
 
-        foreach ($request->only(['store_name', 'store_address', 'store_phone', 'store_email', 'shipping_cost', 'tax_rate', 'payment_methods']) as $key => $value) {
+        foreach ($request->only(['store_name', 'store_address', 'store_phone', 'store_email', 'shipping_cost']) as $key => $value) {
             Setting::setValue($key, $value, 'store');
+        }
+
+        // Upload QRIS
+        if ($request->hasFile('payment_qris')) {
+            $path = $request->file('payment_qris')->store('payment-qris', 'public');
+            Setting::setValue('payment_qris', $path, 'payment');
         }
 
         ActivityLog::create([
             'user_id'     => auth()->id(),
             'action'      => 'settings_updated',
-            'description' => 'Owner memperbarui pengaturan toko',
+            'description' => auth()->user()->name . ' memperbarui pengaturan toko',
             'model_type'  => 'Setting',
         ]);
 
-        return redirect()->route('admin.owner.settings')->with('success', 'Pengaturan toko berhasil disimpan!');
+        return redirect()->route('admin.settings')->with('success', 'Pengaturan toko berhasil disimpan!');
     }
 
     // ============ LAPORAN KEUANGAN ============
