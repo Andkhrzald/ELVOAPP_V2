@@ -34,6 +34,7 @@ Route::get('/transaksi', [TransactionHistoryController::class, 'index'])->name('
 
 // 5. PESANAN MASUK
 Route::get('/pesanan-masuk', [OrderController::class, 'index'])->name('pesanan-masuk');
+Route::get('/orders/{id}/invoice', [OrderController::class, 'invoice'])->name('orders.invoice');
 
 // 6. MANAJEMEN STATUS PESANAN
 Route::post('/orders/{id}/accept', [OrderController::class, 'accept'])->name('orders.accept');

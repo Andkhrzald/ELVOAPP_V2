@@ -8,6 +8,8 @@ use App\Models\OrderItem;
 use App\Models\Product;
 use App\Models\ActivityLog;
 use App\Models\StockMutation;
+use App\Models\Setting;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
@@ -178,5 +180,17 @@ class OrderController extends Controller
             'model_type' => 'Order', 'model_id' => $order->id,
         ]);
         return redirect()->back()->with('success', '❌ Refund #' . $order->order_number . ' ditolak. Status kembali ke Dikirim.');
+    }
+
+    public function invoice($id)
+    {
+        $order = Order::with('items', 'user')->findOrFail($id);
+        $store = Setting::getGroup('store');
+        $subtotal = $order->items->sum('subtotal');
+        $taxRate = (float) (Setting::getValue('tax_rate', '0'));
+        $taxAmount = ($subtotal * $taxRate) / 100;
+
+        $pdf = Pdf::loadView('admin.invoice', compact('order', 'store', 'subtotal', 'taxRate', 'taxAmount'));
+        return $pdf->download('INV-' . $order->order_number . '.pdf');
     }
 }

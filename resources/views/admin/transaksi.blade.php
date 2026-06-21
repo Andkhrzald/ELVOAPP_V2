@@ -110,6 +110,7 @@
                             <td class="px-6 py-5 text-center">
                                 <button onclick="openDrawer({{ json_encode([
                                     'id' => $item->order_number,
+                                    'order_id' => (string) $item->id,
                                     'name' => $item->user->name ?? 'Unknown',
                                     'phone' => $item->user->phone ?? '-',
                                     'address' => $item->user->address ?? '-',
@@ -215,9 +216,9 @@
 
             {{-- Footer --}}
             <div class="p-8 border-t border-white/[0.06] bg-elvo-surface">
-                <button onclick="window.print()" class="w-full bg-white text-black py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[#6a5cd8] hover:text-white transition-all shadow-xl">
-                    CETAK INVOICE
-                </button>
+                <a id="invoice-download" href="#" class="block w-full text-center bg-white text-black py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-[#6a5cd8] hover:text-white transition-all shadow-xl">
+                    DOWNLOAD INVOICE
+                </a>
             </div>
         </div>
     </div>
@@ -238,6 +239,7 @@
         document.getElementById('drawer-shipping').innerText = data.shipping;
         document.getElementById('drawer-resi').innerText = data.resi;
         document.getElementById('drawer-total').innerText = 'Rp ' + parseInt(data.total).toLocaleString('id-ID');
+        document.getElementById('invoice-download').href = '/admin/orders/' + data.order_id + '/invoice';
 
         document.getElementById('drawer-detail').classList.remove('translate-x-full');
         document.getElementById('drawer-overlay').classList.remove('hidden');
@@ -249,12 +251,4 @@
     }
 </script>
 
-<style>
-    /* Styling khusus print invoice agar tidak berantakan */
-    @media print {
-        body * { visibility: hidden; }
-        #drawer-detail, #drawer-detail * { visibility: visible; }
-        #drawer-detail { position: absolute; left: 0; top: 0; width: 100%; }
-    }
-</style>
 @endsection

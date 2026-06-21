@@ -64,7 +64,12 @@
                 @foreach($order->items as $item)
                 <p class="text-sm text-gray-400">{{ $item->quantity }}x {{ $item->product_name }} — <span class="text-white font-bold">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</span></p>
                 @endforeach
-                <p class="mt-3 pt-3 border-t border-white/[0.06] text-right text-sm font-black text-white">Total: Rp {{ number_format($order->total_price, 0, ',', '.') }}</p>
+                <div class="mt-3 pt-3 border-t border-white/[0.06] flex justify-between items-center">
+                    <a href="{{ route('admin.orders.invoice', $order->id) }}" class="text-[10px] font-bold text-elvo-primary hover:text-[#8b7df2] uppercase tracking-widest transition-all">
+                        ↓ INVOICE
+                    </a>
+                    <span class="text-sm font-black text-white">Rp {{ number_format($order->total_price, 0, ',', '.') }}</span>
+                </div>
             </div>
             @empty
             <p class="text-gray-600 font-bold py-8 text-center">Belum ada pesanan dari pelanggan ini.</p>

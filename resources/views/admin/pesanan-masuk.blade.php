@@ -286,6 +286,10 @@
                         @if($order->status === 'refund') <span class="text-[10px] font-black text-pink-500 uppercase tracking-widest border border-pink-500/20 px-4 py-2 rounded-xl bg-pink-500/5">Funds Reverted</span> @endif
                     </div>
 
+                    <a href="{{ route('admin.orders.invoice', $order->id) }}" class="text-[10px] font-black text-elvo-primary hover:text-[#8b7df2] uppercase tracking-widest transition-colors">
+                        ↓ INVOICE
+                    </a>
+
                     <button class="text-[10px] font-black text-gray-600 uppercase tracking-widest hover:text-white transition-colors flex items-center gap-2">
                         View Audit Log
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke-width="3"/></svg>
