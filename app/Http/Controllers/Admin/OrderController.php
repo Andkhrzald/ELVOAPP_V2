@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\ProductVariant;
 use App\Models\ActivityLog;
 use App\Models\StockMutation;
 use App\Models\Setting;
@@ -144,6 +145,9 @@ class OrderController extends Controller
                 $product->increment('stock', $item->quantity);
                 StockMutation::log($product, 'cancel', $item->quantity, 'Pembatalan pesanan #' . $order->order_number);
             }
+            if ($item->variant_id) {
+                ProductVariant::where('id', $item->variant_id)->increment('stock', $item->quantity);
+            }
         }
 
         ActivityLog::create([
@@ -186,6 +190,9 @@ class OrderController extends Controller
             if ($product) {
                 $product->increment('stock', $item->quantity);
                 StockMutation::log($product, 'refund', $item->quantity, 'Refund pesanan #' . $order->order_number);
+            }
+            if ($item->variant_id) {
+                ProductVariant::where('id', $item->variant_id)->increment('stock', $item->quantity);
             }
         }
 

@@ -208,7 +208,7 @@
                                     <img src="{{ asset('uploads/' . $item->product->image) }}" class="w-full h-full object-cover opacity-60 group-hover/item:opacity-100 transition-opacity">
                                 </div>
                                 <div>
-                                    <p class="text-xs font-black text-gray-300">{{ $item->product->name }}</p>
+                                    <p class="text-xs font-black text-gray-300">{{ $item->product->name }} @if($item->variant_label)<span class="text-elvo-primary/70 text-[9px] font-bold">({{ $item->variant_label }})</span>@endif</p>
                                     <p class="text-[10px] text-gray-600 font-bold uppercase tracking-tighter">{{ $item->quantity }} Units · <span class="text-elvo-primary/60">Rp {{ number_format($item->price, 0, ',', '.') }}</span></p>
                                 </div>
                             </div>

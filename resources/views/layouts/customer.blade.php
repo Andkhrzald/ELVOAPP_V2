@@ -178,7 +178,7 @@
             <div class="mt-auto pt-8 border-t border-white/10">
                 <div class="flex justify-between items-center mb-6">
                     <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Total</span>
-                    <span class="text-lg font-black italic" id="cart-total">IDR 0</span>
+                    <span class="text-lg font-black italic" id="cart-total">Rp 0</span>
                 </div>
                 <a href="{{ route('checkout') }}" class="block w-full bg-white text-black text-center py-4 rounded-full text-[10px] font-black uppercase tracking-[0.3em] hover:bg-gray-200 transition-all duration-300">
                     Checkout Now
@@ -271,7 +271,7 @@
         }
 
         function formatPrice(num) {
-            return 'IDR ' + Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
         }
 
         function renderCart() {
@@ -297,13 +297,14 @@
                             ${item.image ? '<img src="/uploads/' + item.image + '" class="w-full h-full object-cover">' : ''}
                         </div>
                         <div class="flex-grow min-w-0">
-                            <h4 class="text-[10px] font-bold uppercase tracking-widest mb-1 truncate">${item.name}</h4>
+                            <h4 class="text-[10px] font-bold uppercase tracking-widest truncate">${item.name}</h4>
+                            ${item.variant_label ? '<p class="text-[8px] text-gray-600 font-medium uppercase tracking-wider mb-1">' + item.variant_label + '</p>' : ''}
                             <div class="flex items-center gap-2">
                                 <button onclick="changeQty(${idx}, -1)" class="text-gray-500 hover:text-white transition text-sm font-bold">−</button>
                                 <span class="text-[10px] font-bold text-white">${item.qty}</span>
                                 <button onclick="changeQty(${idx}, 1)" class="text-gray-500 hover:text-white transition text-sm font-bold">+</button>
                             </div>
-                            <p class="text-[10px] text-gray-500 tracking-wider font-medium uppercase">${formatPrice(subtotal)}</p>
+                            <p class="text-[10px] text-gray-500 tracking-wider font-medium uppercase">Rp ${formatPrice(subtotal)}</p>
                         </div>
                         <button onclick="removeCartItem(${idx})" class="text-gray-600 hover:text-red-500 transition shrink-0">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
@@ -312,7 +313,7 @@
                 `;
             });
             container.innerHTML = html;
-            totalEl.textContent = formatPrice(grandTotal);
+            totalEl.textContent = 'Rp ' + formatPrice(grandTotal);
         }
 
         function changeQty(idx, delta) {

@@ -3,7 +3,6 @@
 @section('content')
 <div class="min-h-screen text-gray-300 pb-12">
 
-    {{-- Toast --}}
     @if(session('success'))
     <div class="fixed top-20 right-6 z-[100] bg-green-500/20 border border-green-500/30 text-green-400 px-6 py-4 rounded-2xl shadow-2xl backdrop-blur-xl flex items-center gap-3" style="animation: slideIn 0.5s ease-out">
         <span class="text-sm font-bold">{{ session('success') }}</span>
@@ -11,7 +10,6 @@
     </div>
     @endif
 
-    {{-- Header --}}
     <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-end justify-between mb-8 px-4 lg:px-0 pt-10 gap-4">
         <div>
             <h1 class="text-3xl font-bold text-white tracking-tight">Review Pelanggan</h1>
@@ -47,14 +45,26 @@
         </div>
     </div>
 
-    {{-- Filter Stars --}}
-    <div class="max-w-7xl mx-auto px-4 lg:px-0 mb-6 flex gap-3 flex-wrap">
-        <a href="{{ route('admin.reviews') }}" class="px-4 py-2 rounded-xl text-xs font-bold transition {{ !request('rating') ? 'bg-yellow-500 text-black' : 'bg-elvo-surface text-gray-400 border border-white/[0.06]' }}">Semua</a>
+    {{-- Filters --}}
+    <div class="max-w-7xl mx-auto px-4 lg:px-0 mb-6 flex flex-wrap gap-3 items-center">
+        <a href="{{ route('admin.reviews') }}" class="px-4 py-2 rounded-xl text-xs font-bold transition {{ !request('rating') && !request('product_id') ? 'bg-yellow-500 text-black' : 'bg-elvo-surface text-gray-400 border border-white/[0.06]' }}">Semua</a>
         @for($i = 5; $i >= 1; $i--)
-        <a href="{{ route('admin.reviews', ['rating' => $i]) }}" class="flex items-center gap-1 px-4 py-2 rounded-xl text-xs font-bold transition {{ request('rating') == $i ? 'bg-yellow-500 text-black' : 'bg-elvo-surface text-gray-400 border border-white/[0.06]' }}">
+        <a href="{{ route('admin.reviews', array_merge(request()->query(), ['rating' => $i, 'product_id' => request('product_id')])) }}" class="flex items-center gap-1 px-4 py-2 rounded-xl text-xs font-bold transition {{ request('rating') == $i ? 'bg-yellow-500 text-black' : 'bg-elvo-surface text-gray-400 border border-white/[0.06]' }}">
             {{ $i }} <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
         </a>
         @endfor
+        <span class="text-gray-600 mx-1">|</span>
+        <form action="{{ route('admin.reviews') }}" method="GET" class="flex items-center gap-2">
+            <select name="product_id" onchange="this.form.submit()" class="bg-elvo-surface border border-white/10 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-elvo-primary/50">
+                <option value="">Semua Produk</option>
+                @foreach($products as $p)
+                <option value="{{ $p->id }}" {{ request('product_id') == $p->id ? 'selected' : '' }}>{{ $p->name }}</option>
+                @endforeach
+            </select>
+            @if(request('rating'))
+            <input type="hidden" name="rating" value="{{ request('rating') }}">
+            @endif
+        </form>
     </div>
 
     {{-- Reviews List --}}
@@ -76,8 +86,23 @@
                             <svg class="w-4 h-4 {{ $i <= $review->rating ? 'text-yellow-500' : 'text-gray-700' }}" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                             @endfor
                         </div>
-                        <p class="text-sm text-gray-400 italic">"{{ $review->comment ?? 'Tidak ada komentar' }}"</p>
-                        <p class="text-[10px] text-gray-600 mt-2">Produk: <span class="text-white font-bold">{{ $review->product->name ?? '-' }}</span> · Order #{{ $review->order->order_number ?? '-' }}</p>
+                        @if($review->comment)
+                        <p class="text-sm text-gray-400 italic">"{{ $review->comment }}"</p>
+                        @endif
+                        {{-- Review Images --}}
+                        @if($review->images->count() > 0)
+                        <div class="flex gap-2 mt-3">
+                            @foreach($review->images as $img)
+                            <a href="{{ asset('uploads/' . $img->image) }}" target="_blank" class="w-16 h-16 rounded-xl overflow-hidden border border-white/10 hover:scale-110 transition block">
+                                <img src="{{ asset('uploads/' . $img->image) }}" class="w-full h-full object-cover">
+                            </a>
+                            @endforeach
+                        </div>
+                        @endif
+                        <p class="text-[10px] text-gray-600 mt-2">
+                            Produk: <span class="text-white font-bold">{{ $review->product->name ?? '-' }}</span>
+                            · Order #{{ $review->order->order_number ?? '-' }}
+                        </p>
                     </div>
                 </div>
                 <form action="{{ route('admin.reviews.destroy', $review->id) }}" method="POST" onsubmit="return confirm('Hapus review ini?')">

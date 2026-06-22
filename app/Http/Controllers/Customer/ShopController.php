@@ -11,28 +11,29 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\ActivityLog;
 use App\Models\StockMutation;
+use App\Models\ProductVariant;
+use App\Models\ReviewImage;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use App\Models\Wishlist;
 use App\Models\Setting;
+use App\Models\Review;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ShopController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::with(['category', 'reviews'])->where('stock', '>', 0)->where('is_active', true);
+        $query = Product::with(['category.parent', 'reviews'])->where('stock', '>', 0)->where('is_active', true);
 
-        // Filter by category
         if ($request->filled('category')) {
             $query->whereHas('category', fn($q) => $q->where('slug', $request->category));
         }
 
-        // Search by name
         if ($request->filled('search')) {
             $query->where('name', 'like', '%' . $request->search . '%');
         }
 
-        // Sort
         $sort = $request->get('sort', 'latest');
         $query = match($sort) {
             'price_low'  => $query->orderBy('price', 'asc'),
@@ -42,7 +43,7 @@ class ShopController extends Controller
         };
 
         $products = $query->get();
-        $categories = \App\Models\Category::orderBy('name')->get();
+        $categories = \App\Models\Category::parents()->orderBy('name')->get();
 
         $wishlistIds = Auth::check()
             ? Wishlist::where('user_id', Auth::id())->pluck('product_id')->toArray()
@@ -51,18 +52,94 @@ class ShopController extends Controller
         return view('customer.shop', compact('products', 'categories', 'wishlistIds'));
     }
 
+    public function detail($slug)
+    {
+        $product = Product::with([
+            'category.parent',
+            'images' => fn($q) => $q->orderBy('sort_order'),
+            'activeVariants',
+            'reviews' => fn($q) => $q->with(['user', 'images'])->latest(),
+        ])
+        ->where('slug', $slug)
+        ->where('is_active', true)
+        ->firstOrFail();
+
+        $avgRating = $product->reviews->avg('rating') ?? 0;
+        $totalReviews = $product->reviews->count();
+        $totalSold = OrderItem::where('product_id', $product->id)
+            ->whereHas('order', fn($q) => $q->whereIn('status', ['selesai', 'dikirim']))
+            ->sum('quantity');
+
+        $ratingDistribution = [];
+        for ($i = 5; $i >= 1; $i--) {
+            $ratingDistribution[$i] = $product->reviews->where('rating', $i)->count();
+        }
+
+        $wishlistIds = Auth::check()
+            ? Wishlist::where('user_id', Auth::id())->pluck('product_id')->toArray()
+            : [];
+
+        $relatedProducts = Product::with('category')
+            ->where('category_id', $product->category_id)
+            ->where('id', '!=', $product->id)
+            ->where('is_active', true)
+            ->where('stock', '>', 0)
+            ->latest()
+            ->take(8)
+            ->get();
+
+        return view('customer.product-detail', compact(
+            'product', 'avgRating', 'totalReviews', 'totalSold',
+            'ratingDistribution', 'wishlistIds', 'relatedProducts'
+        ));
+    }
+
+    public function getVariants($id)
+    {
+        $product = Product::findOrFail($id);
+        $variants = $product->activeVariants()->get();
+
+        $sizes = $variants->pluck('size')->unique()->filter()->values();
+        $colors = $variants->pluck('color')->unique()->filter()->values();
+
+        $colorData = [];
+        foreach ($colors as $color) {
+            $first = $variants->where('color', $color)->first();
+            $totalStock = $variants->where('color', $color)->sum('stock');
+            $colorData[] = [
+                'color' => $color,
+                'color_hex' => $first->color_hex ?? '#000000',
+                'stock' => $totalStock,
+                'image' => $first->image,
+            ];
+        }
+
+        return response()->json([
+            'variants' => $variants,
+            'sizes' => $sizes,
+            'colors' => $colorData,
+        ]);
+    }
+
+    public function checkVariantStock($id)
+    {
+        $variant = ProductVariant::findOrFail($id);
+        return response()->json([
+            'in_stock' => $variant->stock > 0,
+            'stock' => $variant->stock,
+            'price' => $variant->price ?? $variant->product->price,
+            'image' => $variant->image,
+        ]);
+    }
+
     public function checkout()
     {
         $qrisPath = Setting::getValue('payment_qris', '');
         return view('customer.checkout', compact('qrisPath'));
     }
 
-    /**
-     * PROSES CHECKOUT — Simpan Order ke Database
-     */
     public function processCheckout(Request $request)
     {
-        // 1. Validasi
         $request->validate([
             'name'           => 'required|string|max:255',
             'phone'          => 'required|string|max:20',
@@ -72,40 +149,60 @@ class ShopController extends Controller
             'cart'           => 'required|string',
         ]);
 
-        // 2. Decode cart
         $cartItems = json_decode($request->input('cart'), true);
         if (empty($cartItems)) {
             return redirect()->back()->with('error', 'Keranjang belanja kosong.');
         }
 
-        // 3. Hitung total & validasi stok
         $totalPrice = 0;
         $validatedItems = [];
 
         foreach ($cartItems as $item) {
             $product = Product::find($item['id']);
-            if (!$product || $product->stock < $item['qty']) {
-                return redirect()->back()->with('error', 'Stok ' . ($product->name ?? 'produk') . ' tidak cukup.');
+            if (!$product || !$product->is_active) {
+                return redirect()->back()->with('error', 'Produk tidak tersedia.');
             }
-            $subtotal = $product->price * $item['qty'];
+
+            $variantId = $item['variant_id'] ?? null;
+            $variantLabel = null;
+
+            if ($variantId) {
+                $variant = ProductVariant::find($variantId);
+                if (!$variant || !$variant->is_active || $variant->stock < $item['qty']) {
+                    return redirect()->back()->with('error', 'Stok varian ' . ($variant->displayLabel() ?? 'produk') . ' tidak cukup.');
+                }
+                $price = $variant->price ?? $product->price;
+                $variantLabel = $variant->displayLabel();
+            } else {
+                if ($product->hasVariants()) {
+                    return redirect()->back()->with('error', 'Silakan pilih varian untuk ' . $product->name);
+                }
+                if ($product->stock < $item['qty']) {
+                    return redirect()->back()->with('error', 'Stok ' . $product->name . ' tidak cukup.');
+                }
+                $price = $product->price;
+            }
+
+            $subtotal = $price * $item['qty'];
             $totalPrice += $subtotal;
             $validatedItems[] = [
-                'product' => $product,
-                'qty'     => $item['qty'],
-                'subtotal' => $subtotal,
+                'product'       => $product,
+                'variant_id'    => $variantId,
+                'variant_label' => $variantLabel,
+                'qty'           => $item['qty'],
+                'price'         => $price,
+                'subtotal'      => $subtotal,
             ];
         }
 
         $shippingCost = (int) (Setting::getValue('shipping_cost', '20000'));
         $grandTotal = $totalPrice + $shippingCost;
 
-        // 4. Generate order number: INV-YYYYMMDD-XXX
         $today = now()->format('Ymd');
         $lastOrder = Order::where('order_number', 'like', "INV-{$today}-%")->orderBy('id', 'desc')->first();
         $seq = $lastOrder ? (intval(substr($lastOrder->order_number, -3)) + 1) : 1;
         $orderNumber = "INV-{$today}-" . str_pad($seq, 3, '0', STR_PAD_LEFT);
 
-        // 5. Update user info jika login
         if (Auth::check()) {
             $user = Auth::user();
             $user->update([
@@ -117,7 +214,6 @@ class ShopController extends Controller
             $userId = null;
         }
 
-        // Generate VA number
         $bankPrefixes = ['BCA' => '88008', 'BRI' => '88009', 'BNI' => '88010', 'Mandiri' => '88011'];
         $selectedBank = null;
         $vaNumber = null;
@@ -127,18 +223,14 @@ class ShopController extends Controller
             $vaNumber = $prefix . str_pad((Order::max('id') ?? 0) + 1, 6, '0', STR_PAD_LEFT);
         }
 
-        // 6. Simpan ke database (transaction untuk keamanan)
         DB::transaction(function () use ($orderNumber, $userId, $grandTotal, $shippingCost, $request, $validatedItems, $vaNumber, $selectedBank, &$order) {
-            // Build notes with landmark
             $orderNotes = '';
             if ($request->filled('landmark')) {
                 $orderNotes = 'Patokan: ' . $request->landmark;
             }
 
-            // VA expiry: 24 jam
             $vaExpiresAt = now()->addHours(24);
 
-            // Buat Order
             $order = Order::create([
                 'user_id'         => $userId,
                 'order_number'    => $orderNumber,
@@ -153,21 +245,34 @@ class ShopController extends Controller
                 'notes'           => $orderNotes,
             ]);
 
-            // Buat OrderItems + kurangi stok
             foreach ($validatedItems as $item) {
+                $productName = $item['product']->name;
+                if ($item['variant_label']) {
+                    $productName .= " ({$item['variant_label']})";
+                }
+
                 OrderItem::create([
-                    'order_id'     => $order->id,
-                    'product_id'   => $item['product']->id,
-                    'product_name' => $item['product']->name,
-                    'quantity'     => $item['qty'],
-                    'price'        => $item['product']->price,
-                    'subtotal'     => $item['subtotal'],
+                    'order_id'      => $order->id,
+                    'product_id'    => $item['product']->id,
+                    'variant_id'    => $item['variant_id'],
+                    'variant_label' => $item['variant_label'],
+                    'product_name'  => $productName,
+                    'quantity'      => $item['qty'],
+                    'price'         => $item['price'],
+                    'subtotal'      => $item['subtotal'],
                 ]);
-                $item['product']->decrement('stock', $item['qty']);
-                StockMutation::log($item['product'], 'order', $item['qty'], 'Pesanan #' . $orderNumber);
+
+                if ($item['variant_id']) {
+                    ProductVariant::find($item['variant_id'])->decrement('stock', $item['qty']);
+                    $prod = $item['product'];
+                    $prod->decrement('stock', $item['qty']);
+                    StockMutation::log($prod, 'order', $item['qty'], 'Pesanan #' . $orderNumber . ' (' . $item['variant_label'] . ')');
+                } else {
+                    $item['product']->decrement('stock', $item['qty']);
+                    StockMutation::log($item['product'], 'order', $item['qty'], 'Pesanan #' . $orderNumber);
+                }
             }
 
-            // Activity Log
             ActivityLog::create([
                 'user_id'     => $userId,
                 'action'      => 'order_created',
@@ -177,7 +282,6 @@ class ShopController extends Controller
             ]);
         });
 
-        // 7. Redirect ke halaman pembayaran
         return redirect()->route('payment.page', $order->id);
     }
 
@@ -196,18 +300,19 @@ class ShopController extends Controller
             ->where('user_id', Auth::id())
             ->firstOrFail();
 
-        // Auto-expire jika VA sudah kadaluarsa
         $expired = false;
         if ($order->status === 'pending' && $order->va_expires_at && now()->gt($order->va_expires_at)) {
             $order->update([
                 'status' => 'batal',
                 'cancel_reason' => 'VA expired',
             ]);
-            // Restore stock
             foreach ($order->items as $item) {
                 $product = Product::find($item->product_id);
                 if ($product) {
                     $product->increment('stock', $item->quantity);
+                    if ($item->variant_id) {
+                        ProductVariant::find($item->variant_id)->increment('stock', $item->quantity);
+                    }
                     StockMutation::log($product, 'expired', $item->quantity, 'VA expired #' . $order->order_number);
                 }
             }
@@ -237,7 +342,6 @@ class ShopController extends Controller
             return redirect()->back()->with('error', 'Pesanan ini sudah diproses.');
         }
 
-        // Langsung set ke proses (seperti admin confirm payment)
         $order->update(['status' => 'proses']);
 
         ActivityLog::create([
@@ -259,6 +363,16 @@ class ShopController extends Controller
                 ->first();
         }
         return view('customer.success', compact('order'));
+    }
+
+    public function invoice($id)
+    {
+        $order = Order::with(['items.product', 'user'])->where('id', $id)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        $pdf = Pdf::loadView('admin.invoice', compact('order'));
+        return $pdf->download('INVOICE-' . $order->order_number . '.pdf');
     }
 
     // --- AUTH ---
@@ -357,7 +471,7 @@ class ShopController extends Controller
         return redirect()->back()->with('success', 'Bukti bayar terkirim. Menunggu konfirmasi admin.');
     }
 
-    // --- PESANAN SAYA (hanya pesanan aktif) ---
+    // --- PESANAN SAYA ---
     public function history()
     {
         $activeStatuses = ['pending', 'proses', 'dikirim', 'minta_batal', 'minta_refund'];
@@ -369,7 +483,7 @@ class ShopController extends Controller
         return view('customer.history', compact('orders'));
     }
 
-    // --- RIWAYAT TRANSAKSI (pesanan final: selesai, batal, refund) ---
+    // --- RIWAYAT TRANSAKSI ---
     public function riwayat()
     {
         $finalStatuses = ['selesai', 'batal', 'refund'];
@@ -429,16 +543,16 @@ class ShopController extends Controller
             'product_id' => 'required|exists:products,id',
             'rating'     => 'required|integer|min:1|max:5',
             'comment'    => 'nullable|string|max:1000',
+            'images'     => 'nullable|array|max:5',
+            'images.*'   => 'image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
-        // Pastikan order milik user & status selesai
         $order = Order::where('id', $request->order_id)
             ->where('user_id', Auth::id())
             ->where('status', 'selesai')
             ->firstOrFail();
 
-        // Cek sudah pernah review belum
-        $exists = \App\Models\Review::where('user_id', Auth::id())
+        $exists = Review::where('user_id', Auth::id())
             ->where('product_id', $request->product_id)
             ->where('order_id', $request->order_id)
             ->exists();
@@ -447,14 +561,26 @@ class ShopController extends Controller
             return redirect()->back()->with('error', 'Kamu sudah memberikan review untuk produk ini.');
         }
 
-        \App\Models\Review::create([
-            'user_id'    => Auth::id(),
-            'product_id' => $request->product_id,
-            'order_id'   => $request->order_id,
-            'rating'     => $request->rating,
-            'comment'    => $request->comment,
-        ]);
+        DB::transaction(function () use ($request) {
+            $review = Review::create([
+                'user_id'    => Auth::id(),
+                'product_id' => $request->product_id,
+                'order_id'   => $request->order_id,
+                'rating'     => $request->rating,
+                'comment'    => $request->comment,
+            ]);
 
-        return redirect()->back()->with('success', '⭐ Review berhasil dikirim! Terima kasih.');
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $img) {
+                    $path = $img->store('reviews', 'uploads');
+                    ReviewImage::create([
+                        'review_id' => $review->id,
+                        'image'     => $path,
+                    ]);
+                }
+            }
+        });
+
+        return redirect()->back()->with('success', '⭐ Review + foto berhasil dikirim! Terima kasih.');
     }
 }

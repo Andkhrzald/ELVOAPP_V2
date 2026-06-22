@@ -17,7 +17,7 @@ class ProductExport
         ];
 
         foreach ($products as $p) {
-            $soldQty = $p->orderItems()->whereHas('order', fn($q) => $q->whereIn('status', ['selesai', 'dikirim']))->sum('quantity');
+            $soldQty = \App\Models\OrderItem::where('product_id', $p->id)->whereHas('order', fn($q) => $q->whereIn('status', ['selesai', 'dikirim']))->sum('quantity');
             $rows[] = [
                 '#ELV-' . str_pad($p->id, 4, '0', STR_PAD_LEFT),
                 $p->name,

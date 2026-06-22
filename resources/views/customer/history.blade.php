@@ -81,6 +81,7 @@
                         </div>
                         <div class="flex-1 min-w-0">
                             <p class="text-[10px] font-bold text-white truncate">{{ $item->product_name }}</p>
+                            @if($item->variant_label)<p class="text-[8px] text-elvo-primary/70 font-bold">{{ $item->variant_label }}</p>@endif
                             <p class="text-[8px] text-gray-500">{{ $item->quantity }} × Rp {{ number_format($item->price, 0, ',', '.') }}</p>
                         </div>
                         <p class="text-[10px] font-black text-white shrink-0">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</p>
@@ -122,7 +123,7 @@
                         <p class="text-sm font-black text-white">Rp {{ number_format($order->total_price, 0, ',', '.') }}</p>
                     </div>
                     <div class="flex items-center gap-1.5">
-                        <a href="{{ route('admin.orders.invoice', $order->id) }}" class="px-3 py-1.5 rounded-lg text-[7px] font-bold text-gray-400 hover:text-white border border-white/[0.08] hover:bg-white/5 uppercase tracking-widest transition">Invoice</a>
+                        <a href="{{ route('orders.invoice', $order->id) }}" class="px-3 py-1.5 rounded-lg text-[7px] font-bold text-gray-400 hover:text-white border border-white/[0.08] hover:bg-white/5 uppercase tracking-widest transition">Invoice</a>
                         @if($order->status === 'pending')
                         <a href="{{ route('payment.page', $order->id) }}" class="px-3 py-1.5 rounded-lg bg-elvo-primary text-white text-[7px] font-black uppercase tracking-widest hover:bg-[#6a5cd8] transition">Bayar</a>
                         @endif

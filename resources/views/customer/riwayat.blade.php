@@ -76,6 +76,7 @@
                         </div>
                         <div class="flex-1 min-w-0">
                             <p class="text-[10px] font-bold text-white truncate">{{ $item->product_name }}</p>
+                            @if($item->variant_label)<p class="text-[8px] text-elvo-primary/70 font-bold">{{ $item->variant_label }}</p>@endif
                             <p class="text-[8px] text-gray-500">{{ $item->quantity }} × Rp {{ number_format($item->price, 0, ',', '.') }}</p>
                         </div>
                         <div class="flex items-center gap-1.5 shrink-0">
@@ -131,7 +132,7 @@
                     </div>
                     <div class="flex items-center gap-1.5">
                         <span class="text-[7px] text-gray-600 uppercase tracking-widest">{{ $order->payment_method === 'bank_transfer' ? 'TRANSFER' : ($order->payment_method === 'qris' ? 'QRIS' : strtoupper(str_replace('_', ' ', $order->payment_method ?? '-'))) }}</span>
-                        <a href="{{ route('admin.orders.invoice', $order->id) }}" class="px-3 py-1.5 rounded-lg text-[7px] font-bold text-gray-400 hover:text-white border border-white/[0.08] hover:bg-white/5 uppercase tracking-widest transition">Invoice</a>
+                        <a href="{{ route('orders.invoice', $order->id) }}" class="px-3 py-1.5 rounded-lg text-[7px] font-bold text-gray-400 hover:text-white border border-white/[0.08] hover:bg-white/5 uppercase tracking-widest transition">Invoice</a>
                     </div>
                 </div>
             </div>
@@ -147,7 +148,7 @@
     <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-[#0f0f0f] border border-white/10 rounded-3xl p-8">
         <h2 class="text-lg font-black uppercase tracking-tight text-white mb-1">Beri Review</h2>
         <p class="text-xs text-gray-500 mb-6" id="review-product-name">-</p>
-        <form id="review-form" action="{{ route('reviews.store') }}" method="POST">
+        <form id="review-form" action="{{ route('reviews.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
             <input type="hidden" name="order_id" id="review-order-id">
             <input type="hidden" name="product_id" id="review-product-id">
@@ -168,6 +169,18 @@
             <textarea name="comment" rows="3" placeholder="Tulis ulasan kamu..."
                 class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-gray-600 resize-none focus:ring-1 focus:ring-yellow-500"></textarea>
 
+            {{-- Photo Upload --}}
+            <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 mt-4">Foto Unboxing (Maks. 5)</label>
+            <div class="flex items-center gap-2 mb-2" id="review-image-previews"></div>
+            <label class="flex items-center justify-center w-full h-20 border-2 border-dashed border-white/10 rounded-xl cursor-pointer hover:border-white/30 transition group" id="upload-label">
+                <div class="flex flex-col items-center">
+                    <svg class="w-5 h-5 text-gray-600 group-hover:text-white transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    <span class="text-[8px] text-gray-600 mt-1 font-bold uppercase tracking-widest">Tambah Foto</span>
+                </div>
+                <input type="file" name="images[]" id="review-images-input" multiple accept="image/jpeg,image/png,image/jpg,image/webp" class="hidden" onchange="previewReviewImages(this)">
+            </label>
+            <p class="text-[9px] text-gray-600 mt-1" id="image-count">0/5 foto</p>
+
             <div class="flex gap-3 mt-6">
                 <button type="button" onclick="closeReviewModal()" class="flex-1 py-3 bg-white/5 text-gray-400 rounded-full font-black text-[10px] uppercase tracking-widest">Batal</button>
                 <button type="submit" class="flex-1 py-3 bg-yellow-500 text-black rounded-full font-black text-[10px] uppercase tracking-widest hover:bg-yellow-400 transition">⭐ Kirim Review</button>
@@ -183,11 +196,17 @@
 </style>
 
 <script>
+let reviewFiles = [];
+
 function openReviewModal(orderId, productId, productName) {
     document.getElementById('review-order-id').value = orderId;
     document.getElementById('review-product-id').value = productId;
     document.getElementById('review-product-name').textContent = productName;
     setRating(5);
+    reviewFiles = [];
+    document.getElementById('review-image-previews').innerHTML = '';
+    document.getElementById('image-count').textContent = '0/5 foto';
+    document.getElementById('review-images-input').value = '';
     document.getElementById('review-modal').classList.remove('hidden');
 }
 function closeReviewModal() { document.getElementById('review-modal').classList.add('hidden'); }
@@ -197,6 +216,62 @@ function setRating(n) {
         btn.classList.toggle('text-yellow-500', parseInt(btn.dataset.star) <= n);
         btn.classList.toggle('text-gray-700', parseInt(btn.dataset.star) > n);
     });
+}
+
+function previewReviewImages(input) {
+    const container = document.getElementById('review-image-previews');
+    const count = document.getElementById('image-count');
+    const dt = new DataTransfer();
+    const existingFiles = Array.from(reviewFiles);
+    const newFiles = Array.from(input.files).slice(0, 5 - existingFiles.length);
+    
+    reviewFiles = [...existingFiles, ...newFiles];
+    reviewFiles.slice(0, 5).forEach((file, i) => {
+        dt.items.add(file);
+    });
+    input.files = dt.files;
+    
+    container.innerHTML = '';
+    reviewFiles.slice(0, 5).forEach((file, i) => {
+        const reader = new FileReader();
+        reader.onload = e => {
+            const div = document.createElement('div');
+            div.className = 'relative w-16 h-16 rounded-xl overflow-hidden border border-white/10 flex-shrink-0';
+            div.innerHTML = `
+                <img src="${e.target.result}" class="w-full h-full object-cover">
+                <button type="button" onclick="removeReviewImage(${i})" class="absolute top-0.5 right-0.5 w-4 h-4 bg-red-500/80 rounded-full text-white text-[7px] flex items-center justify-center font-bold hover:bg-red-600 transition">×</button>
+            `;
+            container.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+    });
+    count.textContent = `${Math.min(reviewFiles.length, 5)}/5 foto`;
+}
+
+function removeReviewImage(index) {
+    reviewFiles.splice(index, 1);
+    const input = document.getElementById('review-images-input');
+    const dt = new DataTransfer();
+    reviewFiles.slice(0, 5).forEach(f => dt.items.add(f));
+    input.files = dt.files;
+    
+    const container = document.getElementById('review-image-previews');
+    const count = document.getElementById('image-count');
+    container.innerHTML = '';
+    reviewFiles.slice(0, 5).forEach((file, i) => {
+        const reader = new FileReader();
+        reader.onload = e => {
+            const div = document.createElement('div');
+            div.className = 'relative w-16 h-16 rounded-xl overflow-hidden border border-white/10 flex-shrink-0';
+            div.innerHTML = `
+                <img src="${e.target.result}" class="w-full h-full object-cover">
+                <button type="button" onclick="removeReviewImage(${i})" class="absolute top-0.5 right-0.5 w-4 h-4 bg-red-500/80 rounded-full text-white text-[7px] flex items-center justify-center font-bold hover:bg-red-600 transition">×</button>
+            `;
+            container.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+    });
+    count.textContent = `${reviewFiles.length}/5 foto`;
 }
 
 // Auto-hide toasts

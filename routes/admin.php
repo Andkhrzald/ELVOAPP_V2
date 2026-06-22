@@ -22,6 +22,9 @@ Route::get('/products/edit/{id}', [ProductController::class, 'edit'])->name('pro
 Route::put('/products/update/{id}', [ProductController::class, 'update'])->name('products.update');
 Route::patch('/products/toggle-status/{id}', [ProductController::class, 'toggleStatus'])->name('products.toggle-status');
 Route::delete('/products/destroy/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
+Route::delete('/products/images/{id}', [ProductController::class, 'destroyImage'])->name('products.images.destroy');
+Route::post('/products/images/{id}/primary', [ProductController::class, 'setPrimaryImage'])->name('products.images.primary');
+Route::delete('/products/variants/{id}', [ProductController::class, 'destroyVariant'])->name('products.variants.destroy');
 
 // 3. Categories (admin & owner)
 Route::get('/categories', [CategoryController::class, 'index'])->name('categories');

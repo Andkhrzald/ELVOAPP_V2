@@ -11,19 +11,22 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        $categories = Category::withCount('products')->latest()->paginate(20);
-        return view('admin.categories', compact('categories'));
+        $categories = Category::with('parent')->withCount('products')->latest()->get();
+        $parentCategories = Category::parents()->orderBy('name')->get();
+        return view('admin.categories', compact('categories', 'parentCategories'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255|unique:categories,name',
+            'parent_id' => 'nullable|exists:categories,id',
         ]);
 
         Category::create([
             'name' => $request->name,
             'slug' => Str::slug($request->name),
+            'parent_id' => $request->parent_id ?: null,
         ]);
 
         return redirect()->route('admin.categories')->with('success', 'Kategori berhasil ditambahkan!');
@@ -34,11 +37,13 @@ class CategoryController extends Controller
         $category = Category::findOrFail($id);
         $request->validate([
             'name' => 'required|string|max:255|unique:categories,name,' . $id,
+            'parent_id' => 'nullable|exists:categories,id',
         ]);
 
         $category->update([
             'name' => $request->name,
             'slug' => Str::slug($request->name),
+            'parent_id' => $request->parent_id ?: null,
         ]);
 
         return redirect()->route('admin.categories')->with('success', 'Kategori berhasil diperbarui!');
@@ -50,9 +55,10 @@ class CategoryController extends Controller
 
         if ($category->products_count > 0) {
             return redirect()->route('admin.categories')
-                ->with('error', 'Kategori tidak bisa dihapus karena masih memiliki ' . $category->products_count . ' produk. Pindahkan dulu produk ke kategori lain.');
+                ->with('error', 'Kategori tidak bisa dihapus karena masih memiliki ' . $category->products_count . ' produk.');
         }
 
+        Category::where('parent_id', $id)->update(['parent_id' => null]);
         $category->delete();
         return redirect()->route('admin.categories')->with('success', 'Kategori berhasil dihapus!');
     }

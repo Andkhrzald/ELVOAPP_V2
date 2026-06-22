@@ -12,12 +12,14 @@ use App\Http\Controllers\Customer\ShopController;
 Route::get('/', function () { return view('customer.home'); })->name('home');
 
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
+Route::get('/product/{slug}', [ShopController::class, 'detail'])->name('product.detail');
 Route::get('/checkout', [ShopController::class, 'checkout'])->name('checkout');
 Route::post('/checkout', [ShopController::class, 'processCheckout'])->name('checkout.process');
 Route::get('/checkout/success', [ShopController::class, 'success'])->name('checkout.success');
 Route::get('/payment/{orderId}', [ShopController::class, 'payment'])->name('payment.page');
 Route::get('/payment/{orderId}/check', [ShopController::class, 'checkPaymentStatus'])->name('payment.check');
 Route::post('/payment/{orderId}/force-complete', [ShopController::class, 'forceComplete'])->name('payment.force-complete');
+Route::get('/orders/{id}/invoice', [ShopController::class, 'invoice'])->name('orders.invoice');
 
 // AUTH
 Route::get('/login', [ShopController::class, 'login'])->name('login');
@@ -52,3 +54,9 @@ Route::get('/api/products', function () {
         ->where('is_active', true)
         ->get();
 })->name('api.products');
+
+// API: Get product variants
+Route::get('/api/products/{id}/variants', [ShopController::class, 'getVariants'])->name('api.products.variants');
+
+// API: Check variant stock
+Route::get('/api/variants/{id}/stock', [ShopController::class, 'checkVariantStock'])->name('api.variants.stock');

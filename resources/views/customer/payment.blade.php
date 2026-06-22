@@ -185,6 +185,7 @@
                             </div>
                             <div class="flex-1 min-w-0">
                                 <p class="text-[9px] font-bold uppercase tracking-widest truncate text-white">{{ $item->product_name }}</p>
+                                @if($item->variant_label)<p class="text-[8px] text-elvo-primary/70 font-bold">{{ $item->variant_label }}</p>@endif
                                 <p class="text-[8px] text-gray-500">{{ $item->quantity }} × Rp {{ number_format($item->price, 0, ',', '.') }}</p>
                             </div>
                             <span class="text-[9px] font-black text-white">Rp {{ number_format($item->subtotal, 0, ',', '.') }}</span>

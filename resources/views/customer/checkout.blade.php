@@ -109,15 +109,15 @@
                         <div class="border-t border-white/[0.06] pt-3 space-y-1.5">
                             <div class="flex justify-between text-[9px]">
                                 <span class="text-gray-500 font-bold uppercase tracking-widest">Subtotal</span>
-                                <span class="text-white font-black" id="checkout-subtotal">IDR 0</span>
+                                <span class="text-white font-black" id="checkout-subtotal">Rp 0</span>
                             </div>
                             <div class="flex justify-between text-[9px]">
                                 <span class="text-gray-500 font-bold uppercase tracking-widest">Ongkir</span>
-                                <span class="text-white font-black" id="checkout-shipping">IDR {{ number_format(\App\Models\Setting::getValue('shipping_cost', '20000'), 0, ',', '.') }}</span>
+                                <span class="text-white font-black" id="checkout-shipping">Rp {{ number_format(\App\Models\Setting::getValue('shipping_cost', '20000'), 0, ',', '.') }}</span>
                             </div>
                             <div class="flex justify-between text-sm pt-2 border-t border-white/[0.06]">
                                 <span class="text-white font-bold uppercase tracking-widest">Total</span>
-                                <span class="text-white font-black text-base" id="checkout-total">IDR 0</span>
+                                <span class="text-white font-black text-base" id="checkout-total">Rp 0</span>
                             </div>
                         </div>
                         <button type="submit" id="checkout-submit" disabled
@@ -140,7 +140,7 @@ function getCart() { return JSON.parse(localStorage.getItem('elvo_cart') || '[]'
 const SHIPPING_COST = {{ \App\Models\Setting::getValue('shipping_cost', '20000') }};
 
 function formatPrice(num) {
-    return 'IDR ' + Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 }
 
 function renderCheckout() {
@@ -150,8 +150,8 @@ function renderCheckout() {
     const totalEl = document.getElementById('checkout-total');
     if (cart.length === 0) {
         container.innerHTML = '<div class="text-center py-6 text-gray-600 text-[9px] uppercase tracking-widest font-bold">Cart is empty</div>';
-        subtotalEl.textContent = 'IDR 0';
-        totalEl.textContent = 'IDR 0';
+        subtotalEl.textContent = 'Rp 0';
+        totalEl.textContent = 'Rp 0';
         document.getElementById('checkout-submit').disabled = true;
         return;
     }
@@ -166,15 +166,16 @@ function renderCheckout() {
                 </div>
                 <div class="flex-1 min-w-0">
                     <p class="text-[9px] font-bold uppercase tracking-widest truncate text-white">${item.name}</p>
-                    <p class="text-[8px] text-gray-500">${item.qty} × ${formatPrice(item.price)}</p>
+                    ${item.variant_label ? '<p class="text-[8px] text-elvo-primary/70 font-bold">' + item.variant_label + '</p>' : ''}
+                    <p class="text-[8px] text-gray-500">${item.qty} × Rp ${formatPrice(item.price)}</p>
                 </div>
-                <span class="text-[9px] font-black text-white">${formatPrice(item.price * item.qty)}</span>
+                    <span class="text-[9px] font-black text-white">Rp ${formatPrice(item.price * item.qty)}</span>
             </div>
         `;
     });
     container.innerHTML = html;
-    subtotalEl.textContent = formatPrice(subtotal);
-    totalEl.textContent = formatPrice(subtotal + SHIPPING_COST);
+    subtotalEl.textContent = 'Rp ' + formatPrice(subtotal);
+    totalEl.textContent = 'Rp ' + formatPrice(subtotal + SHIPPING_COST);
 }
 
 // Payment method toggle — show/hide bank selection
