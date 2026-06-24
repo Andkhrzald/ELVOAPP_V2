@@ -180,8 +180,11 @@
                     <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400">Total</span>
                     <span class="text-lg font-black italic" id="cart-total">Rp 0</span>
                 </div>
-                <a href="{{ route('checkout') }}" class="block w-full bg-white text-black text-center py-4 rounded-full text-[10px] font-black uppercase tracking-[0.3em] hover:bg-gray-200 transition-all duration-300">
+                <a href="{{ route('checkout') }}" id="checkout-btn" class="block w-full bg-white text-black text-center py-4 rounded-full text-[10px] font-black uppercase tracking-[0.3em] hover:bg-gray-200 transition-all duration-300">
                     Checkout Now
+                </a>
+                <a href="{{ route('shop.index') }}" id="store-btn" class="block w-full bg-white text-black text-center py-4 rounded-full text-[10px] font-black uppercase tracking-[0.3em] hover:bg-gray-200 transition-all duration-300 hidden">
+                    Belanja Sekarang
                 </a>
             </div>
         </div>
@@ -283,8 +286,13 @@
             if (cart.length === 0) {
                 container.innerHTML = '<div class="text-center py-12 text-gray-600 text-[10px] uppercase tracking-widest font-bold" id="cart-empty">Keranjang kosong</div>';
                 totalEl.textContent = 'IDR 0';
+                document.getElementById('checkout-btn').classList.add('hidden');
+                document.getElementById('store-btn').classList.remove('hidden');
                 return;
             }
+
+            document.getElementById('checkout-btn').classList.remove('hidden');
+            document.getElementById('store-btn').classList.add('hidden');
 
             let html = '';
             let grandTotal = 0;
