@@ -100,16 +100,15 @@
 
                 {{-- Size (only if needed based on category) --}}
                 @if($needsSize)
+                @php $uniqueSizes = $product->activeVariants->pluck('size')->unique()->filter(); @endphp
                 <div class="mt-3">
                     <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2">Pilih Ukuran <span id="selected-size-label" class="text-white"></span></p>
                     <div class="flex flex-wrap gap-2" id="size-selector">
-                        @foreach($product->activeVariants as $variant)
-                        <button type="button" data-size="{{ $variant->size }}" data-color="{{ $variant->color }}"
-                            data-variant-id="{{ $variant->id }}" data-stock="{{ $variant->stock }}"
-                            data-price="{{ $variant->price ?? $product->price }}"
-                            onclick="selectSize('{{ $variant->size }}', this)"
-                            class="size-btn px-4 py-2 rounded-xl border border-white/10 bg-white/5 text-sm font-bold text-gray-300 hover:border-white/30 transition-all">
-                            {{ $variant->size }}
+                        @foreach($uniqueSizes as $size)
+                        <button type="button" data-size="{{ $size }}"
+                            onclick="selectSize('{{ $size }}', this)"
+                            class="size-btn px-4 py-2 rounded-xl border border-white/10 bg-white/5 text-sm font-bold text-gray-300 pointer-events-none opacity-30 transition-all">
+                            {{ $size }}
                         </button>
                         @endforeach
                     </div>
@@ -366,19 +365,10 @@ function selectColor(color, btn) {
     if (needsSize) {
         document.querySelectorAll('.size-btn').forEach(el => {
             const btnSize = el.dataset.size;
-            const btnColor = el.dataset.color;
-            if (btnColor === color) {
-                const variant = colorVariants.find(v => v.size === btnSize);
-                if (variant && variant.stock > 0) {
-                    el.classList.remove('opacity-30', 'pointer-events-none', 'border-red-500/30');
-                    el.classList.add('border-white/10', 'hover:border-white/30');
-                    el.dataset.variantId = variant.id;
-                    el.dataset.stock = variant.stock;
-                    el.dataset.price = variant.price || productData.price;
-                } else {
-                    el.classList.add('opacity-30', 'pointer-events-none', 'border-red-500/30');
-                    el.classList.remove('border-white/10', 'hover:border-white/30');
-                }
+            const variant = colorVariants.find(v => v.size === btnSize);
+            if (variant && variant.stock > 0) {
+                el.classList.remove('opacity-30', 'pointer-events-none', 'border-red-500/30');
+                el.classList.add('border-white/10', 'hover:border-white/30');
             } else {
                 el.classList.add('opacity-30', 'pointer-events-none', 'border-red-500/30');
                 el.classList.remove('border-white/10', 'hover:border-white/30');
@@ -423,11 +413,11 @@ function selectSize(size, btn) {
     btn.classList.add('bg-white', 'text-black', 'border-white');
 
     selectedSize = size;
-    selectedVariantId = parseInt(btn.dataset.variantId);
-    selectedPrice = parseInt(btn.dataset.price);
 
-    const variant = variantsRaw.find(v => v.id === selectedVariantId);
+    const variant = variantsRaw.find(v => v.color === selectedColor && v.size === size);
     if (variant) {
+        selectedVariantId = variant.id;
+        selectedPrice = variant.price || productData.price;
         document.getElementById('selected-size-label').textContent = size;
         if (variant.image) {
             selectedImage = variant.image;
